@@ -1,0 +1,171 @@
+from datetime import datetime
+import typing as t
+import sqlalchemy as sa
+import sqlalchemy.dialects.postgresql as sa_postgresql
+
+from .base import METADATA, begin_connection
+from init import TZ
+from config import config
+
+
+class ReportRow(t.Protocol):
+    id: int
+    b: int
+    c: int
+    d: int
+    e: int
+    f: int
+    g: int
+    h: int
+    i: int
+    j: int
+    k: int
+    l: list[str]
+    m: str
+    n: str
+    o: int
+    p: str
+    q: str
+    r: int
+    in_google: bool
+    row_num: int
+
+
+ReportTable: sa.Table = sa.Table(
+    "report_ggl",
+    METADATA,
+
+    sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
+    sa.Column('b', sa.Integer, default=0),
+    sa.Column('c', sa.Integer, default=0),
+    sa.Column('d', sa.Integer, default=0),
+    sa.Column('e', sa.Integer, default=0),
+    sa.Column('f', sa.Integer, default=0),
+    sa.Column('g', sa.Integer, default=0),
+    sa.Column('h', sa.Integer, default=0),
+    sa.Column('i', sa.Integer, default=0),
+    sa.Column('j', sa.Integer, default=0),
+    sa.Column('k', sa.Integer, default=0),
+    sa.Column('l', sa.ARRAY(sa.String(255))),
+    sa.Column('m', sa.Text),
+    sa.Column('n', sa.String(255)),
+    sa.Column('o', sa.Integer),
+    sa.Column('p', sa.String(255)),
+    sa.Column('q', sa.String(255)),
+    sa.Column('r', sa.Integer),
+    sa.Column('in_google', sa.Boolean),
+    sa.Column('row_num', sa.Integer),
+    sa.Column ('time_update', sa.DateTime (timezone=True), default=datetime.now (TZ).replace (microsecond=0))
+)
+
+
+# посмотреть траты курьера
+async def get_reports_all_dlv(dlv_name: str = None, get_wait_update: bool = False) -> tuple[ReportRow]:
+    query = ReportTable.select()
+
+    if get_wait_update:
+        query = query.where (ReportTable.c.in_google == False)
+
+    if dlv_name:
+        query = query.where (ReportTable.c.n == dlv_name)
+
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+    return result.all()
+
+
+# возвращает запись из отчёта
+async def get_report_dlv(dlv_name: str, exp_date: str = None) -> t.Optional[ReportRow]:
+    query = ReportTable.select().where(ReportTable.c.n == dlv_name)
+    if exp_date:
+        query = query.where(ReportTable.c.m == exp_date)
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+    return result.first()
+
+
+# возвращает запись из отчёта
+async def get_last_updated_report() -> t.Optional[ReportRow]:
+    query = ReportTable.select().where(ReportTable.c.in_google == False).order_by(ReportTable.c.time_update)
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+    return result.first()
+
+
+# добавляет трату
+# m - дата, n - курьер, l - комментарий, b-k - суммы
+async def add_report_row(
+        entry_id: int = 0,
+        b: int = 0,
+        c: int = 0,
+        d: int = 0,
+        e: int = 0,
+        f: int = 0,
+        g: int = 0,
+        h: int = 0,
+        i: int = 0,
+        k: int = 0,
+        l: list [str] = None,
+        m: str = None,
+        n: str = None,
+        o: int = 0,
+        p: str = None,
+        q: str = None,
+        r: int = 0,
+        add_row: bool = False,
+        updated: bool = False,
+        row_num: int = 0
+) -> None:
+    query = ReportTable.insert().values(
+        id=entry_id,
+        b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
+        row_num=row_num,
+        in_google=False
+    )
+    async with begin_connection() as conn:
+        await conn.execute(query)
+
+
+# обновляет трату
+# m - дата, n - курьер, l - комментарий, b-k - суммы
+async def update_expenses_dlv(
+        entry_id: int,
+        b: int = 0,
+        c: int = 0,
+        d: int = 0,
+        e: int = 0,
+        f: int = 0,
+        g: int = 0,
+        h: int = 0,
+        i: int = 0,
+        k: int = 0,
+        l: list[str] = None,
+        m: str = None,
+        n: str = None,
+        o: int = 0,
+        p: str = None,
+        q: str = None,
+        r: int = 0,
+        add_row: bool = False,
+        updated: bool = False,
+        row_num: int = 0
+) -> None:
+    query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (in_google=updated)
+
+    if add_row:
+        query = query.values(
+            b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
+            in_google=updated,
+            time_update=datetime.now(TZ).replace(microsecond=0),
+            row_num=row_num
+        )
+    async with begin_connection() as conn:
+        await conn.execute(query)
+
+
+# очищает таблицу трат
+async def clear_report_table() -> None:
+    query = ReportTable.delete()
+    async with begin_connection() as conn:
+        await conn.execute(query)
+
