@@ -1,4 +1,6 @@
 from aiogram.types import Message
+from aiogram.filters import StateFilter
+from aiogram.fsm.state import default_state
 
 import db
 import keyboards as kb
@@ -8,7 +10,7 @@ from enums import UserRole, SearchType, OrderStatus
 
 
 # поиск заказов
-@dp.message()
+@dp.message(StateFilter(default_state))
 async def search(msg: Message):
     user_info = await db.get_user_info(msg.from_user.id)
     if not user_info:
