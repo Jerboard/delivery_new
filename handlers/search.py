@@ -32,9 +32,10 @@ async def search(msg: Message):
         if user_info.role == UserRole.DLV.value:
             counter = 0
             for order in orders:
+                # получим t другим способом
                 try:
                     text = txt.get_order_text(order)
-
+                    print(order.g in [OrderStatus.NEW.value, OrderStatus.TAKE.value], order.g)
                     if order.f == user_info.name and order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
                         counter += 1
                         await msg.answer(text, reply_markup=kb.get_dlv_main_order_kb(

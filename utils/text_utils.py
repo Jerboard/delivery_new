@@ -10,7 +10,11 @@ def get_order_text(order_info: db.OrderRow) -> str:
     if order_info.q == 0 and prepay != 0:
         cost = 0
     else:
-        cost = order_info.q + order_info.r + order_info.t - order_info.y
+        # print (type (order_info.q), order_info.q)
+        # print (type (order_info.r), order_info.r)
+        # print (type (order_info.t), order_info.t)
+        # print (type (order_info.y), order_info.y)
+        cost = order_info.q + order_info.r + order_info.clmn_t - order_info.y
 
     text = f'Заказ от: {order_info.j} \n' \
            f'Оператор: {order_info.k}\n' \
@@ -32,19 +36,19 @@ def get_admin_order_text(order_info: db.OrderRow) -> str:
     if order_info.q == 0 and prepay != 0:
         cost = 0
     else:
-        cost = order_info.q + order_info.r + order_info.t - order_info.y
+        cost = order_info.q + order_info.r + order_info.clmn_t - order_info.y
 
     text = (f'Когда выдан: {order_info.i}\n'
             f'Исполнитель: {order_info.f}\n\n'
             f'Оператор: {order_info.k}\n'
             f'ФИО: {order_info.m}\n'
             f'Номер: <code>{order_info.n}</code>  <code>{order_info.o}</code>\n'
-            f'Доставка: {order_info.t}\n'
+            f'Доставка: {order_info.clmn_t}\n'
             f'Адрес: {order_info.x}\n\n'
             f'Цена: {order_info.q} \n'
             f'Наценка: {order_info.r}\n'
             f'Доп: {order_info.s}\n'
-            f'Доставка: {order_info.t}\n\n'
+            f'Доставка: {order_info.clmn_t}\n\n'
             f'СБЕР | Тинькофф: {order_info.u + order_info.v}\n'
             f'Курьеру к оплате: {cost} + {order_info.s}\n'
             f'Курьерская: {order_info.ac} ({order_info.f})\n'

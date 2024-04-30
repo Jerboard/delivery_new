@@ -250,7 +250,7 @@ async def update_google_row() -> None:
                     str(order.m) if order.m else '', str(order.n) if order.n else '',
                     str(order.o) if order.o else '', str(order.p) if order.p else '',
                     str(order.q) if order.q else '', str(order.r) if order.r else '',
-                    str(order.s) if order.s else '', str(order.t) if order.t else '',
+                    str(order.s) if order.s else '', str(order.clmn_t) if order.clmn_t else '',
                     str(order.u) if order.u else '', str(order.v) if order.v else '',
                     str(order.w) if order.w else '', str(order.x) if order.x else '',
                     str(order.y) if order.y else '', str(order.z) if order.z else ''

@@ -34,7 +34,7 @@ async def dlv_order_2(cb: CallbackQuery):
         if order.q == 0 and prepay != 0:
             cost = 0
         else:
-            cost = order.q + order.r + order.t - order.y
+            cost = order.q + order.r + order.clmn_t - order.y
 
         comment = f'({order.ab})' if order.ab is not None else ''
         row_text = f'{order.g} {order.n}  {cost} + {order.s} {order.w} {comment}\n'

@@ -1,5 +1,5 @@
 from datetime import datetime, date
-import typing as t
+import typing as tp
 
 import sqlalchemy as sa
 
@@ -8,7 +8,7 @@ from init import TZ
 from enums.base_enum import SearchType
 
 
-class OrderRow(t.Protocol):
+class OrderRow(tp.Protocol):
     id: int
     b: str
     c: str
@@ -28,7 +28,7 @@ class OrderRow(t.Protocol):
     q: int
     r: int
     s: int
-    t: int
+    clmn_t: int
     u: int
     v: int
     w: str
@@ -73,7 +73,7 @@ OrderTable: sa.Table = sa.Table(
     sa.Column('q', sa.Integer),
     sa.Column('r', sa.Integer),
     sa.Column('s', sa.Integer),
-    sa.Column('t', sa.Integer),
+    sa.Column('clmn_t', sa.Integer),
     sa.Column('u', sa.Integer),
     sa.Column('v', sa.Integer),
     sa.Column('w', sa.String(255)),
@@ -156,7 +156,7 @@ async def add_row(
         q=q,
         r=r,
         s=s,
-        t=t,
+        clmn_t=t,
         u=u,
         v=v,
         w=w,
@@ -243,7 +243,7 @@ async def update_row_google(
         query = query.where(OrderTable.c.y == discount)
     if all_row:
         query = query.values(a=order_id, b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
-                             q=q, r=r, s=s, t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
+                             q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
                              af=af, ag=ag, ah=ah)
 
     async with begin_connection() as conn:
@@ -274,7 +274,7 @@ async def get_orders(
 
 
 # возвращает одну строку таблицы
-async def get_order(order_id: int = 0, for_update: bool = False) -> t.Union[OrderRow, None]:
+async def get_order(order_id: int = 0, for_update: bool = False) -> tp.Union[OrderRow, None]:
     query = OrderTable.select()
 
     if order_id:
@@ -315,14 +315,14 @@ async def search_orders(search_query: str, search_on: str, comp: str = None) -> 
     query = OrderTable.select()
 
     if search_on == SearchType.PHONE:
-        query = query.where(OrderTable.c.n.like(f'%{search_query}%') or OrderTable.c.o.like(f'%{search_query}%'))
+        query = query.where(sa.or_(OrderTable.c.n.like(f'%{search_query}%'), OrderTable.c.o.like(f'%{search_query}%')))
     elif search_on == SearchType.NAME:
         query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
     elif search_on == SearchType.METRO:
         query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
 
-    if comp:
-        query = query.where(OrderTable.c.ac == comp)
+    # if comp:
+    #     query = query.where(OrderTable.c.ac == comp)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)

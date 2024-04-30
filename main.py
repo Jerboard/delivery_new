@@ -16,8 +16,9 @@ async def main() -> None:
     await set_main_menu()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
+    print ('>>>>>stop 1')
     await bot.session.close()
-    print('>>>>>stop')
+    print('>>>>>stop 2')
 
 
 if __name__ == "__main__":

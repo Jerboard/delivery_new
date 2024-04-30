@@ -8,7 +8,7 @@ class UserRole(str, Enum):
 
 
 class OrderStatus(str, Enum):
-    NEW = '-'
+    NEW = 'new'
     SUC = 'success'
     ACTIVE = 'active'
     ACTIVE_TAKE = 'active_take'
@@ -17,6 +17,8 @@ class OrderStatus(str, Enum):
     SUC_TAKE = 'success_take'
     REF_TAKE = 'refuse_take'
     NOT_COME = 'not_come'
+    REMAKE = 'remake'
+    SEND = 'send'
 
 
 class OrderAction(str, Enum):

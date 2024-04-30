@@ -9,20 +9,26 @@ company = {
 }
 
 order_status_data = {
-    OrderStatus.SUC.value: 'Доставлен',
-    OrderStatus.ACTIVE.value: 'На руках',
-    OrderStatus.ACTIVE_TAKE.value: 'На руках',
-    OrderStatus.REF.value: 'Отказ',
-    OrderStatus.TAKE.value: 'Принят',
-    OrderStatus.SUC_TAKE.value: 'Забран',
-    OrderStatus.REF_TAKE.value: 'Отказан',
-    'Доставлен': OrderStatus.SUC.value,
-    'На руках': OrderStatus.ACTIVE.value,
-    'На руках (забрать)': OrderStatus.ACTIVE_TAKE.value,
-    'Отказ': OrderStatus.REF.value,
-    'Принят': OrderStatus.TAKE.value,
-    'Забран': OrderStatus.SUC_TAKE.value,
-    'Отказан': OrderStatus.REF_TAKE.value
+    OrderStatus.NEW.value: '',
+    OrderStatus.SUC.value: 'доставлен',
+    OrderStatus.ACTIVE.value: 'на руках',
+    OrderStatus.ACTIVE_TAKE.value: 'на руках',
+    OrderStatus.REF.value: 'отказ',
+    OrderStatus.TAKE.value: 'принят',
+    OrderStatus.SUC_TAKE.value: 'забран',
+    OrderStatus.REF_TAKE.value: 'отказан',
+    OrderStatus.REMAKE.value: 'переделка',
+    OrderStatus.SEND.value: 'отправлен',
+    '': OrderStatus.NEW.value,
+    'доставлен': OrderStatus.SUC.value,
+    'на руках': OrderStatus.ACTIVE.value,
+    'на руках (забрать)': OrderStatus.ACTIVE_TAKE.value,
+    'отказ': OrderStatus.REF.value,
+    'принят': OrderStatus.TAKE.value,
+    'забран': OrderStatus.SUC_TAKE.value,
+    'отказан': OrderStatus.REF_TAKE.value,
+    'переделка': OrderStatus.REMAKE.value,
+    'отправлен': OrderStatus.SEND.value,
 }
 
 

@@ -21,7 +21,7 @@ async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
         if order.q == 0 and prepay != 0:
             cost = 0
         else:
-            cost = order.q + order.r + order.t - order.y
+            cost = order.q + order.r + order.clmn_t - order.y
 
         orders_text = (f'{orders_text}'
                        f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.aa}'
