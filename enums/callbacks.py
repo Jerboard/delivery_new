@@ -7,20 +7,24 @@ class BaseCB(str, Enum):
 
 
 class OwnerCB(str, Enum):
-    UPDATE_TABLE = 'update_table'
-    ADD_USER_DLV = 'add_user_dlv'
-    DEL_USER = 'del_user'
-    SEND_MSG = 'send_msg'
-    CHANGE_TAB = 'change_tab'
-    VIEW_FREE_ORDERS = 'view_free_orders'
-    UPDATE_USERS_TABLE = 'update_users_table'
-    ADD_USER_1 = 'add_user_1'
-    DEL_USER_1 = 'del_user_1'
-    SEND_MSG_1 = 'send_msg_1'
+    BACK = 'own_back'
+    UPDATE_TABLE = 'own_update_table'
+    DEL_USER = 'own_del_user'
+    SEND_MSG = 'own_send_msg'
+    CHANGE_TAB = 'own_change_tab'
+    VIEW_FREE_ORDERS = 'own_view_free_orders'
+    UPDATE_USERS_TABLE = 'own_update_users_table'
+    ADD_USER_1 = 'own_add_user_1'
+    ADD_USER_2 = 'own_add_user_2'
+    DEL_USER_1 = 'own_del_user_1'
+    SEND_MSG_1 = 'own_send_msg_1'
     # CHANGE_TAB_1 = 'change_tab_1'
-    VIEW_FREE_ORDERS_1 = 'view_free_orders_1'
-    UPDATE_USERS_TABLE_1 = 'update_users_table_1'
-    UPDATE_USERS_TABLE_2 = 'update_users_table_2'
+    VIEW_FREE_ORDERS_1 = 'own_view_free_orders_1'
+    UPDATE_USERS_TABLE_1 = 'own_update_users_table_1'
+    UPDATE_USERS_TABLE_2 = 'own_update_users_table_2'
+    MAKE_ORDER_EMPTY = 'own_make_order_empty'
+    TRANS_ORDER_1 = 'own_trans_order_1'
+    TRANS_ORDER_2 = 'own_trans_order_2'
 
 
 class DeliveryCB(str, Enum):

@@ -237,7 +237,7 @@ async def dlv_order_3(cb: CallbackQuery):
     order_id = int (order_id_str)
 
     user_info = await db.get_user_info(cb.from_user.id)
-    delivers = await db.get_users(exc_user_id=cb.from_user.id, company_id=user_info.company_id)
+    delivers = await db.get_users(exc_user_id=cb.from_user.id, company=user_info.company)
 
     await cb.message.edit_reply_markup(reply_markup=kb.get_transfer_order_kb(delivers, order_id))
     

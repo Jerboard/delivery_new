@@ -12,7 +12,7 @@ class config:
     token = getenv ("TOKEN")
     tz = 'Europe/Moscow'
     db_url = getenv ('DB_URL')
-    bot_name = 'DeliveryChatStatusBot'
+    bot_name = 'MatrixDeliveryBot'
     group_expenses = -1001903349475
     group_report = -1001863016934
     day_form = '%d.%m'

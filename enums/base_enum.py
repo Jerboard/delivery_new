@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class UserStatus(str, Enum):
+class UserRole(str, Enum):
     DLV = 'dlv'
     OPR = 'opr'
     OWN = 'own'
@@ -11,7 +11,7 @@ class OrderStatus(str, Enum):
     NEW = '-'
     SUC = 'success'
     ACTIVE = 'active'
-    # ACTIVE_TAKE = 'active_take'
+    ACTIVE_TAKE = 'active_take'
     REF = 'refuse'
     TAKE = 'take'
     SUC_TAKE = 'success_take'
@@ -56,3 +56,8 @@ class TypeUpdate(str, Enum):
     NOT_COME = 'not_come'
     UP_DATE = 'up_date'
 
+
+class SearchType(str, Enum):
+    PHONE = 'phone'
+    NAME = 'name'
+    METRO = 'metro'

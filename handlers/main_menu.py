@@ -7,41 +7,29 @@ import keyboards as kb
 from init import dp
 from .delivery_hnds.base_dlv import delivery_start, get_profile_dlv
 from .owner_hnds.owner_base import owner_start
-from enums import UserStatus, DeliveryStatus, BaseCB
+from data.base_data import company
+from enums import UserRole, DeliveryStatus, BaseCB
 
 
 @dp.message(CommandStart())
 async def com_start(msg: Message, state: FSMContext):
-    print(msg.text)
-    # await db.add_user (
-    #     user_id=msg.from_user.id,
-    #     full_name=msg.from_user.full_name,
-    #     username=msg.from_user.username,
-    #     status=UserStatus.OWN.value
-    # )
     await state.clear()
     user_info = await db.get_user_info(msg.from_user.id)
 
     if len(msg.text) > 6:
-        link = msg.text[-7:]
-        check_link = await db.get_temp_link(link)
+        comp_id, veryf_code, role = msg.text[7:].split('-')
+        check_link = await db.get_temp_link(veryf_code)
         if check_link:
-            if not user_info:
-                await db.add_user(
-                    user_id=msg.from_user.id,
-                    full_name=msg.from_user.full_name,
-                    username=msg.from_user.username,
-                    status=link[-3:]
-                    )
-
-            if link[-3:] == UserStatus.DLV.value:
-                await state.set_state(DeliveryStatus.REG_NAME)
-                await state.update_data(data={'comp_id': str(link).split('dlv')[1]})
-                await msg.answer('Введите ваше имя')
-
-            else:
-                text = f'Для поиска заказов отправьте номер телефона, имя получателя или часть адреса'
-                await msg.answer(text)
+            await db.add_user (
+                user_id=msg.from_user.id,
+                full_name=msg.from_user.full_name,
+                username=msg.from_user.username,
+                role=role
+            )
+            await state.set_state(DeliveryStatus.REG_NAME)
+            await state.update_data(data={'comp_id': comp_id, 'role': role})
+            await msg.answer('Введите ваше имя')
+            await db.delete_temp_link(veryf_code)
 
         else:
             await msg.answer('❌Ссылка не действительна')
@@ -50,15 +38,20 @@ async def com_start(msg: Message, state: FSMContext):
         if not user_info:
             await msg.answer('❌ У вас нет доступа. Для получения доступа обратитесь к администратору')
 
-        elif user_info.status == UserStatus.DLV.value:
-            await delivery_start(user_id=msg.from_user.id, dlv_name=user_info.name)
+        elif user_info.role == UserRole.DLV.value:
+            if user_info.name:
+                await delivery_start(user_id=msg.from_user.id, dlv_name=user_info.name)
+            else:
+                await state.set_state (DeliveryStatus.REG_NAME)
+                await state.update_data (data={'comp_id': user_info.company, 'role': user_info.role})
+                await msg.answer ('Введите ваше имя')
 
-        elif user_info.status == UserStatus.OPR.value:
+        elif user_info.role == UserRole.OPR.value:
 
             text = f'Для поиска заказов отправьте номер телефона, имя получателя или часть адреса'
             await msg.answer(text)
 
-        elif user_info.status == UserStatus.OWN.value:
+        elif user_info.role == UserRole.OWN.value:
             await owner_start(msg.from_user.id)
 
         else:
@@ -68,12 +61,14 @@ async def com_start(msg: Message, state: FSMContext):
 # регистрирует имя
 @dp.message(StateFilter(DeliveryStatus.REG_NAME))
 async def reg_dlv_1(msg: Message, state: FSMContext):
-    await state.update_data(data={'name': msg.text})
-
     data = await state.get_data()
     await state.clear()
 
-    await db.update_user_info(user_id=msg.from_user.id, dlv_name=msg.text, company_id=data.get('comp_id'))
+    await db.update_user_info(
+        user_id=msg.from_user.id,
+        name=msg.text,
+        company=company.get(data['comp_id'])
+    )
     text = f'Вы зарегистрированы. Для поиска заказов отправьте номер получателя или часть адреса сообщением'
 
     await msg.answer(text)
@@ -86,10 +81,10 @@ async def com_main(msg: Message, state: FSMContext):
 
     user_info = await db.get_user_info(msg.from_user.id)
 
-    if user_info and user_info.status == UserStatus.DLV.value:
+    if user_info and user_info.role == UserRole.DLV.value:
         await get_profile_dlv(user_id=msg.from_user.id, user_info=user_info)
 
-    elif user_info and user_info.status in [UserStatus.OPR.value, UserStatus.OWN.value]:
+    elif user_info and user_info.role in [UserRole.OPR.value, UserRole.OWN.value]:
 
         text = f'Оформить забор\n\nВыберите курьерскую'
         await msg.answer(text, reply_markup=kb.take_order_company_kb())

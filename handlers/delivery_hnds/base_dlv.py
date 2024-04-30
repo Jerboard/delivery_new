@@ -9,7 +9,7 @@ from enums import UserActions
 
 
 # старт курьера
-async def delivery_start(user_id: int, dlv_name: str, msg_id: int):
+async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
     orders = await db.get_orders(dlv_name=dlv_name, get_active=True)
 
     orders_text = ''
@@ -67,7 +67,8 @@ async def save_expenses(
     today_str = datetime.now (TZ).strftime (config.day_form)
     exp_today = await db.get_report_dlv(user_info.name, today_str)
     if exp_today:
-        update_comment = f'{exp_today.l}\n{data["comment"]}'
+        # update_comment = f'{exp_today.l}\n{data["comment"]}'
+        update_comment = exp_today.l.append(data["comment"])
         await db.update_expenses_dlv(
             entry_id=exp_today.id,
             l=update_comment,

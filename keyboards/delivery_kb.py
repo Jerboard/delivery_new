@@ -15,13 +15,30 @@ def main_dvl_kb() -> InlineKeyboardMarkup:
     return kb.adjust(2).as_markup()
 
 
-# клава для курьера свободное сообщение
-def get_dlv_main_order_kb(order_id: int) -> InlineKeyboardMarkup:
+# клава для курьера свободный заказ
+def get_free_order_kb(order_id: int, order_status: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='✅ Доставлен', callback_data=f'{DeliveryCB.DLV_ORDER_2.value}:{OrderAction.SUC.value}:{order_id}')
+    if order_status == OrderStatus.NEW.value:
+        kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.DLV_ORDER_1.value}:{order_id}')
+    else:
+        kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.TAKE_ORDER_2.value}:{order_id}')
+    return kb.adjust (1).as_markup ()
+
+
+# клава для курьера свободное сообщение
+def get_dlv_main_order_kb(order_id: int, order_status: str) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    if order_status == OrderStatus.ACTIVE.value:
+        kb.button(text='✅ Доставлен', callback_data=f'{DeliveryCB.DLV_ORDER_2.value}:{OrderAction.SUC.value}:{order_id}')
+    else:
+        kb.button(text='✅ Забрал', callback_data=f'{DeliveryCB.DLV_ORDER_4.value}:{OrderAction.SUC.value}:{order_id}')
+
     kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.DLV_ORDER_2.value}:{OrderAction.REF.value}:{order_id}')
-    kb.button(text='✖️ Клиент не явился',
-              callback_data=f'{DeliveryCB.DLV_ORDER_2.value}:{OrderStatus.NOT_COME.value}:{order_id}')
+
+    if order_status == OrderStatus.ACTIVE.value:
+        kb.button(
+            text='✖️ Клиент не явился',
+            callback_data=f'{DeliveryCB.DLV_ORDER_2.value}:{OrderStatus.NOT_COME.value}:{order_id}')
     kb.button(text='↩️ Передать другому курьеру', callback_data=f'{DeliveryCB.DLV_ORDER_3.value}:{order_id}')
     return kb.adjust(1).as_markup()
 

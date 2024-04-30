@@ -5,6 +5,7 @@ import sqlalchemy as sa
 
 from .base import METADATA, begin_connection
 from init import TZ
+from enums.base_enum import SearchType
 
 
 class OrderRow(t.Protocol):
@@ -307,6 +308,25 @@ async def delete_orders(order_id: int = 0, start_id: int = 0):
 
     async with begin_connection() as conn:
         await conn.execute(query)
+
+
+# поиск заказов
+async def search_orders(search_query: str, search_on: str, comp: str = None) -> tuple[OrderRow]:
+    query = OrderTable.select()
+
+    if search_on == SearchType.PHONE:
+        query = query.where(OrderTable.c.n.like(f'%{search_query}%') or OrderTable.c.o.like(f'%{search_query}%'))
+    elif search_on == SearchType.NAME:
+        query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
+    elif search_on == SearchType.METRO:
+        query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
+
+    if comp:
+        query = query.where(OrderTable.c.ac == comp)
+
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+    return result.all()
 
 
 # количество заказов по статусам на руках и не принят

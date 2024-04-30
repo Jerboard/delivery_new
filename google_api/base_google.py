@@ -9,6 +9,7 @@ import utils.json_utils as js
 import google_api.utils_google as ug
 from config import config
 from init import TZ, bot, log_error
+from data.base_data import order_status_data
 from enums import TypeUpdate
 
 
@@ -20,10 +21,8 @@ test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 # обновляет таблицу по команде
 async def save_new_order_table() -> None:
-    time_start = datetime.now ()
     sh = ug.get_google_connect ()
 
-    # основные параметры
     new_orders = sh.sheet1.get_all_values ()
 
     new_row = 4
@@ -38,7 +37,7 @@ async def save_new_order_table() -> None:
                     d=row [3].strip () if row [3] else None,
                     e=row [4].strip () if row [4] else None,
                     f=row [5].strip () if row [5] else None,
-                    g=row [6].strip () if row [6] else None,
+                    g=order_status_data.get(row[6].strip()),
                     h=row [7].strip () if row [7] else None,
                     i=row [8].strip () if row [8] else None,
                     j=row [9].strip () if row [9] else None,
@@ -116,7 +115,6 @@ async def update_google_table(user_id: int) -> None:
 
     # основные параметры
     new_orders = sh.sheet1.get_all_values()
-    print(datetime.now() - time_start)
     last_row = await db.get_max_row_num()
     if not last_row:
         last_row = 4
@@ -126,10 +124,7 @@ async def update_google_table(user_id: int) -> None:
     exception_list = []
 
     i = 0
-    print (datetime.now () - time_start)
     for row in new_orders[4:100]:
-        print(row)
-        print(row[13].strip() != '', row[0].isdigit())
         if row[13].strip() != '':
             i += 1
             if row[0].isdigit():
@@ -143,7 +138,7 @@ async def update_google_table(user_id: int) -> None:
                         d=row[3].strip() if row[3] else None,
                         e=row[4].strip() if row[4] else None,
                         f=row[5].strip() if row[5] else None,
-                        g=row[6].strip() if row[6] else None,
+                        g=order_status_data.get (row [6].strip ()),
                         h=row[7].strip() if row[7] else None,
                         i=row[8].strip() if row[8] else None,
                         j=row[9].strip() if row[9] else None,
@@ -187,7 +182,7 @@ async def update_google_table(user_id: int) -> None:
                         d=row[3].strip() if row[3] else None,
                         e=row[4].strip() if row[4] else None,
                         f=row[5].strip() if row[5] else None,
-                        g=row[6].strip() if row[6] else None,
+                        g=order_status_data.get (row [6].strip ()),
                         h=row[7].strip() if row[7] else None,
                         i=row[8].strip() if row[8] else None,
                         j=row[9].strip() if row[9] else None,
@@ -249,7 +244,7 @@ async def update_google_row() -> None:
                     str(order.id) if order.id else '', str(order.b) if order.b else '',
                     str(order.c) if order.c else '', str(order.d) if order.d else '',
                     str(order.e) if order.e else '', str(order.f) if order.f else '',
-                    str(order.g) if order.g else '', str(order.h) if order.h else '',
+                    order_status_data.get (order.g), str(order.h) if order.h else '',
                     str(order.i) if order.i else '', str(order.j) if order.j else '',
                     str(order.k) if order.k else '', str(order.l) if order.l else '',
                     str(order.m) if order.m else '', str(order.n) if order.n else '',
