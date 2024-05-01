@@ -29,17 +29,17 @@ async def save_new_order_table() -> None:
     rewrite_list = []
     exc_list = []
 
-    new_row = 4
+    new_row_num = 4
     # 4985 - 4978
     for row in new_orders [4:]:
-        new_row += 1
+        new_row_num += 1
         # print(row[13], row[0])
         if row [13].strip () != '' and row[0].isdigit():
             # print(f'row: {new_row} - {row[0]} :id')
             try:
                 await db.add_row (
                     empty_id=int(row[0]),
-                    row_num=new_row,
+                    row_num=new_row_num,
                     b=row [1].strip () if row [1] else None,
                     c=row [2].strip () if row [2] else None,
                     d=row [3].strip () if row [3] else None,
@@ -77,6 +77,7 @@ async def save_new_order_table() -> None:
                     updated=True
                 )
             except IntegrityError as ex:
+                row[0] = new_row_num
                 rewrite_list.append(row)
 
             except Exception as ex:
