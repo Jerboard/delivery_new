@@ -85,6 +85,7 @@ async def save_new_order_table() -> None:
                 log_error (ex, with_traceback=False)
 
     for row in rewrite_list:
+        log_error (f'Пропуск {row[0]} {row[13]}', with_traceback=False)
         try:
             await db.add_row (
                 row_num=row [0],
@@ -125,6 +126,7 @@ async def save_new_order_table() -> None:
                 updated=False
             )
         except Exception as ex:
+            log_error (f'Фейл', with_traceback=False)
             exc_list.append (row)
             log_error (ex, with_traceback=False)
 
