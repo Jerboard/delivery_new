@@ -58,6 +58,6 @@ def log_error(message, with_traceback: bool = True):
     logging.basicConfig (level=logging.WARNING, filename=log_file_path, encoding='utf-8')
     if with_traceback:
         ex_traceback = traceback.format_exc()
-        logging.warning(f'{now}\n{ex_traceback}\n{message}')
+        logging.warning(f'{now}\n{ex_traceback}\n{message}\n---------------------------------')
     else:
-        logging.warning(f'{now}\n{message}')
+        logging.warning(f'{now}\n{message}\n---------------------------------')

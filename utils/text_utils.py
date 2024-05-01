@@ -1,7 +1,7 @@
 import db
 
 from data import base_data as dt
-from enums import OrderStatus
+from enums import OrderStatus, UserRole
 
 
 # текст заказа по строке
@@ -56,6 +56,17 @@ def get_admin_order_text(order_info: db.OrderRow) -> str:
 
 
 # краткий заказ строка
-def get_short_order_row(order_info: db.OrderRow) -> str:
-    return (f'<code>{order_info.n}</code>, <code>{order_info.o}</code>  {order_info.m} {order_info.x} '
+def get_short_order_row(order_info: db.OrderRow, for_: str) -> str:
+    if for_ in [UserRole.OWN.value, UserRole.OPR.value]:
+        return (f'<code>{order_info.n}</code>, <code>{order_info.o}</code>  {order_info.m} {order_info.x} '
             f'{order_info.f} {dt.order_status_data.get(order_info.g)}\n'.replace('None', ''))
+    else:
+        prepay = order_info.u + order_info.v
+
+        if order_info.q == 0 and prepay != 0:
+            cost = 0
+        else:
+            cost = order_info.q + order_info.r + order_info.clmn_t - order_info.y
+
+        return (f'<code>{order_info.n}</code>  <code>{order_info.o}</code> {cost} + {order_info.s} {order_info.aa}'
+                f'\n---------------------------\n')

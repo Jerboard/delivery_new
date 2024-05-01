@@ -4,8 +4,8 @@ import db
 from init import bot, TZ
 from config import config
 import keyboards as kb
-from utils.base_utils import hand_digit
-from enums import UserActions
+from utils import text_utils as txt
+from enums import UserActions,UserRole
 
 
 # старт курьера
@@ -16,16 +16,7 @@ async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
     counter = 0
     for order in orders:
         counter += 1
-        prepay = order.u + order.v
-
-        if order.q == 0 and prepay != 0:
-            cost = 0
-        else:
-            cost = order.q + order.r + order.clmn_t - order.y
-
-        orders_text = (f'{orders_text}'
-                       f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.aa}'
-                       f'\n---------------------------\n')
+        orders_text += txt.get_short_order_row(order, for_=UserRole.DLV.value)
 
     text = f'{dlv_name}\n\n' \
            f'Заказы:\n' \

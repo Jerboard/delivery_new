@@ -29,7 +29,9 @@ async def save_new_order_table() -> None:
     # 4985 - 4978
     for row in new_orders [4:]:
         new_row += 1
+        # print(row[13], row[0])
         if row [13].strip () != '' and row[0].isdigit():
+            # pass
             # print(f'row: {new_row} - {row[0]} :id')
             try:
                 await db.add_row (
@@ -72,7 +74,8 @@ async def save_new_order_table() -> None:
                     updated=True
                 )
             except Exception as ex:
-                log_error (ex, with_traceback=False)
+                # log_error (ex, with_traceback=False)
+                log_error (ex)
 
 
 # сохраняет таблицу отчётов
@@ -259,9 +262,11 @@ async def update_google_row() -> None:
                 ]
             ]
             sh.sheet1.update (cell, new_row_str)
-
+            print(order.type_update == TypeUpdate.STATE.value, order.type_update)
             if order.type_update == TypeUpdate.STATE.value:
+                print(order.g)
                 color = ug.choice_color(order.g)
+                print(color)
                 cell_form = f'E{order.row_num}:G{order.row_num}'
                 sh.sheet1.format(cell_form, {"backgroundColor": color})
 

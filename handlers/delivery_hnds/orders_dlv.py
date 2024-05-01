@@ -29,9 +29,10 @@ async def dlv_order_1(cb: CallbackQuery):
         order_id=order_id,
         dlv_name=user_info.name,
         status=OrderStatus.ACTIVE.value,
-        take_date=take_date
+        take_date=take_date,
+        type_update=TypeUpdate.STATE.value
     )
-    await cb.message.edit_text(text=f'{cb.message.text}\n\n✅Принят')
+    await cb.message.edit_text(text=f'{cb.message.text}\n\n✅Принят', entities=cb.message.entities)
 
     # журнал действий
     await db.save_user_action(

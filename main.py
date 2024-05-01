@@ -8,11 +8,11 @@ from init import set_main_menu, bot, log_error
 from db.base import init_models
 from utils.schedulers_util import start_scheduler
 
-from google_api.base_google import save_new_report_table
+from google_api.base_google import save_new_order_table
 
 
 async def main() -> None:
-    # await save_new_report_table()
+    # await save_new_order_table()
     await init_models()
     await set_main_menu()
     await start_scheduler()

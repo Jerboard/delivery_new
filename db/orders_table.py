@@ -5,7 +5,7 @@ import sqlalchemy as sa
 
 from .base import METADATA, begin_connection
 from init import TZ
-from enums.base_enum import SearchType
+from enums.base_enum import SearchType, OrderStatus
 
 
 class OrderRow(tp.Protocol):
@@ -227,25 +227,27 @@ async def update_row_google(
         discount: int = None
 ):
     query = (OrderTable.update().where(OrderTable.c.id == order_id).
-             values(updated=update_row, time_update=datetime.now(TZ).replace(microsecond=0)))
+             values(updated=update_row,
+                    time_update=datetime.now(TZ).replace(microsecond=0)))
 
     if take_date:
-        query = query.where(OrderTable.c.e == take_date)
+        query = query.values(e=take_date)
     if dlv_name:
-        query = query.where(OrderTable.c.f == dlv_name)
+        query = query.values(f=dlv_name)
     if status:
-        query = query.where(OrderTable.c.g == status)
+        query = query.values(g=status)
     if note:
-        query = query.where(OrderTable.c.ab == note)
+        query = query.values(ab=note)
     if type_update:
-        query = query.where(OrderTable.c.type_update == type_update)
+        query = query.values(type_update=type_update)
     if discount:
-        query = query.where(OrderTable.c.y == discount)
+        query = query.values(y=discount)
     if all_row:
         query = query.values(a=order_id, b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
                              af=af, ag=ag, ah=ah)
 
+    print(query)
     async with begin_connection() as conn:
         await conn.execute(query)
 
@@ -259,7 +261,7 @@ async def get_orders(
     query = OrderTable.select()
 
     if get_active:
-        query = query.where(OrderTable.c.g.like('на руках%'))
+        query = query.where(sa.or_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.g == OrderStatus.ACTIVE.value))
     elif get_wait_update:
         query = query.where (OrderTable.c.updated == False)
 

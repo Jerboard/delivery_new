@@ -33,7 +33,6 @@ async def search(msg: Message):
             counter = 0
             for order in orders:
                 print(order)
-                # получим t другим способом
                 try:
                     text = txt.get_order_text(order)
                     if order.f == user_info.name and order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
@@ -81,7 +80,8 @@ async def search(msg: Message):
                 orders_text = ''
                 spt = '---------------------------\n'
                 for order in orders:
-                    orders_text = f'{orders_text}{txt.get_short_order_row(order)}{spt}'
+                    short_order = txt.get_short_order_row(order, for_=user_info.role)
+                    orders_text = f'{orders_text}{short_order}{spt}'
 
                 text = f'Заказы ({len(orders)}):\n' \
                        f'{orders_text}'
