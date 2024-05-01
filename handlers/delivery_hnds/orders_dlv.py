@@ -18,15 +18,17 @@ from enums import DeliveryCB, OrderStatus, RedisKey, UserActions, DeliveryStatus
 # кнопка взять заказ
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_1.value))
 async def dlv_order_1(cb: CallbackQuery):
-    _, row_num, order_id = map(int, cb.data.split(':')[1:])
+    # _, row_num, order_id = map(int, cb.data.split(':')[1:])
+    _, order_id_str = cb.data.split (':')
+    order_id = int (order_id_str)
 
     user_info = await db.get_user_info(cb.from_user.id)
-    status = order_status_data.get (OrderStatus.ACTIVE.value)
+    # status = order_status_data.get (OrderStatus.ACTIVE.value)
     take_date = datetime.now(TZ).date().strftime(config.day_form)
     await db.update_row_google(
         order_id=order_id,
         dlv_name=user_info.name,
-        status=status,
+        status=OrderStatus.ACTIVE.value,
         take_date=take_date
     )
     await cb.message.edit_text(text=f'{cb.message.text}\n\n✅Принят')
@@ -36,16 +38,19 @@ async def dlv_order_1(cb: CallbackQuery):
         user_id=cb.from_user.id,
         dlv_name=user_info.name,
         action=UserActions.TAKE_ORDER.value,
-        comment=f'Строка {row_num}'
+        # comment=f'Строка {row_num}'
     )
 
 
 # взять заказ на забор
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.TAKE_ORDER_2.value))
 async def dlv_order_2(cb: CallbackQuery):
-    _, row_num, order_id = map (int, cb.data.split (':') [1:])
+    # _, row_num, order_id = map (int, cb.data.split (':') [1:])
+    _, order_id_str = cb.data.split (':')
+    order_id = int (order_id_str)
 
     order = await db.get_order(order_id)
+    print(order.g)
     if not order:
         await cb.message.answer('❗️ОШИБКА. Что-то пошло не так - обратитесь к оператору')
 

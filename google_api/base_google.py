@@ -26,8 +26,11 @@ async def save_new_order_table() -> None:
     new_orders = sh.sheet1.get_all_values ()
 
     new_row = 4
-    for row in new_orders [5:]:
+    # 4985 - 4978
+    for row in new_orders [4:]:
+        new_row += 1
         if row [13].strip () != '' and row[0].isdigit():
+            # print(f'row: {new_row} - {row[0]} :id')
             try:
                 await db.add_row (
                     empty_id=int(row[0]),
@@ -45,7 +48,7 @@ async def save_new_order_table() -> None:
                     l=row [11].strip () if row [11] else None,
                     m=row [12].strip () if row [12] else None,
                     n=row [13].strip () if row [13] else None,
-                    o=row [14].strip () if row [14] else None,
+                    o=row [14].strip () if row [14] else '',
                     p=row [15].strip () if row [15] else None,
                     q=int (row [16]) if row [16] else 0,
                     r=int (row [17]) if row [17] else 0,
@@ -68,7 +71,6 @@ async def save_new_order_table() -> None:
                     type_update=TypeUpdate.ADD.value,
                     updated=True
                 )
-                new_row += 1
             except Exception as ex:
                 log_error (ex, with_traceback=False)
 
@@ -146,7 +148,7 @@ async def update_google_table(user_id: int) -> None:
                         l=row[11].strip() if row[11] else None,
                         m=row[12].strip() if row[12] else None,
                         n=row[13].strip() if row[13] else None,
-                        o=row[14].strip() if row[14] else None,
+                        o=row[14].strip() if row[14] else '',
                         p=row[15].strip() if row[15] else None,
                         q=int(row[16]) if row[16] else 0,
                         r=int(row[17]) if row[17] else 0,
@@ -190,7 +192,7 @@ async def update_google_table(user_id: int) -> None:
                         l=row[11].strip() if row[11] else None,
                         m=row[12].strip() if row[12] else None,
                         n=row[13].strip() if row[13] else None,
-                        o=row[14].strip() if row[14] else None,
+                        o=row[14].strip() if row[14] else '',
                         p=row[15].strip() if row[15] else None,
                         q=int(row[16]) if row[16] else 0,
                         r=int(row[17]) if row[17] else 0,

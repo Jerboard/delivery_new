@@ -20,7 +20,7 @@ ActionTable: sa.Table = sa.Table(
     METADATA,
 
     sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
-    sa.Column('create_at', sa.DateTime),
+    sa.Column('create_at', sa.DateTime(timezone=True)),
     sa.Column('user_id', sa.BigInteger),
     sa.Column('dlv_name', sa.String(255)),
     sa.Column('action', sa.String(255)),

@@ -16,7 +16,7 @@ async def search(msg: Message):
     if not user_info:
         await msg.answer('❌ У вас нет доступа. Для получения доступа обратитесь к администратору')
 
-    elif len(msg.text) >= 5:
+    elif len(msg.text) >= 1:
         query = msg.text.lower()
         search_on = SearchType.PHONE if query.isdigit() else SearchType.METRO
         comp = user_info.company if user_info.role == UserRole.DLV.value else None
@@ -32,10 +32,10 @@ async def search(msg: Message):
         if user_info.role == UserRole.DLV.value:
             counter = 0
             for order in orders:
+                print(order)
                 # получим t другим способом
                 try:
                     text = txt.get_order_text(order)
-                    print(order.g in [OrderStatus.NEW.value, OrderStatus.TAKE.value], order.g)
                     if order.f == user_info.name and order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
                         counter += 1
                         await msg.answer(text, reply_markup=kb.get_dlv_main_order_kb(
@@ -43,7 +43,8 @@ async def search(msg: Message):
                             order_status=order.g
                         ))
 
-                    elif order.g in [OrderStatus.NEW.value, OrderStatus.TAKE.value]:
+                    # elif order.g in [OrderStatus.NEW.value, OrderStatus.TAKE.value]:
+                    elif order.g == OrderStatus.NEW.value:
                         counter += 1
                         await msg.answer(text, reply_markup=kb.get_free_order_kb(
                             order_id=order.id,
@@ -80,7 +81,7 @@ async def search(msg: Message):
                 orders_text = ''
                 spt = '---------------------------\n'
                 for order in orders:
-                    orders_text = f'{orders_text}{txt.get_admin_order_text(order)}{spt}'
+                    orders_text = f'{orders_text}{txt.get_short_order_row(order)}{spt}'
 
                 text = f'Заказы ({len(orders)}):\n' \
                        f'{orders_text}'

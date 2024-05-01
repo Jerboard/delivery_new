@@ -1,5 +1,6 @@
 import db
 
+from data import base_data as dt
 from enums import OrderStatus
 
 
@@ -10,10 +11,6 @@ def get_order_text(order_info: db.OrderRow) -> str:
     if order_info.q == 0 and prepay != 0:
         cost = 0
     else:
-        # print (type (order_info.q), order_info.q)
-        # print (type (order_info.r), order_info.r)
-        # print (type (order_info.t), order_info.t)
-        # print (type (order_info.y), order_info.y)
         cost = order_info.q + order_info.r + order_info.clmn_t - order_info.y
 
     text = f'Заказ от: {order_info.j} \n' \
@@ -26,7 +23,7 @@ def get_order_text(order_info: db.OrderRow) -> str:
            f'Курьеру к оплате: {cost + order_info.s}\n' \
            f'Примечания: {order_info.ab} '
 
-    return text.strip()
+    return text.replace('None', '').strip()
 
 
 # текст заказа для админов
@@ -52,13 +49,13 @@ def get_admin_order_text(order_info: db.OrderRow) -> str:
             f'СБЕР | Тинькофф: {order_info.u + order_info.v}\n'
             f'Курьеру к оплате: {cost} + {order_info.s}\n'
             f'Курьерская: {order_info.ac} ({order_info.f})\n'
-            f'Статус заказа: {order_info.g}\n'
+            f'Статус заказа: {dt.order_status_data.get(order_info.g)}\n'
             f'Примечания: {order_info.ab}')
 
-    return text.strip()
+    return text.replace('None', '').strip()
 
 
 # краткий заказ строка
 def get_short_order_row(order_info: db.OrderRow) -> str:
     return (f'<code>{order_info.n}</code>, <code>{order_info.o}</code>  {order_info.m} {order_info.x} '
-            f'{order_info.f} {order_info.g}\n')
+            f'{order_info.f} {dt.order_status_data.get(order_info.g)}\n'.replace('None', ''))
