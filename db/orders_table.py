@@ -247,9 +247,10 @@ async def update_row_google(
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
                              af=af, ag=ag, ah=ah)
 
-    print(query)
     async with begin_connection() as conn:
-        await conn.execute(query)
+        result = await conn.execute(query)
+
+    return result.lastrowid
 
 
 # возвращает строки таблицы
