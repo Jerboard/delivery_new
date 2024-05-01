@@ -25,8 +25,9 @@ class OrderAction(str, Enum):
     SUC = 'success'
     NOT_COME = 'not_come'
     REF = 'refuse'
+    TRANS = 'trans'
     COST = 'edit_cost'
-    DELI = 'edit_delivery'
+    DELI = 'edit_cost_dlv'
 
 
 class RedisKey(str, Enum):
@@ -49,7 +50,7 @@ class UserActions(str, Enum):
     SEND_REPORT = 'Отправил отчёт'
 
 
-class TypeUpdate(str, Enum):
+class TypeOrderUpdate(str, Enum):
     ADD = 'add'
     ADD_OPR = 'add_opr'
     STATE = 'state'
@@ -57,6 +58,7 @@ class TypeUpdate(str, Enum):
     EDIT_COST_DELIVERY = 'edit_cost_dlv'
     NOT_COME = 'not_come'
     UP_DATE = 'up_date'
+    TRANS = 'trans'
 
 
 class SearchType(str, Enum):

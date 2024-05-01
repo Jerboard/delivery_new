@@ -14,7 +14,7 @@ from google_api.base_google import save_new_order_table, save_new_report_table
 from utils.json_utils import save_json_data
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data
-from enums import OwnerCB, OrderStatus, RedisKey, UserActions, OwnerStatus, OrderAction, TypeUpdate
+from enums import OwnerCB, OrderStatus, RedisKey, UserActions, OwnerStatus, OrderAction, TypeOrderUpdate
 
 
 # меняет рабочую таблицу. Запрашивает номер новой таблицы

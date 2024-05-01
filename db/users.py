@@ -31,7 +31,7 @@ UserTable: sa.Table = sa.Table(
 
 
 # Добавляет пользователя
-async def add_user(user_id: int, full_name: str, username: str, role: str) -> None:
+async def add_user(user_id: int, full_name: str, username: str, role: str, company: str = None) -> None:
     query = (
         sa_postgresql.insert(UserTable)
         .values(
@@ -39,6 +39,7 @@ async def add_user(user_id: int, full_name: str, username: str, role: str) -> No
             full_name=full_name,
             username=username,
             role=role,
+            company=company
         )
         .on_conflict_do_update(
             index_elements=[UserTable.c.user_id],
@@ -70,7 +71,7 @@ async def get_users(exc_user_id: int = None, company: str = None) -> tuple[UserR
     if exc_user_id:
         query = query.where(UserTable.c.user_id != exc_user_id)
     if company:
-        query = query.where(UserTable.c.comp_id == company)
+        query = query.where(UserTable.c.company == company)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)

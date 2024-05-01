@@ -24,10 +24,10 @@ async def com_start(msg: Message, state: FSMContext):
                 user_id=msg.from_user.id,
                 full_name=msg.from_user.full_name,
                 username=msg.from_user.username,
-                role=role
+                role=role,
+                company=comp_id
             )
             await state.set_state(DeliveryStatus.REG_NAME)
-            await state.update_data(data={'comp_id': comp_id, 'role': role})
             await msg.answer('Введите ваше имя')
             await db.delete_temp_link(veryf_code)
 
@@ -61,16 +61,13 @@ async def com_start(msg: Message, state: FSMContext):
 # регистрирует имя
 @dp.message(StateFilter(DeliveryStatus.REG_NAME))
 async def reg_dlv_1(msg: Message, state: FSMContext):
-    data = await state.get_data()
     await state.clear()
 
     await db.update_user_info(
         user_id=msg.from_user.id,
         name=msg.text,
-        company=company.get(data['comp_id'])
     )
     text = f'Вы зарегистрированы. Для поиска заказов отправьте номер получателя или часть адреса сообщением'
-
     await msg.answer(text)
 
 

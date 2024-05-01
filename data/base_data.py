@@ -19,6 +19,7 @@ order_status_data = {
     OrderStatus.REF_TAKE.value: 'отказан',
     OrderStatus.REMAKE.value: 'переделка',
     OrderStatus.SEND.value: 'отправлен',
+    OrderStatus.NOT_COME.value: 'не явился',
     '': OrderStatus.NEW.value,
     'доставлен': OrderStatus.SUC.value,
     'на руках': OrderStatus.ACTIVE.value,
@@ -29,6 +30,7 @@ order_status_data = {
     'отказан': OrderStatus.REF_TAKE.value,
     'переделка': OrderStatus.REMAKE.value,
     'отправлен': OrderStatus.SEND.value,
+    'не явился': OrderStatus.NOT_COME.value,
 }
 
 

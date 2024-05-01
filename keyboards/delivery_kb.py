@@ -2,7 +2,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 
 import db
 from data.base_data import expensis_dlv
-from enums import DeliveryCB, OrderAction, OrderStatus
+from enums import DeliveryCB, OrderAction, OrderStatus, TypeOrderUpdate
 
 
 # клавиатура ЛК курьера
@@ -18,6 +18,7 @@ def main_dvl_kb() -> InlineKeyboardMarkup:
 # клава для курьера свободный заказ
 def get_free_order_kb(order_id: int, order_status: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
+    print(order_status == OrderStatus.NEW.value, order_status)
     if order_status == OrderStatus.NEW.value:
         kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.DLV_ORDER_1.value}:{order_id}')
     else:
@@ -55,14 +56,14 @@ def get_close_order_option_kb(order_id: int) -> InlineKeyboardMarkup:
     kb.button(
         text='🖍 Изменить цену доставки',
         callback_data=f'{DeliveryCB.DLV_ORDER_6.value}:{OrderAction.DELI.value}:{order_id}')
-    kb.button(text='❌ Отмена', callback_data=f'{DeliveryCB.BACK_MAIN_ORDER.value}:{order_id}')
+    kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_MAIN_ORDER.value}:{order_id}')
     return kb.adjust(1).as_markup()
 
 
 # кнопка подтвердить Отказа от заказа
-def get_close_order_kb(status_order: str, order_id: int) -> InlineKeyboardMarkup:
+def get_close_order_kb(new_status_order: str, order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='✅ Подтвердить отказ', callback_data=f'{DeliveryCB.DLV_ORDER_4.value}:{status_order}:{order_id}')
+    kb.button(text='✅ Подтвердить отказ', callback_data=f'{DeliveryCB.DLV_ORDER_4.value}:{new_status_order}:{order_id}')
     kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_MAIN_ORDER.value}:{order_id}')
     return kb.adjust(1).as_markup()
 

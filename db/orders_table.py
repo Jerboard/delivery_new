@@ -225,7 +225,8 @@ async def update_row_google(
         status: str = None,
         note: str = None,
         type_update: str = None,
-        discount: int = None
+        discount: int = None,
+        cost_delivery: int = None,
 ):
     query = (OrderTable.update().where(OrderTable.c.id == order_id).
              values(updated=update_row,
@@ -243,6 +244,8 @@ async def update_row_google(
         query = query.values(type_update=type_update)
     if discount:
         query = query.values(y=discount)
+    if cost_delivery:
+        query = query.values(clmn_t=cost_delivery)
     if all_row:
         query = query.values(a=order_id, b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,

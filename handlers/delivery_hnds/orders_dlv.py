@@ -12,7 +12,7 @@ from config import config
 from utils.redis_utils import get_redis_data
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data
-from enums import DeliveryCB, OrderStatus, RedisKey, UserActions, DeliveryStatus, OrderAction, TypeUpdate
+from enums import DeliveryCB, OrderStatus, RedisKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate
 
 
 # кнопка взять заказ
@@ -21,6 +21,7 @@ async def dlv_order_1(cb: CallbackQuery):
     # _, row_num, order_id = map(int, cb.data.split(':')[1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
+    print('dlv_order_1')
 
     user_info = await db.get_user_info(cb.from_user.id)
     # status = order_status_data.get (OrderStatus.ACTIVE.value)
@@ -30,9 +31,13 @@ async def dlv_order_1(cb: CallbackQuery):
         dlv_name=user_info.name,
         status=OrderStatus.ACTIVE.value,
         take_date=take_date,
-        type_update=TypeUpdate.STATE.value
+        type_update=TypeOrderUpdate.STATE.value
     )
-    await cb.message.edit_text(text=f'{cb.message.text}\n\n✅Принят', entities=cb.message.entities)
+    await cb.message.edit_text(
+        text=f'{cb.message.text}\n\n✅Принят',
+        entities=cb.message.entities,
+        parse_mode=None
+    )
 
     # журнал действий
     await db.save_user_action(
@@ -49,9 +54,9 @@ async def dlv_order_2(cb: CallbackQuery):
     # _, row_num, order_id = map (int, cb.data.split (':') [1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
+    print('dlv_order_2')
 
     order = await db.get_order(order_id)
-    print(order.g)
     if not order:
         await cb.message.answer('❗️ОШИБКА. Что-то пошло не так - обратитесь к оператору')
 
@@ -79,7 +84,11 @@ async def dlv_order_2(cb: CallbackQuery):
         dlv_info = await db.get_user_info(user_id=cb.from_user.id)
         opr_info = await db.get_user_info(name=order.k)
 
-        await cb.message.edit_text(text=f'{cb.message.text}\n\n✅ Принят')
+        await cb.message.edit_text(
+            text=f'{cb.message.text}\n\n✅ Принят',
+            entities=cb.message.entities,
+            parse_mode=None
+        )
         text = f'✅Заказ принят. {dlv_info.name}\n\n{cb.message.text}'
         await bot.send_message(opr_info.user_id, text)
         # журнал действий
@@ -87,7 +96,7 @@ async def dlv_order_2(cb: CallbackQuery):
             user_id=cb.from_user.id,
             dlv_name=dlv_info.name,
             action=UserActions.TAKE_ORDER_TAKE.value,
-            comment=order_id)
+            comment=str(order_id))
 
 
 # Подтвердить доставку либо отмену заказа
@@ -100,34 +109,45 @@ async def dlv_order_2(cb: CallbackQuery):
         await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(order_id=order_id))
 
     elif action == OrderAction.NOT_COME.value:
-        await db.update_row_google(order_id=order_id, note=OrderStatus.NOT_COME.value)
-        await cb.message.edit_text(f'{cb.message.text}\n\n✖️ Клиент не явился')
+        await db.update_row_google(
+            order_id=order_id,
+            note=order_status_data.get(OrderStatus.NOT_COME.value)
+        )
+        await cb.message.edit_text(
+            text=f'{cb.message.text}\n\n✖️ Клиент не явился',
+            entities=cb.message.entities,
+            parse_mode=None
+        )
 
     else:
         await cb.answer('Нажмите кнопку "Подтвердить отказ", после этого заказ будет закрыт', show_alert=True)
         await cb.message.edit_reply_markup(
-            reply_markup=kb.get_close_order_kb(status_order=OrderStatus.REF.value, order_id=order_id))
+            reply_markup=kb.get_close_order_kb(new_status_order=OrderStatus.REF.value, order_id=order_id))
 
 
 # закрытие заказа
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_4.value))
 async def dlv_order_4(cb: CallbackQuery):
-    _, order_status, order_id_str = cb.data.split (':')
+    _, new_order_status, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
 
     order_info = await db.get_order (order_id)
 
-    if order_status in [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]:
+    if new_order_status in [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]:
         # тут буковку надо ещё добавить
-        status_str = order_status_data.get (order_status)
         await db.update_row_google (
             order_id=order_id,
-            status=status_str
+            status=new_order_status,
+            type_update=TypeOrderUpdate.STATE.value
         )
-        await cb.message.edit_text(f'{cb.message.text} ✅Выполнен')
+        await cb.message.edit_text(
+            text=f'{cb.message.text}\n\n✅Выполнен',
+            entities=cb.message.entities,
+            parse_mode=None
+        )
 
         action = UserActions.SUCCESS_ORDER.value
-        if order_status == OrderStatus.SUC_TAKE.value:
+        if new_order_status == OrderStatus.SUC_TAKE.value:
             opr_info = await db.get_user_info (name=order_info.k)
             text = f'✅Заказ получен курьером\n\n{cb.message.text}'
             await bot.send_message(opr_info.user_id, text)
@@ -141,12 +161,16 @@ async def dlv_order_4(cb: CallbackQuery):
             comment=order_id_str)
 
     else:
-        status_str = order_status_data.get (order_status)
         await db.update_row_google (
             order_id=order_id,
-            status=status_str
+            status=new_order_status,
+            type_update=TypeOrderUpdate.STATE.value
         )
-        await cb.message.edit_text(f'{cb.message.text} ✖️Отказ')
+        await cb.message.edit_text(
+            text=f'{cb.message.text} ✖️Отказ',
+            entities=cb.message.entities,
+            parse_mode=None
+        )
 
         # журнал действий
         await db.save_user_action(
@@ -163,14 +187,14 @@ async def dlv_order_6(cb: CallbackQuery, state: FSMContext):
     order_id = int (order_id_str)
 
     await state.set_state(DeliveryStatus.EDIT_ORDER_CLOSE_1)
-    await state.update_data(data={'order_id': order_id})
+    await state.update_data(data={'order_id': order_id, 'action': action})
 
     if action == OrderAction.COST.value:
-        await cb.message.answer('📝 Введите сумму скидки')
-        await state.update_data(data={'action': 'cost'})
+        text = '📝 Введите сумму скидки'
     else:
-        await cb.message.answer('📝 Введите фактическую стоимость доставки')
-        await state.update_data(data={'action': 'dlv'})
+        text = '📝 Введите фактическую стоимость доставки'
+
+    await cb.message.answer(text, reply_markup=kb.get_close_kb())
 
 
 # закрытие заказа с изминениями. Запрос причины изминений
@@ -181,13 +205,13 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
         data = await state.get_data()
 
         if data['action'] == OrderAction.COST.value:
-            await state.update_data(data={'discount': msg.text})
+            await state.update_data(data={'discount': int(msg.text)})
         else:
-            await state.update_data(data={'cost': msg.text, 'discount': msg.text})
+            await state.update_data(data={'cost': msg.text, 'discount': int(msg.text)})
 
         await state.set_state(DeliveryStatus.EDIT_ORDER_CLOSE_2)
         sent = await msg.answer('Причина изменения стоимости')
-        await state.update_data(data={'msg2': sent.message_id, 'msg3': msg.message_id})
+        # await state.update_data(data={'msg2': sent.message_id, 'msg3': msg.message_id})
 
     else:
         sent = await msg.answer('‼️Отправьте целое число')
@@ -200,29 +224,28 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
 async def edit_order_close_2(msg: Message, state: FSMContext):
     data = await state.get_data()
     await state.clear()
+    print(data)
 
+    note = f'{data ["discount"]} - {msg.text}'
     if data['action'] == OrderAction.COST.value:
-        # row_to_temp_change_cost(data['row'], msg.text, data['discount'])
         await db.update_row_google(
             order_id=data['order_id'],
-            type_update=TypeUpdate.EDIT_COST.value,
+            type_update=data['action'],
             discount=data['discount'],
-            note=msg.text
+            note=note
         )
         # журнал действий
-        action = UserActions.ADD_DISCOUNT.value
+        user_action = UserActions.ADD_DISCOUNT.value
     else:
-        # row_to_temp_change_dlv(data['row'], data['cost'], msg.text)
-        # update_edit_cost(order_id, 'dlv', data['cost'], msg.text)
         await db.update_row_google (
             order_id=data ['order_id'],
-            type_update=TypeUpdate.EDIT_COST_DELIVERY.value,
-            discount=data ['discount'],
-            note=msg.text
+            type_update=data['action'],
+            cost_delivery=data ['discount'],
+            note=note
         )
 
         # журнал действий
-        action = UserActions.ADD_DISCOUNT_DLV.value
+        user_action = UserActions.ADD_DISCOUNT_DLV.value
 
     order_info = await db.get_order(data['order_id'])
     text = get_order_text(order_info)
@@ -231,15 +254,15 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
     # журнал действий
     await db.save_user_action(
         user_id=msg.from_user.id,
-        dlv_name=data['dlv_name'],
-        action=action,
-        comment=f'Строка {data["row"]}')
+        dlv_name=order_info.f,
+        action=user_action,
+        comment=f'ID {data["order_id"]}')
 
 
 # кнопка передать заказ
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_3.value))
 async def dlv_order_3(cb: CallbackQuery):
-    _, order_status, order_id_str = cb.data.split (':')
+    _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
 
     user_info = await db.get_user_info(cb.from_user.id)
@@ -251,17 +274,32 @@ async def dlv_order_3(cb: CallbackQuery):
 # передаёт заказ
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.TRANS_ORDER.value))
 async def trans_order(cb: CallbackQuery, state: FSMContext):
-    _, user_id, order_id = map(int, cb.data.split(':')[1:])
+    user_id, order_id = map(int, cb.data.split(':')[1:])
 
     user = await db.get_user_info(cb.from_user.id)
     recip = await db.get_user_info(user_id)
 
-    await db.update_row_google (order_id=order_id, dlv_name=recip.name)
-    order_text = get_order_text(order_id)
+    await db.update_row_google (
+        order_id=order_id,
+        dlv_name=recip.name,
+        type_update=TypeOrderUpdate.TRANS.value
+    )
+    order_info = await db.get_order(order_id=order_id)
+    order_text = get_order_text(order_info)
 
     text = f'{user.name} передал вам заказ:\n\n{order_text}'
-    await bot.send_message(recip.user_id, text)
-    await cb.message.edit_text(f'{cb.message.text}\n\n✅ Заказ передан')
+    await bot.send_message(
+        chat_id=recip.user_id,
+        text=text,
+        reply_markup=kb.get_dlv_main_order_kb(
+            order_id=order_info.id,
+            order_status=order_info.g
+        ))
+    await cb.message.edit_text(
+        text=f'{cb.message.text}\n\n✅ Заказ передан',
+        entities=cb.message.entities,
+        parse_mode=None
+    )
     # журнал действий
     await db.save_user_action(
         user_id=cb.from_user.id,
@@ -276,4 +314,5 @@ async def back_main_order(cb: CallbackQuery, state: FSMContext):
     await state.clear()
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
-    await cb.message.edit_reply_markup(reply_markup=kb.get_dlv_main_order_kb(order_id))
+    order_info = await db.get_order(order_id=order_id)
+    await cb.message.edit_reply_markup(reply_markup=kb.get_dlv_main_order_kb(order_id, order_info.g))

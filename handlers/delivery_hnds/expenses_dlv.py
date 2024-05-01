@@ -14,7 +14,7 @@ from .base_dlv import save_expenses
 from utils.redis_utils import get_redis_data
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data
-from enums import DeliveryCB, OrderStatus, RedisKey, UserActions, DeliveryStatus, OrderAction, TypeUpdate
+from enums import DeliveryCB, OrderStatus, RedisKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate
 
 
 # смена клавиатуры на клавиатуру с тратами

@@ -11,7 +11,7 @@ import google_api.utils_google as ug
 from config import config
 from init import TZ, bot, log_error
 from data.base_data import order_status_data
-from enums import TypeUpdate
+from enums import TypeOrderUpdate
 
 
 # (a - 0, b - 1, c - 2, d - 3, e - 4, f - 5, g - 6, h - 7, i - 8, j - 9, k - 10,
@@ -73,7 +73,7 @@ async def save_new_order_table() -> None:
                     af=row [31].strip () if row [31] else None,
                     ag=row [32].strip () if row [32] else None,
                     ah=row [33].strip () if row [33] else None,
-                    type_update=TypeUpdate.ADD.value,
+                    type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
             except IntegrityError as ex:
@@ -122,7 +122,7 @@ async def save_new_order_table() -> None:
                 af=row [31].strip () if row [31] else None,
                 ag=row [32].strip () if row [32] else None,
                 ah=row [33].strip () if row [33] else None,
-                type_update=TypeUpdate.ADD.value,
+                type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
             log_error (f'Успех {eid}', with_traceback=False)
@@ -136,12 +136,6 @@ async def save_new_order_table() -> None:
         ex_text += f'{row}\n'
     log_error (f'Всего ошибок: {len(exc_list)}\n{ex_text}', with_traceback=False)
 
-
-
-'''
-sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "orders_ggl_pkey"
-DETAIL:  Key (id)=(4975) already exists.
-'''
 
 # сохраняет таблицу отчётов
 async def save_new_report_table() -> None:
@@ -280,7 +274,7 @@ async def update_google_table(user_id: int) -> None:
                         af=row[31].strip() if row[31] else None,
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
-                        type_update=TypeUpdate.ADD.value,
+                        type_update=TypeOrderUpdate.ADD.value,
                         updated=False
                     )
                     new_row += 1
@@ -308,6 +302,7 @@ async def update_google_row() -> None:
         sh = ug.get_google_connect()
         # изменяет статус заказа
         try:
+            print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
             cell = f'A{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [
@@ -327,30 +322,28 @@ async def update_google_row() -> None:
                 ]
             ]
             sh.sheet1.update (cell, new_row_str)
-            print(order.type_update == TypeUpdate.STATE.value, order.type_update)
-            if order.type_update == TypeUpdate.STATE.value:
-                print(order.g)
+            print(order.type_update)
+            if order.type_update == TypeOrderUpdate.STATE.value:
                 color = ug.choice_color(order.g)
-                print(color)
                 cell_form = f'E{order.row_num}:G{order.row_num}'
                 sh.sheet1.format(cell_form, {"backgroundColor": color})
 
             # изменяет стоимость заказа
-            elif order.type_update == TypeUpdate.EDIT_COST.value:
+            elif order.type_update == TypeOrderUpdate.EDIT_COST.value:
                 color = {"red": 1.0, "green": 0.0, "blue": 0.0}
-                sh.sheet1.update(f'AB{order.row_num}', order.ab)
+                sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
                 sh.sheet1.format(f'AB{order.row_num}', {"backgroundColor": color})
 
             # изменяет стоимость доставки
-            elif order.type_update == TypeUpdate.EDIT_COST_DELIVERY.value:
+            elif order.type_update == TypeOrderUpdate.EDIT_COST_DELIVERY.value:
                 color = {"red": 2.0, "green": 0.0, "blue": 0.0}
-                sh.sheet1.update(f'AB{order.row_num}', order.ab)
-                sh.sheet1.format(f'T{order.row_num}', {"backgroundColor": color})
+                sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
+                # sh.sheet1.format(f'T{order.row_num}', {"backgroundColor": color})
                 sh.sheet1.format(f'AB{order.row_num}', {"backgroundColor": color})
                 
-            elif order.type_update == TypeUpdate.ADD_OPR.value:
+            elif order.type_update == TypeOrderUpdate.ADD_OPR.value:
                 col = {"red": 0.0, "green": 1.0, "blue": 1.0}
-                sh.sheet1.update (f'AB{order.row_num}', order.ab)
+                sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
                 cell = f'A{order.row_num}:AC{order.row_num}'
                 sh.sheet1.format (cell, {"backgroundColor": col})
 
