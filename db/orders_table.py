@@ -177,7 +177,8 @@ async def add_row(
     if empty_id:
         query = query.values(id=empty_id)
     async with begin_connection() as conn:
-        await conn.execute(query)
+        result = await conn.execute(query)
+    return result.inserted_primary_key[0]
 
 
 # обновляет строку в таблице
@@ -248,9 +249,7 @@ async def update_row_google(
                              af=af, ag=ag, ah=ah)
 
     async with begin_connection() as conn:
-        result = await conn.execute(query)
-
-    return result.lastrowid
+        await conn.execute(query)
 
 
 # возвращает строки таблицы
