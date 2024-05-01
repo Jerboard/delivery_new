@@ -2,6 +2,7 @@ import gspread
 import asyncio
 
 from gspread.spreadsheet import Spreadsheet
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
 import db
@@ -25,13 +26,15 @@ async def save_new_order_table() -> None:
 
     new_orders = sh.sheet1.get_all_values ()
 
+    rewrite_list = []
+    exc_list = []
+
     new_row = 4
     # 4985 - 4978
     for row in new_orders [4:]:
         new_row += 1
         # print(row[13], row[0])
         if row [13].strip () != '' and row[0].isdigit():
-            # pass
             # print(f'row: {new_row} - {row[0]} :id')
             try:
                 await db.add_row (
@@ -73,10 +76,68 @@ async def save_new_order_table() -> None:
                     type_update=TypeUpdate.ADD.value,
                     updated=True
                 )
-            except Exception as ex:
-                # log_error (ex, with_traceback=False)
-                log_error (ex)
+            except IntegrityError as ex:
+                rewrite_list.append(row)
 
+            except Exception as ex:
+                exc_list.append (row)
+                log_error (ex, with_traceback=False)
+
+    for row in rewrite_list:
+        try:
+            await db.add_row (
+                row_num=row [0],
+                b=row [1].strip () if row [1] else None,
+                c=row [2].strip () if row [2] else None,
+                d=row [3].strip () if row [3] else None,
+                e=row [4].strip () if row [4] else None,
+                f=row [5].strip () if row [5] else None,
+                g=order_status_data.get (row [6].strip ()),
+                h=row [7].strip () if row [7] else None,
+                i=row [8].strip () if row [8] else None,
+                j=row [9].strip () if row [9] else None,
+                k=row [10].strip () if row [10] else None,
+                l=row [11].strip () if row [11] else None,
+                m=row [12].strip () if row [12] else None,
+                n=row [13].strip () if row [13] else None,
+                o=row [14].strip () if row [14] else '',
+                p=row [15].strip () if row [15] else None,
+                q=int (row [16]) if row [16] else 0,
+                r=int (row [17]) if row [17] else 0,
+                s=int (row [18]) if row [18] else 0,
+                t=int (row [19]) if row [19] else 0,
+                u=int (row [20]) if row [20] else 0,
+                v=int (row [21]) if row [21] else 0,
+                w=row [22].strip () if row [22] else None,
+                x=row [23].strip () if row [23] else None,
+                y=int (row [24]) if row [24] else 0,
+                z=row [25].strip () if row [25] else None,
+                aa=row [26].strip () if row [26] else None,
+                ab=row [27].strip () if row [27] else None,
+                ac=row [28].strip () if row [28] else None,
+                ad=row [29].strip () if row [29] else None,
+                ae=row [30].strip () if row [30] else None,
+                af=row [31].strip () if row [31] else None,
+                ag=row [32].strip () if row [32] else None,
+                ah=row [33].strip () if row [33] else None,
+                type_update=TypeUpdate.ADD.value,
+                updated=False
+            )
+        except Exception as ex:
+            exc_list.append (row)
+            log_error (ex, with_traceback=False)
+
+    ex_text = ''
+    for row in exc_list:
+        ex_text += f'{row}\n'
+    log_error (f'Всего ошибок: {len(exc_list)}\n{ex_text}', with_traceback=False)
+
+
+
+'''
+sqlalchemy.exc.IntegrityError: (sqlalchemy.dialects.postgresql.asyncpg.IntegrityError) <class 'asyncpg.exceptions.UniqueViolationError'>: duplicate key value violates unique constraint "orders_ggl_pkey"
+DETAIL:  Key (id)=(4975) already exists.
+'''
 
 # сохраняет таблицу отчётов
 async def save_new_report_table() -> None:
@@ -216,7 +277,7 @@ async def update_google_table(user_id: int) -> None:
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
                         type_update=TypeUpdate.ADD.value,
-                        updated=True
+                        updated=False
                     )
                     new_row += 1
                 except Exception as ex:
