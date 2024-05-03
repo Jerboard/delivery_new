@@ -89,7 +89,7 @@ OrderTable: sa.Table = sa.Table(
     sa.Column('ag', sa.String(255)),
     sa.Column('ah', sa.String(255)),
     sa.Column('updated', sa.Boolean, default=True),
-    sa.Column('time_update', sa.DateTime(timezone=True), default=datetime.now(TZ).replace(microsecond=0)),
+    sa.Column('time_update', sa.DateTime(timezone=True), default=datetime.now(TZ)),
     sa.Column('type_update', sa.String(255)),
     sa.Column('discount', sa.Integer(), default=0),
     sa.Column('row_num', sa.Integer()),
@@ -178,6 +178,7 @@ async def add_row(
         ag=ag,
         ah=ah,
         type_update=type_update,
+        time_update=datetime.now(TZ),
         updated=updated
     )
     if empty_id:
@@ -191,8 +192,6 @@ async def add_row(
 # e - дата, f - курьер, g - статус, k - оператор, ab - примечание, f - курьер, y - скидка
 async def update_row_google(
         order_id: int,
-        update_row: bool = False,
-        all_row: bool = False,
         b: str = None,
         c: str = None,
         d: str = None,
@@ -226,6 +225,8 @@ async def update_row_google(
         af: str = None,
         ag: str = None,
         ah: str = None,
+        update_row: bool = False,
+        all_row: bool = False,
         take_date: str = None,
         dlv_name: str = None,
         status: str = None,
@@ -236,7 +237,7 @@ async def update_row_google(
 ):
     query = (OrderTable.update().where(OrderTable.c.id == order_id).
              values(updated=update_row,
-                    time_update=datetime.now(TZ).replace(microsecond=0)))
+                    time_update=datetime.now(TZ)))
 
     if take_date:
         query = query.values(e=take_date)
@@ -253,7 +254,7 @@ async def update_row_google(
     if cost_delivery:
         query = query.values(clmn_t=cost_delivery)
     if all_row:
-        query = query.values(a=order_id, b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
+        query = query.values(b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
                              af=af, ag=ag, ah=ah)
 
@@ -270,7 +271,7 @@ async def update_multi_orders(
 ):
     query = OrderTable.update().where(OrderTable.c.id.in_(orders)).values(
         updated=False,
-        time_update=datetime.now(TZ).replace(microsecond=0),
+        time_update=datetime.now(TZ),
         type_update=type_update
     )
     if name:
@@ -329,6 +330,13 @@ async def get_max_row_num() -> int:
         result = await conn.execute(query)
 
     return result.scalar()
+
+
+# очищает таблицу
+async def delete_orders():
+    query = OrderTable.delete()
+    async with begin_connection() as conn:
+        await conn.execute(query)
 
 
 # поиск заказов

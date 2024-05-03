@@ -10,7 +10,7 @@ import keyboards as kb
 from init import dp, bot, TZ, log_error
 from config import config
 from google_api.utils_google import is_table_exist
-from google_api.base_google import save_new_order_table, save_new_report_table
+import google_api as ggl
 from utils.json_utils import save_json_data
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data
@@ -37,26 +37,26 @@ async def change_tab_2(msg: Message, state: FSMContext):
     sent = await msg.answer ('⏳ Таблица обновляется это может занять какое-то время')
 
     if is_table_exist(msg.text):
-        update_table = False
+        update_table = True
         while update_table:
             wait_orders = await db.get_orders (get_wait_update=True)
             wait_reports = await db.get_reports_all_dlv (get_wait_update=True)
 
             wait_updates = wait_orders + wait_reports
             if wait_updates == 0:
-                update_table = True
+                update_table = False
             else:
                 await sent.edit_text (f'⏳ Ожидает внесения изменений. Примерно {wait_updates * 3} с.')
                 await sleep(3)
 
         # очистить таблицу
-        # await db.delete_orders ()
+        await db.delete_orders ()
         # обновляет таблицу
-        # await save_new_order_table()
+        await ggl.save_new_order_table()
         # очистить таблицу отчётов
         await db.clear_report_table ()
         # обновляет отчёт и траты
-        await save_new_report_table()
+        await ggl.save_new_report_table()
         # сохраняет новую таблицу
         save_json_data(data={'tab_id': msg.text}, file_name=config.table_file)
         time_finish = datetime.now() - time_start
@@ -65,3 +65,19 @@ async def change_tab_2(msg: Message, state: FSMContext):
     else:
         await sent.delete()
         await msg.answer('‼ Произошла ошибка. Неправильный номер таблицы или ошибка доступа')
+
+
+# обновляет таблицу update_table
+@dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.UPDATE_TABLE.value))
+async def update_google_table(cb: CallbackQuery):
+    _, type_table = cb.data.split(':')
+    sent = await cb.message.answer ('⏳')
+    if type_table == 'order':
+        await ggl.update_google_table(cb.from_user.id)
+    else:
+        # очистить таблицу отчётов
+        await db.clear_report_table ()
+        # обновляет отчёт и траты
+        await ggl.save_new_report_table ()
+
+    await sent.delete()

@@ -7,7 +7,7 @@ from enums import OwnerCB, UserRole
 # клавиатура владельца на кнопке старт
 def main_owner_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='📄 Добавить/Обновить заказы', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:main')
+    kb.button(text='📄 Добавить/Обновить заказы', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:order')
     kb.button(text='📄 Добавить/Обновить отчеты', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:report')
     kb.button(text='🏃 Добавить Курьера', callback_data=f'{OwnerCB.ADD_USER_1.value}:{UserRole.DLV.value}')
     kb.button(text='🧑‍💻 Добавить Оператора', callback_data=f'{OwnerCB.ADD_USER_2.value}:{UserRole.OPR.value}:0')

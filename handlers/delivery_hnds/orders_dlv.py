@@ -54,7 +54,6 @@ async def dlv_order_2(cb: CallbackQuery):
     # _, row_num, order_id = map (int, cb.data.split (':') [1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
-    print('dlv_order_2')
 
     order = await db.get_order(order_id)
     if not order:
@@ -285,6 +284,7 @@ async def trans_order(cb: CallbackQuery, state: FSMContext):
         dlv_name=recip.name,
         type_update=TypeOrderUpdate.TRANS.value
     )
+    await db.update_work_order(order_id=order_id, user_id=recip.user_id)
     order_info = await db.get_order(order_id=order_id)
     order_text = get_order_text(order_info)
 
