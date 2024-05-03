@@ -368,34 +368,34 @@ async def update_google_row() -> None:
             log_error(f'Заказ не добавлен из таблицы темп ошибка:\n{order}', with_traceback=False)
             log_error(ex)
 
-
-# записывает данные в отчёт курьера
-async def insert_google_expenses():
-    new_row = await db.get_last_updated_report()
-    if new_row:
-        sh = ug.get_google_connect()
-        try:
-            cell = f"A{new_row.row_num}:R{new_row.row_num}"
-            l_str = '\n'.join(new_row.l)
-            new_row_str = [
-                [
-                    str(new_row.id) if new_row.b else '', str(new_row.b) if new_row.b else '',
-                    str(new_row.c) if new_row.c else '', str(new_row.d) if new_row.d else '',
-                    str(new_row.e) if new_row.e else '', str(new_row.f) if new_row.f else '',
-                    str(new_row.g) if new_row.g else '', str(new_row.h) if new_row.h else '',
-                    str(new_row.i) if new_row.i else '', str(new_row.j) if new_row.j else '',
-                    str(new_row.k) if new_row.k else '', l_str,
-                    str(new_row.m) if new_row.m else '', str(new_row.n) if new_row.n else '',
-                    str(new_row.o) if new_row.o else '', str(new_row.p) if new_row.p else '',
-                    str(new_row.q) if new_row.q else '', str(new_row.r) if new_row.r else ''
+    else:
+        # записывает данные в отчёт курьера
+        # async def insert_google_expenses():
+        new_row = await db.get_last_updated_report()
+        if new_row:
+            sh = ug.get_google_connect()
+            try:
+                cell = f"A{new_row.row_num}:R{new_row.row_num}"
+                l_str = '\n'.join(new_row.l)
+                new_row_str = [
+                    [
+                        str(new_row.id) if new_row.b else '', str(new_row.b) if new_row.b else '',
+                        str(new_row.c) if new_row.c else '', str(new_row.d) if new_row.d else '',
+                        str(new_row.e) if new_row.e else '', str(new_row.f) if new_row.f else '',
+                        str(new_row.g) if new_row.g else '', str(new_row.h) if new_row.h else '',
+                        str(new_row.i) if new_row.i else '', str(new_row.j) if new_row.j else '',
+                        str(new_row.k) if new_row.k else '', l_str,
+                        str(new_row.m) if new_row.m else '', str(new_row.n) if new_row.n else '',
+                        str(new_row.o) if new_row.o else '', str(new_row.p) if new_row.p else '',
+                        str(new_row.q) if new_row.q else '', str(new_row.r) if new_row.r else ''
+                    ]
                 ]
-            ]
 
-            sh.get_worksheet(6).update(cell, new_row_str)
-            await db.update_expenses_dlv(entry_id=new_row.id, updated=True)
-        except Exception as ex:
-            log_error(f'Не получилось обновить отчёт {new_row.m} {new_row.n}', with_traceback=False)
-            log_error(ex)
+                sh.get_worksheet(6).update(cell, new_row_str)
+                await db.update_expenses_dlv(entry_id=new_row.id, updated=True)
+            except Exception as ex:
+                log_error(f'Не получилось обновить отчёт {new_row.m} {new_row.n}', with_traceback=False)
+                log_error(ex)
 
 
 async def update_report_table():

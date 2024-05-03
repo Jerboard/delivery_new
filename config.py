@@ -13,8 +13,10 @@ class config:
     tz = 'Europe/Moscow'
     db_url = getenv ('DB_URL')
     bot_name = 'MatrixDeliveryBot'
-    group_expenses = -1001903349475
-    group_report = -1001863016934
+    group_expenses = -1001669708234
+    group_expenses_work = -1001903349475
+    group_report = -1001669708234
+    group_report_work = -1001863016934
     day_form = '%d.%m'
     time_form = '%d.%m %H:%M'
     only_time_form = '%H:%M'

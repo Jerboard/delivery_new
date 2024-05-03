@@ -121,7 +121,7 @@ async def add_report_row(
     query = ReportTable.insert().values(
         b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
         row_num=row_num,
-        in_google=False
+        in_google=updated
     )
     # if entry_id:
     #     print(f'entry_id: {entry_id}')
