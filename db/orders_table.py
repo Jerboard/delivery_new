@@ -292,7 +292,7 @@ async def get_orders(
     query = OrderTable.select()
 
     if get_active:
-        query = query.where(sa.or_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.g == OrderStatus.ACTIVE.value))
+        query = query.where(sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value))
     elif get_wait_update:
         query = query.where (OrderTable.c.updated == False)
 
@@ -329,19 +329,6 @@ async def get_max_row_num() -> int:
         result = await conn.execute(query)
 
     return result.scalar()
-
-
-# удаляет заказ по id
-async def delete_orders(order_id: int = 0, start_id: int = 0):
-    query = OrderTable.delete()
-
-    if order_id:
-        query = query.where (OrderTable.c.id == order_id)
-    elif start_id:
-        query = query.where(OrderTable.c.id >= start_id)
-
-    async with begin_connection() as conn:
-        await conn.execute(query)
 
 
 # поиск заказов

@@ -54,26 +54,15 @@ async def save_expenses(
 
     today_str = datetime.now (TZ).strftime (config.day_form)
     exp_today = await db.get_report_dlv(user_info.name, today_str)
-    print(exp_today)
 
-    for k, v in data.items():
-        print(f'{k}: {v}')
+    comment = f'{data["exp_sum"]} - {data["comment"]}'
 
     if exp_today:
-        # update_comment = f'{exp_today.l}\n{data["comment"]}'
-        update_comment = exp_today.l.append(data["comment"])
-        update_b = data.get('b') if data.get('b') else 0
-        update_c = data.get('c') if data.get('c') else 0
-        update_d = data.get('d') if data.get('d') else 0
-        update_e = data.get('e') if data.get('e') else 0
-        update_f = data.get('f') if data.get('f') else 0
-        update_g = data.get('g') if data.get('g') else 0
-        update_h = data.get('h') if data.get('h') else 0
-        update_i = data.get('i') if data.get('i') else 0
-        update_k = data.get('k') if data.get('k') else 0
+        comment_list: list = exp_today.l
+        comment_list.append(comment)
         await db.update_expenses_dlv(
             entry_id=exp_today.id,
-            l=update_comment,
+            l=comment,
             b=exp_today.b + (data.get('b', 0)),
             c=exp_today.c + (data.get('c', 0)),
             d=exp_today.d + (data.get('d', 0)),
@@ -82,12 +71,15 @@ async def save_expenses(
             g=exp_today.g + (data.get('g', 0)),
             h=exp_today.h + (data.get('h', 0)),
             i=exp_today.i + (data.get('i', 0)),
-            k=exp_today.k + (data.get('k', 0))
+            k=exp_today.k + (data.get('k', 0)),
         )
 
     else:
+        last_row = await db.get_last_updated_report(last_row=True)
+        print(last_row)
+        row_num = last_row.row_num + 1 if last_row.m == today_str else last_row.row_num + 2
         await db.add_report_row (
-            l=data["comment"],
+            l=[comment],
             m=today_str,
             n=user_info.name,
             b=data.get('b', 0),
@@ -98,7 +90,8 @@ async def save_expenses(
             g=data.get('g', 0),
             h=data.get('h', 0),
             i=data.get('i', 0),
-            k=data.get('k', 0)
+            k=data.get('k', 0),
+            row_num=row_num
         )
 
     today = datetime.now (TZ).strftime (config.time_form)

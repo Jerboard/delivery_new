@@ -7,17 +7,17 @@ from enums import OwnerCB, UserRole
 # клавиатура владельца на кнопке старт
 def main_owner_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='➕🗂 Добавить/обновить заказы', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:main')
-    kb.button(text='➕🗂 Добавить/обновить отчёт', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:report')
-    kb.button(text='➕🚛 Добавить курьера', callback_data=f'{OwnerCB.ADD_USER_1.value}:{UserRole.DLV.value}')
-    kb.button(text='➕🧑‍💻 Добавить оператора', callback_data=f'{OwnerCB.ADD_USER_2.value}:{UserRole.OPR.value}:0')
-    kb.button(text='➖🚛 Удалить курьера', callback_data=f'{OwnerCB.DEL_USER.value}:{UserRole.DLV.value}')
-    kb.button(text='➖🧑‍💻 Удалить оператора', callback_data=f'{OwnerCB.DEL_USER_1.value}:{UserRole.OPR.value}')
-    kb.button(text='✉ Посмотреть заказы курьера', callback_data=f'{OwnerCB.SEND_MSG_1.value}')
+    kb.button(text='📄 Добавить/Обновить заказы', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:main')
+    kb.button(text='📄 Добавить/Обновить отчеты', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:report')
+    kb.button(text='🏃 Добавить Курьера', callback_data=f'{OwnerCB.ADD_USER_1.value}:{UserRole.DLV.value}')
+    kb.button(text='🧑‍💻 Добавить Оператора', callback_data=f'{OwnerCB.ADD_USER_2.value}:{UserRole.OPR.value}:0')
+    kb.button(text='🏃‍♂️ Удалить Курьера', callback_data=f'{OwnerCB.DEL_USER.value}:{UserRole.DLV.value}')
+    kb.button(text='🙅 Удалить Оператора', callback_data=f'{OwnerCB.DEL_USER_1.value}:{UserRole.OPR.value}')
+    kb.button(text='🗒 У Курьера', callback_data=f'{OwnerCB.SEND_MSG_1.value}')
     kb.button(text='📝 Сменить таблицу', callback_data=f'{OwnerCB.CHANGE_TAB.value}')
-    kb.button(text='📋 Посмотреть заказы без курьера', callback_data=f'{OwnerCB.VIEW_FREE_ORDERS_1.value}:0:0:1')
-    kb.button(text='📤 Выгрузить данные о курьерах', callback_data=f'{OwnerCB.UPDATE_USERS_TABLE_1.value}')
-    kb.button(text='📥 Загрузить данные о курьерах', callback_data=f'{OwnerCB.UPDATE_USERS_TABLE_2.value}')
+    kb.button(text='🗒 Без Курьера', callback_data=f'{OwnerCB.VIEW_FREE_ORDERS_1.value}:0:0:1')
+    kb.button(text='📤 Выгрузить данные', callback_data=f'{OwnerCB.UPDATE_USERS_TABLE_1.value}')
+    kb.button(text='📥 Загрузить данные', callback_data=f'{OwnerCB.UPDATE_USERS_TABLE_2.value}')
     return kb.adjust(1, 1, 2, 2, 2, 2, 1).as_markup()
 
 

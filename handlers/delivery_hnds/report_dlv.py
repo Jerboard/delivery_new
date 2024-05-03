@@ -14,7 +14,8 @@ from enums import DeliveryCB, OrderStatus, UserActions
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_1.value))
 async def report_dvl_1(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
-    dlv_reports = await db.get_reports_all_dlv(dlv_name=user_info.name)
+    date_str = datetime.now (TZ).date ().strftime (config.day_form)
+    dlv_reports = await db.get_reports_all_dlv(dlv_name=user_info.name, exception_date=date_str)
 
     await cb.message.edit_reply_markup(reply_markup=kb.report_view_days_kb(dlv_reports))
 
@@ -46,7 +47,7 @@ async def report_dvl_2(cb: CallbackQuery):
         if order.g == OrderStatus.SUC.value:
             cost_prod += cost
             discount += order.y
-            suc_text = f'{suc_text}{row_text}{comment}'
+            suc_text = f'{suc_text}{row_text}'
 
         elif order.g == OrderStatus.REF.value:
             refuse_text = f'{refuse_text}{row_text}'
@@ -65,7 +66,7 @@ async def report_dvl_2(cb: CallbackQuery):
 
     cost_prod = cost_prod - discount
     total = cost_prod - total_expenses
-    expenses = dlv_report.l if dlv_report else ''
+    expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 
     spt = '\n---------------------------\n'
     text = (f'{user_info.name}\n\n'
@@ -83,7 +84,6 @@ async def report_dvl_2(cb: CallbackQuery):
 # подтверждение отчёта
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_3.value))
 async def report_dvl_3(cb: CallbackQuery):
-    # cb_data = cb.data.split(':')
     text = f'‼️Перед отправкой отчёта проверьте траты'
 
     await cb.message.edit_reply_markup(reply_markup=kb.get_day_report_kb())
@@ -97,4 +97,9 @@ async def report_dvl_4(cb: CallbackQuery):
 
     await bot.send_message(config.group_report, cb.message.text)
     await cb.message.edit_text(f'{cb.message.text}\n\n✅ Отчёт отправлен')
+    active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
+
+    except_list = [row.id for row in active_orders]
+    await db.delete_work_order(user_id=cb.from_user.id, except_list=except_list)
+
     await db.save_user_action (user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.SEND_REPORT.value)

@@ -34,7 +34,7 @@ async def save_new_order_table() -> None:
     for row in new_orders [4:]:
         new_row_num += 1
         # print(row[13], row[0])
-        if row [13].strip () != '' and row[0].isdigit():
+        if row [13].strip () != '':
             # print(f'row: {new_row} - {row[0]} :id')
             try:
                 await db.add_row (
@@ -142,10 +142,11 @@ async def save_new_report_table() -> None:
     sh = ug.get_google_connect ()
     table = sh.get_worksheet (6).get_all_values ()
     counter = 4
-    for row in table [5:]:
+    for row in table [4:]:
         counter += 1
         try:
-            if row [0].isdigit ():
+            if row [13]:
+                print(counter, row)
                 l_list = row [11].split ('\n')
                 await db.add_report_row (
                     # entry_id=int (row [0]),
@@ -188,10 +189,10 @@ async def update_google_table(user_id: int) -> None:
     exception_list = []
 
     i = 0
-    for row in new_orders[4:100]:
+    for row in new_orders[4:]:
         if row[13].strip() != '':
             i += 1
-            if row[0].isdigit():
+            if row[13].isdigit():
                 try:
                     await db.update_row_google(
                         order_id=int(row[0]),
@@ -322,7 +323,6 @@ async def update_google_row() -> None:
                 ]
             ]
             sh.sheet1.update (cell, new_row_str)
-            print(order.type_update)
             if order.type_update == TypeOrderUpdate.STATE.value:
                 color = ug.choice_color(order.g)
                 cell_form = f'E{order.row_num}:G{order.row_num}'
@@ -373,9 +373,11 @@ async def update_google_row() -> None:
         # async def insert_google_expenses():
         new_row = await db.get_last_updated_report()
         if new_row:
+            print(new_row)
             sh = ug.get_google_connect()
             try:
                 cell = f"A{new_row.row_num}:R{new_row.row_num}"
+                print(type(new_row.l), new_row.l)
                 l_str = '\n'.join(new_row.l)
                 new_row_str = [
                     [
@@ -405,10 +407,10 @@ async def update_report_table():
     for row in table[5:]:
         print(row)
         counter += 1
-        if row[0].isdigit():
+        if row[13]:
             l_list = row[11].split('\n')
             await db.add_report_row(
-                entry_id=int(row[0]) if row[0] else counter,
+                # entry_id=int(row[0]) if row[0] else counter,
                 b=int(row[1]) if row[1] else 0,
                 c=int(row[2]) if row[2] else 0,
                 d=int(row[3]) if row[3] else 0,

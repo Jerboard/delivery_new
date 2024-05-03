@@ -60,7 +60,11 @@ ReportTable: sa.Table = sa.Table(
 
 
 # посмотреть траты курьера
-async def get_reports_all_dlv(dlv_name: str = None, get_wait_update: bool = False) -> tuple[ReportRow]:
+async def get_reports_all_dlv(
+        dlv_name: str = None,
+        get_wait_update: bool = False,
+        exception_date: str = None
+) -> tuple[ReportRow]:
     query = ReportTable.select()
 
     if get_wait_update:
@@ -68,6 +72,9 @@ async def get_reports_all_dlv(dlv_name: str = None, get_wait_update: bool = Fals
 
     if dlv_name:
         query = query.where (ReportTable.c.n == dlv_name)
+
+    if exception_date:
+        query = query.where (ReportTable.c.m != exception_date)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
@@ -85,8 +92,12 @@ async def get_report_dlv(dlv_name: str, exp_date: str = None) -> t.Optional[Repo
 
 
 # возвращает запись из отчёта
-async def get_last_updated_report() -> t.Optional[ReportRow]:
-    query = ReportTable.select().where(ReportTable.c.in_google == False).order_by(ReportTable.c.time_update)
+async def get_last_updated_report(last_row: bool = False) -> t.Optional[ReportRow]:
+    query = ReportTable.select()
+    if last_row:
+        query = query.order_by(sa.desc(ReportTable.c.row_num)).limit(1)
+    else:
+        query = query.where(ReportTable.c.in_google == False).order_by(ReportTable.c.time_update)
     async with begin_connection() as conn:
         result = await conn.execute(query)
     return result.first()
@@ -116,16 +127,12 @@ async def add_report_row(
         updated: bool = False,
         row_num: int = 0
 ) -> None:
-    print(b, c, d, e, f, g, h, i, k, l, m, n, o, p, q, r,)
-    print(l)
     query = ReportTable.insert().values(
         b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
         row_num=row_num,
         in_google=updated
     )
-    # if entry_id:
-    #     print(f'entry_id: {entry_id}')
-    #     query = query.values (id=entry_id)
+
     async with begin_connection() as conn:
         await conn.execute(query)
 
@@ -143,26 +150,61 @@ async def update_expenses_dlv(
         h: int = 0,
         i: int = 0,
         k: int = 0,
-        l: list[str] = None,
+        # l: list[str] = None,
+        l: str = None,
         m: str = None,
         n: str = None,
         o: int = 0,
         p: str = None,
         q: str = None,
         r: int = 0,
-        add_row: bool = False,
         updated: bool = False,
         row_num: int = 0
 ) -> None:
-    query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (in_google=updated)
+    print(b, c, d, e, f, g, h, i, k, l)
+    print(m, n)
+    query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (
+        in_google=updated,
+        time_update=datetime.now (TZ).replace (microsecond=0)
+    )
+    if b:
+        query = query.values(b=b)
+    if c:
+        query = query.values(c=c)
+    if d:
+        query = query.values(d=d)
+    if e:
+        query = query.values(e=e)
+    if f:
+        query = query.values(f=f)
+    if g:
+        query = query.values(g=g)
+    if h:
+        query = query.values(h=h)
+    if i:
+        query = query.values(i=i)
+    if k:
+        query = query.values(k=k)
+    if l:
+        query = query.values(l=sa.func.array_append(ReportTable.c.l, l))
+    # if close_partner_id:
+    #     query = query.values (closed_partners=sa.func.array_append(OrderTable.c.closed_partners, close_partner_id))
+    if m:
+        query = query.values(m=m)
+    if n:
+        query = query.values(n=n)
+    if o:
+        query = query.values(o=o)
+    if p:
+        query = query.values(p=p)
+    if q:
+        query = query.values(q=q)
+    if r:
+        query = query.values(r=r)
+    if row_num:
+        query = query.values(row_num=row_num)
 
-    if add_row:
-        query = query.values(
-            b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
-            in_google=updated,
-            time_update=datetime.now(TZ).replace(microsecond=0),
-            row_num=row_num
-        )
+    print(query)
     async with begin_connection() as conn:
         await conn.execute(query)
 

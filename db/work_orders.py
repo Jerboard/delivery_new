@@ -89,12 +89,16 @@ async def update_work_order(order_id: int, user_id: int) -> None:
 
 
 # добавляет заказ
-async def delete_work_order(order_id: int = None, user_id: int = None) -> None:
+async def delete_work_order(order_id: int = None, user_id: int = None, except_list: list[int] = None) -> None:
     if order_id:
         query = WorkTable.delete().where(WorkTable.c.order_id == order_id)
     elif user_id:
         query = WorkTable.delete().where(WorkTable.c.user_id == user_id)
     else:
         return
+
+    if except_list:
+        query = query.where(WorkTable.c.order_id.notin_(except_list))
+
     async with begin_connection() as conn:
         await conn.execute(query)

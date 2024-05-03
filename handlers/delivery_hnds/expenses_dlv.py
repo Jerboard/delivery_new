@@ -83,6 +83,7 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
 # сохраняет коммент
 @dp.message(StateFilter(DeliveryStatus.EXPENSES_DVL_5))
 async def expenses_dvl_5(msg: Message, state: FSMContext):
+    data = await state.get_data ()
     await state.update_data (data={'comment': msg.text})
     data = await state.get_data()
     await state.clear()
@@ -114,5 +115,6 @@ async def expenses_dvl_view(cb: CallbackQuery):
     if not expenses:
         text = 'Нет трат'
     else:
-        text = f'💸Траты за сегодня:\n\n{expenses.l}'
+        expenses_str = '\n'.join(expenses.l)
+        text = f'💸Траты за сегодня:\n\n{expenses_str}'
     await cb.message.answer(text)

@@ -50,9 +50,9 @@ async def change_tab_2(msg: Message, state: FSMContext):
                 await sleep(3)
 
         # очистить таблицу
-        await db.delete_orders ()
+        # await db.delete_orders ()
         # обновляет таблицу
-        await save_new_order_table()
+        # await save_new_order_table()
         # очистить таблицу отчётов
         await db.clear_report_table ()
         # обновляет отчёт и траты
