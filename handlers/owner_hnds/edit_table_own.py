@@ -42,7 +42,7 @@ async def change_tab_2(msg: Message, state: FSMContext):
             wait_orders = await db.get_orders (get_wait_update=True)
             wait_reports = await db.get_reports_all_dlv (get_wait_update=True)
 
-            wait_updates = wait_orders + wait_reports
+            wait_updates = len(wait_orders) + len(wait_reports)
             if wait_updates == 0:
                 update_table = False
             else:
