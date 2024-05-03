@@ -21,11 +21,11 @@ async def dlv_order_1(cb: CallbackQuery):
     # _, row_num, order_id = map(int, cb.data.split(':')[1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
-    print('dlv_order_1')
 
     user_info = await db.get_user_info(cb.from_user.id)
-    # status = order_status_data.get (OrderStatus.ACTIVE.value)
     take_date = datetime.now(TZ).date().strftime(config.day_form)
+
+    await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
     await db.update_row_google(
         order_id=order_id,
         dlv_name=user_info.name,
@@ -65,12 +65,13 @@ async def dlv_order_2(cb: CallbackQuery):
 
     else:
         user_info = await db.get_user_info (cb.from_user.id)
-        status = order_status_data.get (OrderStatus.TAKE.value)
+
         take_date = datetime.now (TZ).date ().strftime (config.day_form)
+        await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
         await db.update_row_google (
             order_id=order_id,
             dlv_name=user_info.name,
-            status=status,
+            status=OrderStatus.ACTIVE_TAKE.value,
             take_date=take_date
         )
 

@@ -148,7 +148,7 @@ async def save_new_report_table() -> None:
             if row [0].isdigit ():
                 l_list = row [11].split ('\n')
                 await db.add_report_row (
-                    entry_id=int (row [0]),
+                    # entry_id=int (row [0]),
                     b=int (row [1]) if row [1] else 0,
                     c=int (row [2]) if row [2] else 0,
                     d=int (row [3]) if row [3] else 0,

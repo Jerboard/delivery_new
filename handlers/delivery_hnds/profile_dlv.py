@@ -37,6 +37,6 @@ async def com_start(msg: Message, state: FSMContext):
     await state.clear()
     await msg.delete()
 
-    await db.update_user_info(user_id=msg.from_user.id, dlv_name=msg.text)
+    await db.update_user_info(user_id=msg.from_user.id, name=msg.text)
 
     await get_profile_dlv (user_id=msg.from_user.id, msg_id=data['msg_id'])

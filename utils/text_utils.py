@@ -56,17 +56,26 @@ def get_admin_order_text(order_info: db.OrderRow) -> str:
 
 
 # краткий заказ строка
-def get_short_order_row(order_info: db.OrderRow, for_: str) -> str:
+def get_short_order_row(order: db.OrderRow, for_: str) -> str:
     if for_ in [UserRole.OWN.value, UserRole.OPR.value]:
-        return (f'<code>{order_info.n}</code>, <code>{order_info.o}</code>  {order_info.m} {order_info.x} '
-                f'{order_info.f} {dt.order_status_data.get(order_info.g)}\n'.replace('None', ''))
+        return (f'<code>{order.n}</code>, <code>{order.o}</code>  {order.m} {order.x} '
+                f'{order.f} {dt.order_status_data.get(order.g)}\n'.replace('None', ''))
     else:
-        prepay = order_info.u + order_info.v
+        prepay = order.u + order.v
 
-        if order_info.q == 0 and prepay != 0:
-            cost = 0
-        else:
-            cost = order_info.q + order_info.r + order_info.clmn_t - order_info.y
+        cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
 
-        return (f'<code>{order_info.n}</code>  <code>{order_info.o}</code> {cost} + {order_info.s} {order_info.w} '
+        return (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.w} '
                 f'\n---------------------------\n')
+
+
+
+def get_statistic_text(statistic: list[tuple]) -> str:
+    text = ''
+    total = 0
+    for row in statistic:
+        status = dt.order_status_data.get(row[0]) if row[0] != OrderStatus.NEW.value else 'Без курьера'
+        if status:
+            text += f'{status.capitalize()}: {row[1]}\n'
+            total += row[1]
+    return f'Всего заказов: {total}\n{text}'.strip()

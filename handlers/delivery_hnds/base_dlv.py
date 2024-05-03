@@ -5,7 +5,8 @@ from init import bot, TZ
 from config import config
 import keyboards as kb
 from utils import text_utils as txt
-from enums import UserActions,UserRole
+from utils import redis_utils as rds
+from enums import UserActions, UserRole
 
 
 # старт курьера
@@ -35,13 +36,9 @@ async def get_profile_dlv(user_id: int, user_info: db.UserRow = None, msg_id: in
     if not user_info:
         user_info = await db.get_user_info (user_id)
 
-    cnt_stat = await db.count_status_orders (dlv=user_info.name)
-
-    text = f'{user_info.name}\n\n' \
-           f'Всего заказов: {cnt_stat [0]}\n' \
-           f'Доставлено: {int (cnt_stat [3]) + int (cnt_stat [4])}\n' \
-           f'На руках: {cnt_stat [2]}\n' \
-           f'Отказ: {cnt_stat [5] + cnt_stat [7]}\n'
+    statistic = await db.get_statistic_dlv (user_id=user_id)
+    statistic_text = txt.get_statistic_text (statistic)
+    text = f'{user_info.name}\n\n{statistic_text}'
 
     if msg_id:
         await bot.edit_message_text (text, reply_markup=kb.main_dvl_kb (), chat_id=user_id, message_id=msg_id)
@@ -57,21 +54,35 @@ async def save_expenses(
 
     today_str = datetime.now (TZ).strftime (config.day_form)
     exp_today = await db.get_report_dlv(user_info.name, today_str)
+    print(exp_today)
+
+    for k, v in data.items():
+        print(f'{k}: {v}')
+
     if exp_today:
         # update_comment = f'{exp_today.l}\n{data["comment"]}'
         update_comment = exp_today.l.append(data["comment"])
+        update_b = data.get('b') if data.get('b') else 0
+        update_c = data.get('c') if data.get('c') else 0
+        update_d = data.get('d') if data.get('d') else 0
+        update_e = data.get('e') if data.get('e') else 0
+        update_f = data.get('f') if data.get('f') else 0
+        update_g = data.get('g') if data.get('g') else 0
+        update_h = data.get('h') if data.get('h') else 0
+        update_i = data.get('i') if data.get('i') else 0
+        update_k = data.get('k') if data.get('k') else 0
         await db.update_expenses_dlv(
             entry_id=exp_today.id,
             l=update_comment,
-            b=exp_today.b + (data.get('b') if data.get('b') else 0),
-            c=exp_today.c + (data.get('c') if data.get('c') else 0),
-            d=exp_today.d + (data.get('d') if data.get('d') else 0),
-            e=exp_today.e + (data.get('e') if data.get('e') else 0),
-            f=exp_today.f + (data.get('f') if data.get('f') else 0),
-            g=exp_today.g + (data.get('g') if data.get('g') else 0),
-            h=exp_today.h + (data.get('h') if data.get('h') else 0),
-            i=exp_today.i + (data.get('i') if data.get('i') else 0),
-            k=exp_today.k + (data.get('k') if data.get('k') else 0)
+            b=exp_today.b + (data.get('b', 0)),
+            c=exp_today.c + (data.get('c', 0)),
+            d=exp_today.d + (data.get('d', 0)),
+            e=exp_today.e + (data.get('e', 0)),
+            f=exp_today.f + (data.get('f', 0)),
+            g=exp_today.g + (data.get('g', 0)),
+            h=exp_today.h + (data.get('h', 0)),
+            i=exp_today.i + (data.get('i', 0)),
+            k=exp_today.k + (data.get('k', 0))
         )
 
     else:
@@ -79,15 +90,15 @@ async def save_expenses(
             l=data["comment"],
             m=today_str,
             n=user_info.name,
-            b=data.get('b'),
-            c=data.get('c'),
-            d=data.get('d'),
-            e=data.get('e'),
-            f=data.get('f'),
-            g=data.get('g'),
-            h=data.get('h'),
-            i=data.get('i'),
-            k=data.get('k')
+            b=data.get('b', 0),
+            c=data.get('c', 0),
+            d=data.get('d', 0),
+            e=data.get('e', 0),
+            f=data.get('f', 0),
+            g=data.get('g', 0),
+            h=data.get('h', 0),
+            i=data.get('i', 0),
+            k=data.get('k', 0)
         )
 
     today = datetime.now (TZ).strftime (config.time_form)

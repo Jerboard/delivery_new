@@ -1,15 +1,18 @@
 from aiogram.types import Message, CallbackQuery
 
+from datetime import datetime
+
 import db
 import keyboards as kb
 from init import dp, bot, TZ, log_error
 from config import config
+from data import base_data as dt
 from enums import DeliveryCB, OrderStatus, UserActions
 
 
 # отчёт по дням
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_1.value))
-async def dlv_order_1(cb: CallbackQuery):
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_1.value))
+async def report_dvl_1(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
     dlv_reports = await db.get_reports_all_dlv(dlv_name=user_info.name)
 
@@ -17,12 +20,18 @@ async def dlv_order_1(cb: CallbackQuery):
 
 
 # отчёт за день
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_2.value))
-async def dlv_order_2(cb: CallbackQuery):
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_2.value))
+async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
+    if date_str == 'today':
+        date_str = datetime.now(TZ).date().strftime(config.day_form)
+        dlv_orders = await db.get_work_orders(cb.from_user.id)
+
+    else:
+        dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
+
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
     suc_text, refuse_text, active_text, not_come = '', '', '', ''
@@ -30,14 +39,9 @@ async def dlv_order_2(cb: CallbackQuery):
 
     for order in dlv_orders:
         prepay = order.u + order.v
-
-        if order.q == 0 and prepay != 0:
-            cost = 0
-        else:
-            cost = order.q + order.r + order.clmn_t - order.y
-
+        cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
         comment = f'({order.ab})' if order.ab is not None else ''
-        row_text = f'{order.g} {order.n}  {cost} + {order.s} {order.w} {comment}\n'
+        row_text = f'{dt.order_status_data.get(order.g)} {order.n}  {cost} + {order.s} {order.w} {comment}\n'
 
         if order.g == OrderStatus.SUC.value:
             cost_prod += cost
@@ -53,17 +57,22 @@ async def dlv_order_2(cb: CallbackQuery):
         elif order.g == OrderStatus.NOT_COME.value:
             not_come = f'{not_come}{row_text}'
 
-    total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
-                      dlv_report.h + dlv_report.i + dlv_report.j)
+    if dlv_report:
+        total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
+                          dlv_report.h + dlv_report.i + dlv_report.j)
+    else:
+        total_expenses = 0
+
     cost_prod = cost_prod - discount
     total = cost_prod - total_expenses
+    expenses = dlv_report.l if dlv_report else ''
 
     spt = '\n---------------------------\n'
     text = (f'{user_info.name}\n\n'
             f'{date_str}\n\n'
             f'{suc_text}{spt}{refuse_text}{spt}{active_text}{spt}{not_come}{spt}'
             f'Касса: {cost_prod}\n\n'
-            f'{dlv_report.l}\n\n'
+            f'{expenses}\n\n'
             f'Итог: {total}')
 
     await cb.message.answer(text, reply_markup=kb.get_send_day_report_kb())
@@ -72,19 +81,18 @@ async def dlv_order_2(cb: CallbackQuery):
 
 
 # подтверждение отчёта
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_3.value))
-async def expenses_dvl_view(cb: CallbackQuery):
-    cb_data = cb.data.split(':')
-
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_3.value))
+async def report_dvl_3(cb: CallbackQuery):
+    # cb_data = cb.data.split(':')
     text = f'‼️Перед отправкой отчёта проверьте траты'
 
-    await cb.message.edit_reply_markup(reply_markup=get_day_report_kb_2(cb_data[1], cb_data[2]))
+    await cb.message.edit_reply_markup(reply_markup=kb.get_day_report_kb())
     await cb.answer(text, show_alert=True)
 
 
 # отчёт за день. Отправляет в группу
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_4.value))
-async def expenses_dvl_view(cb: CallbackQuery):
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_4.value))
+async def report_dvl_4(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
 
     await bot.send_message(config.group_report, cb.message.text)

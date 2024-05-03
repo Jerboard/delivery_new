@@ -32,6 +32,7 @@ class OrderAction(str, Enum):
 
 class RedisKey(str, Enum):
     ADD_OPR_ORDER = 'add_opr_order'
+    DLV_ORDERS = 'dlv_orders'
 
 
 class UserActions(str, Enum):
@@ -51,6 +52,7 @@ class UserActions(str, Enum):
 
 
 class TypeOrderUpdate(str, Enum):
+    EDIT = 'edit'
     ADD = 'add'
     ADD_OPR = 'add_opr'
     STATE = 'state'

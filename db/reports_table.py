@@ -95,7 +95,7 @@ async def get_last_updated_report() -> t.Optional[ReportRow]:
 # добавляет трату
 # m - дата, n - курьер, l - комментарий, b-k - суммы
 async def add_report_row(
-        entry_id: int = 0,
+        # entry_id: int = None,
         b: int = 0,
         c: int = 0,
         d: int = 0,
@@ -116,12 +116,16 @@ async def add_report_row(
         updated: bool = False,
         row_num: int = 0
 ) -> None:
+    print(b, c, d, e, f, g, h, i, k, l, m, n, o, p, q, r,)
+    print(l)
     query = ReportTable.insert().values(
-        id=entry_id,
         b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
         row_num=row_num,
         in_google=False
     )
+    # if entry_id:
+    #     print(f'entry_id: {entry_id}')
+    #     query = query.values (id=entry_id)
     async with begin_connection() as conn:
         await conn.execute(query)
 

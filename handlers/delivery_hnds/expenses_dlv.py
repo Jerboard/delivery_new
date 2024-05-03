@@ -60,6 +60,7 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
     if msg.content_type == ContentType.PHOTO:
         await state.update_data(data={'photo_id': msg.photo[-1].file_id})
         if msg.caption:
+            await state.update_data (data={'comment': msg.caption})
             data = await state.get_data()
             await state.clear()
             await save_expenses(msg.from_user.id, data)
@@ -69,6 +70,7 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
             await msg.answer('Теперь отправьте комментарий', reply_markup=kb.get_close_kb())
 
     else:
+        await state.update_data (data={'comment': msg.text})
         data = await state.get_data()
         if data ['column'] in ['b', 'g', 'k']:
             await state.clear()
@@ -81,29 +83,27 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
 # сохраняет коммент
 @dp.message(StateFilter(DeliveryStatus.EXPENSES_DVL_5))
 async def expenses_dvl_5(msg: Message, state: FSMContext):
+    await state.update_data (data={'comment': msg.text})
     data = await state.get_data()
     await state.clear()
 
-    user_info = await db.get_user_info(user_id=msg.from_user.id)
     await save_expenses (msg.from_user.id, data)
 
-    # expenses_dvl(msg.text, data['column'], data['sum'], dlv[6])
-
-    today = datetime.now(TZ).strftime(config.time_form)
-    text = f'Курьер: {user_info.name}\n' \
-           f'Время: {today}\n' \
-           f'Сумма: {data["sum"]} ₽\n' \
-           f'Комментарий: {msg.text}'
-
-    await bot.send_photo(config.group_expenses, photo=data['photo'], caption=text)
-    await msg.answer('✅ Ваша трата учтена')
+    # today = datetime.now(TZ).strftime(config.time_form)
+    # text = f'Курьер: {user_info.name}\n' \
+    #        f'Время: {today}\n' \
+    #        f'Сумма: {data["sum"]} ₽\n' \
+    #        f'Комментарий: {msg.text}'
+    #
+    # await bot.send_photo(config.group_expenses, photo=data['photo'], caption=text)
+    # await msg.answer('✅ Ваша трата учтена')
     # журнал действий
-    await db.save_user_action (
-        user_id=msg.from_user.id,
-        dlv_name=user_info.name,
-        action=UserActions.ADD_EXPENSES.value,
-        comment=text
-    )
+    # await db.save_user_action (
+    #     user_id=msg.from_user.id,
+    #     dlv_name=user_info.name,
+    #     action=UserActions.ADD_EXPENSES.value,
+    #     comment=text
+    # )
 
 
 # посмотреть траты за сегодня

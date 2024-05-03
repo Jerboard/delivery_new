@@ -3,9 +3,9 @@ import typing as tp
 
 import sqlalchemy as sa
 
-from .base import METADATA, begin_connection
+from .base import METADATA, begin_connection, ENGINE
 from init import TZ
-from enums.base_enum import SearchType, OrderStatus
+from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate
 
 
 class OrderRow(tp.Protocol):
@@ -94,6 +94,12 @@ OrderTable: sa.Table = sa.Table(
     sa.Column('discount', sa.Integer(), default=0),
     sa.Column('row_num', sa.Integer()),
 )
+
+
+# Индексируем таблицу
+async def index_table():
+    idx = sa.Index('idx_id', OrderTable.c.user_id)
+    idx.create(ENGINE)
 
 
 # добавляет строку
@@ -255,12 +261,34 @@ async def update_row_google(
         await conn.execute(query)
 
 
+# обновляет несколько заказов
+async def update_multi_orders(
+        orders: list[int],
+        name: str = None,
+        date_e: str = None,
+        type_update: str = TypeOrderUpdate.EDIT.value
+):
+    query = OrderTable.update().where(OrderTable.c.id.in_(orders)).values(
+        updated=False,
+        time_update=datetime.now(TZ).replace(microsecond=0),
+        type_update=type_update
+    )
+    if name:
+        query = query.values(f=name)
+    elif date_e:
+        query = query.values(e=date_e)
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+    return result.all()
+
+
 # возвращает строки таблицы
 async def get_orders(
         dlv_name: str = None,
         get_active: bool = False,
         get_wait_update: bool = False,
-        on_date: str = None) -> tuple[OrderRow]:
+        on_date: str = None,
+) -> tuple[OrderRow]:
     query = OrderTable.select()
 
     if get_active:
@@ -272,6 +300,7 @@ async def get_orders(
         query = query.where(OrderTable.c.f == dlv_name)
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
+
     async with begin_connection() as conn:
         result = await conn.execute(query)
 
@@ -334,45 +363,15 @@ async def search_orders(search_query: str, search_on: str, comp: str = None) -> 
     return result.all()
 
 
-# количество заказов по статусам на руках и не принят
-async def count_status_orders(dlv: str = 'all') -> tuple[int, int, int, int, int, int, int, int]:
-    if dlv == 'all':
-        query = sa.select(OrderTable.c.g, sa.func.count(OrderTable.c.g)).group_by(OrderTable.c.g)
-        query2 = sa.select(sa.func.count(OrderTable.c.n)).where(OrderTable.c.n.isnot(None))
+# статистика заказов
+async def get_orders_statistic(dlv_name: str = None):
+    query = (OrderTable.select().
+             with_only_columns(OrderTable.c.g, sa.func.count().label('status_count')).
+             group_by(OrderTable.c.g))
 
-    else:
-        query = (sa.select(OrderTable.c.g, sa.func.count(OrderTable.c.g))
-                 .where(OrderTable.c.f == dlv,
-                        OrderTable.c.c.isnot(None)).group_by(OrderTable.c.g))
-        query2 = (sa.select(sa.func.count(OrderTable.c.n)).
-                  where(OrderTable.c.n.isnot(None),
-                        OrderTable.c.f == dlv,
-                        OrderTable.c.c.isnot(None)))
+    if dlv_name:
+        query = query.where(OrderTable.c.f == dlv_name)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
-        group = result.all()
-
-        result = await conn.execute(query2)
-        len_res = result.scalar()
-
-    all = int(len_res)
-
-    free, busy, suc, approv, close, get, rework = 0, 0, 0, 0, 0, 0, 0
-    for i in group:
-        if i[0] == '':
-            free = i[1]
-        elif i[0] == 'на руках':
-            busy = i[1]
-        elif i[0] == 'доставлен':
-            suc = i[1]
-        elif i[0] == 'принят':
-            approv = i[1]
-        elif i[0] == 'отказ':
-            close = i[1]
-        elif i[0] == 'отправлен':
-            get = i[1]
-        elif i[0] == 'переделка':
-            rework = i[1]
-
-    return all, free, busy, suc, approv, close, get, rework
+    return result.all()
