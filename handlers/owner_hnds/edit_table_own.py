@@ -46,7 +46,10 @@ async def change_tab_2(msg: Message, state: FSMContext):
             if wait_updates == 0:
                 update_table = False
             else:
-                await sent.edit_text (f'⏳ Ожидает внесения изменений. Примерно {wait_updates * 3} с.')
+                try:
+                    await sent.edit_text (f'⏳ Ожидает внесения изменений. Примерно {wait_updates * 3} с.')
+                except:
+                    pass
                 await sleep(3)
 
         # очистить таблицу
@@ -81,3 +84,17 @@ async def update_google_table(cb: CallbackQuery):
         await ggl.save_new_report_table ()
 
     await sent.delete()
+
+
+# вернуть клавиатуру передачи заказа
+# @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.UPDATE_USERS_TABLE_1.value))
+# async def update_users_1(cb: CallbackQuery):
+#     ga.add_users_table()
+#     await cb.answer('📤Данные выгружены в таблицу', show_alert=True)
+
+
+# вернуть клавиатуру передачи заказа
+# @dp.callback_query_handler(text_startswith='update_users_table_2')
+# async def update_users_2(cb: CallbackQuery):
+#     ga.update_users_table()
+#     await cb.answer('📥Данные обновлены', show_alert=True)

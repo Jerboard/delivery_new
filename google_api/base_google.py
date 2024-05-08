@@ -10,8 +10,8 @@ import utils.json_utils as js
 import google_api.utils_google as ug
 from config import config
 from init import TZ, bot, log_error
-from data.base_data import order_status_data
-from enums import TypeOrderUpdate
+from data.base_data import order_status_data, company
+from enums import TypeOrderUpdate, UserRole
 
 
 # (a - 0, b - 1, c - 2, d - 3, e - 4, f - 5, g - 6, h - 7, i - 8, j - 9, k - 10,
@@ -426,53 +426,45 @@ async def update_report_table():
 
 
 # добавляет курьеров и компании в таблицу
-def add_users_table():
-    pass
-    # dlv_table = db.get_dlv_table()
-    # comp_table = db.get_comp_table()
+async def add_users_table():
+    dlv_table = await db.get_users(role=UserRole.DLV.value)
 
-    # sh = ug.get_google_connect()
-    # table = []
-    # for line in dlv_table:
-    #     row = []
-    #     for cell in line:
-    #         row.append(cell)
-    #     table.append(row)
-    #
-    # sh.get_worksheet(7).update(f'a3:d{len(table) + 3}', table)
-    #
-    # table = []
-    # for line in comp_table:
-    #     row = []
-    #     for cell in line:
-    #         row.append(cell)
-    #     table.append(row)
-    #
-    # sh.get_worksheet(7).update(f'f3:g{len(table) + 3}', table)
+    sh = ug.get_google_connect()
+    table = []
+    for user in dlv_table:
+        table.append([user.user_id, user.name, user.company, company.get(user.company)])
+
+    sh.get_worksheet(7).update(f'a3:d{len(table) + 3}', table)
+
+    table = []
+    for k, v in company.items():
+        table.append([k, v])
+
+    sh.get_worksheet(7).update(f'f3:g{len(table) + 3}', table)
 
 
 # обновляет данные по курьерам
-def update_users_table():
-    sh = ug.get_google_connect()
-    all_table = sh.get_worksheet(7).get_all_values()
-
-    # result = db.get_all_users_id()
-    # list_exception = [user_id[0] for user_id in result]
-    #
-    # for row in all_table[2:]:
-    #     if row[0] in list_exception:
-    #         db.update_user_data(row)
-    #
-    #     elif row[0] is not None or row[0] != '':
-    #         db.add_user_data(row)
-    #
-    # result = db.get_all_comp_id()
-    # list_exception = [comp_id[0] for comp_id in result]
-    #
-    # for row in all_table[2:]:
-    #     try:
-    #         if int(row[5]) in list_exception:
-    #             db.update_comp_dlv(row)
-    #
-    #     except Exception as ex:
-    #         logging.warning(f'update_users_table 495:\n{ex}')
+# def update_users_table():
+#     sh = ug.get_google_connect()
+#     all_table = sh.get_worksheet(7).get_all_values()
+#
+#     result = db.get_all_users_id()
+#     list_exception = [user_id[0] for user_id in result]
+#
+#     for row in all_table[2:]:
+#         if row[0] in list_exception:
+#             db.update_user_data(row)
+#
+#         elif row[0] is not None or row[0] != '':
+#             db.add_user_data(row)
+#
+#     result = db.get_all_comp_id()
+#     list_exception = [comp_id[0] for comp_id in result]
+#
+#     for row in all_table[2:]:
+#         try:
+#             if int(row[5]) in list_exception:
+#                 db.update_comp_dlv(row)
+#
+#         except Exception as ex:
+#             logging.warning(f'update_users_table 495:\n{ex}')

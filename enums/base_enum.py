@@ -67,3 +67,8 @@ class SearchType(str, Enum):
     PHONE = 'phone'
     NAME = 'name'
     METRO = 'metro'
+
+
+class ShortText (str, Enum):
+    ACTIVE = 'active_orders'
+    FREE = 'free_orders'

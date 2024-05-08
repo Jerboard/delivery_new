@@ -65,13 +65,15 @@ async def get_user_info(user_id: int = None, name: str = None) -> UserRow:
 
 
 # возвращает пользователей
-async def get_users(exc_user_id: int = None, company: str = None) -> tuple[UserRow]:
+async def get_users(exc_user_id: int = None, company: str = None, role: str = None) -> tuple[UserRow]:
     query = UserTable.select()
 
     if exc_user_id:
         query = query.where(UserTable.c.user_id != exc_user_id)
     if company:
         query = query.where(UserTable.c.company == company)
+    if role:
+        query = query.where(UserTable.c.role == role)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
@@ -93,5 +95,12 @@ async def update_user_info(
     if company:
         query = query.values(company_id=company)
 
+    async with begin_connection() as conn:
+        await conn.execute(query)
+
+
+# удаляет пользователя
+async def delete_user(user_id: int) -> None:
+    query = UserTable.delete().where(UserTable.c.user_id == user_id)
     async with begin_connection() as conn:
         await conn.execute(query)

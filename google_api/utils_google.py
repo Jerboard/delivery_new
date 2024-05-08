@@ -6,7 +6,6 @@ from gspread.spreadsheet import Spreadsheet
 from datetime import datetime
 
 import db
-from google_api import objects as odj
 from config import config
 from init import TZ, bot
 import utils.json_utils as js
@@ -41,11 +40,6 @@ def is_table_exist(tab_id: str) -> bool:
 #     while not str(id_column[-1]).isdigit():
 #         id_column = id_column[-1]
 #     return len (id_column) + 1
-
-
-# всё из таблицы новых заказов
-def get_new_order_table(sh: Spreadsheet) -> list[odj.GoogleRawRow]:
-    return sh.sheet1.get_all_values()
 
 
 async def add_order_in_google_table(sh: Spreadsheet, row_num: int, row: list, order_id: int):

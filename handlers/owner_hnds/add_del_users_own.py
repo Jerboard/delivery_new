@@ -17,14 +17,15 @@ from data.base_data import order_status_data
 from enums import OwnerCB, UserRole, RedisKey, UserActions, OwnerStatus, OrderAction, TypeOrderUpdate
 
 
-# меняет рабочую таблицу. Запрашивает номер новой таблицы
+# меняет клавиатуру на клаву с курьерскими
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.ADD_USER_1.value))
 async def add_user_1(cb: CallbackQuery, state: FSMContext):
     await cb.message.edit_reply_markup(reply_markup=kb.get_add_dlv_comp_kb())
 
 
+# отправляет ссылку для вступления
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.ADD_USER_2.value))
-async def add_user_1(cb: CallbackQuery, state: FSMContext):
+async def add_user_2(cb: CallbackQuery, state: FSMContext):
     _, role, comp_id = cb.data.split(':')
     code_verif = get_random_code()
 
@@ -36,3 +37,25 @@ async def add_user_1(cb: CallbackQuery, state: FSMContext):
 
     await cb.message.answer(text)
 
+
+@dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.DEL_USER_1.value))
+async def del_user_1(cb: CallbackQuery):
+    _, user_role = cb.data.split(':')
+    users = await db.get_users(role=user_role)
+
+    text = f'❗️Чтобы удалить сотрудника нажмите на его имя'
+    await cb.message.edit_text(text, reply_markup=kb.get_del_user_kb(users=users, user_role=user_role))
+
+
+# удаляет пользователя
+@dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.DEL_USER_2.value))
+async def del_user_2(cb: CallbackQuery):
+    _, user_id_str, user_role = cb.data.split(':')
+    user_id = int(user_id_str)
+
+    await db.delete_user(user_id)
+    users = await db.get_users (role=user_role)
+
+    text = f'✅Пользователь удалён'
+    await cb.answer(text, show_alert=True)
+    await cb.message.edit_reply_markup(reply_markup=kb.get_del_user_kb(users=users, user_role=user_role))

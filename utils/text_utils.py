@@ -1,7 +1,7 @@
 import db
 
 from data import base_data as dt
-from enums import OrderStatus, UserRole
+from enums import OrderStatus, UserRole, ShortText
 
 
 # текст заказа по строке
@@ -57,17 +57,26 @@ def get_admin_order_text(order_info: db.OrderRow) -> str:
 
 # краткий заказ строка
 def get_short_order_row(order: db.OrderRow, for_: str) -> str:
+    prepay = order.u + order.v
+    cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
+
     if for_ in [UserRole.OWN.value, UserRole.OPR.value]:
-        return (f'<code>{order.n}</code>, <code>{order.o}</code>  {order.m} {order.x} '
+        text = (f'<code>{order.n}</code>, <code>{order.o}</code>  {order.m} {order.x} '
                 f'{order.f} {dt.order_status_data.get(order.g)}\n'.replace('None', ''))
+
+    elif for_ == ShortText.ACTIVE.value:
+        text = (f'{order.i} | {order.k} | {order.m} | <code>{order.n}</code> <code>{order.o}</code> '
+                f'| {cost} + {order.s}| {order.w}')
+
+    elif for_ == ShortText.FREE.value:
+        text = f'{order.e} | {order.g} | {order.l} | <code>{order.n}</code> <code>{order.o}</code> ' \
+                     f'| {cost} + {order.s}| {order.w}'
+
     else:
-        prepay = order.u + order.v
-
-        cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
-
-        return (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.w} '
+        text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.w} '
                 f'\n---------------------------\n')
 
+    return text.replace('None', 'н/д').strip()
 
 
 def get_statistic_text(statistic: list[tuple]) -> str:

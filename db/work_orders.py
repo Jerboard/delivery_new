@@ -4,6 +4,13 @@ import sqlalchemy as sa
 
 from .base import METADATA, begin_connection
 from db.orders_table import OrderRow, OrderTable
+from enums import OrderStatus
+
+
+class OrderGroupRow(t.Protocol):
+    user_id: int
+    name: str
+    count_orders: str
 
 
 WorkTable: sa.Table = sa.Table(
@@ -17,7 +24,7 @@ WorkTable: sa.Table = sa.Table(
 
 
 # возвращает заказы курьера
-async def get_work_orders(user_id: int) -> tuple[OrderRow]:
+async def get_work_orders(user_id: int, only_active: bool = False) -> tuple[OrderRow]:
     query = (
         sa.select (
             OrderTable.c.id,
@@ -49,6 +56,10 @@ async def get_work_orders(user_id: int) -> tuple[OrderRow]:
         .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
         where(WorkTable.c.user_id == user_id)
     )
+    if only_active:
+        query = query.where(
+            sa.or_(OrderTable.c.g == OrderStatus.ACTIVE.value, OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value)
+        )
 
     async with begin_connection () as conn:
         result = await conn.execute (query)
@@ -102,3 +113,21 @@ async def delete_work_order(order_id: int = None, user_id: int = None, except_li
 
     async with begin_connection() as conn:
         await conn.execute(query)
+
+
+# возвращает курьеров и количество их заказов
+async def get_users_group() -> tuple[OrderGroupRow]:
+    query = (
+        sa.select (
+            WorkTable.c.user_id,
+            OrderTable.c.f.label('name'),
+            sa.func.count ().label ('count_orders')
+        )
+        .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
+        group_by (WorkTable.c.user_id, OrderTable.c.f)
+    ).where(sa.or_(OrderTable.c.g == OrderStatus.ACTIVE.value, OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value))
+
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+
+    return result.all()

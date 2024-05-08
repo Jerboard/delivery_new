@@ -287,13 +287,18 @@ async def update_multi_orders(
 async def get_orders(
         dlv_name: str = None,
         get_active: bool = False,
+        get_new: bool = False,
         get_wait_update: bool = False,
         on_date: str = None,
 ) -> tuple[OrderRow]:
     query = OrderTable.select()
 
     if get_active:
-        query = query.where(sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value))
+        query = query.where(
+            sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
+        )
+    elif get_new:
+        query = query.where(sa.or_(OrderTable.c.g == OrderStatus.NEW.value))
     elif get_wait_update:
         query = query.where (OrderTable.c.updated == False)
 
