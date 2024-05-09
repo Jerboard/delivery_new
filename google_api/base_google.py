@@ -8,7 +8,7 @@ from datetime import datetime
 import db
 import utils.json_utils as js
 import google_api.utils_google as ug
-from config import config
+from config import Config
 from init import TZ, bot, log_error
 from data.base_data import order_status_data, company
 from enums import TypeOrderUpdate, UserRole

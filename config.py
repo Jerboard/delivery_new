@@ -2,27 +2,45 @@ from dotenv import load_dotenv
 from os import getenv
 import os
 
+from enums import CompanyDLV
+
 
 load_dotenv ()
 DEBUG = bool(int(getenv('DEBUG')))
-# if DEBUG:
 
 
-class config:
-    token = getenv ("TOKEN")
+class Config:
+    if DEBUG:
+        token = getenv ("TOKEN")
+        db_url = getenv ('DB_URL')
+        bot_name = 'MatrixDeliveryBot'
+        host = getenv('HOST')
+        work_chats = {
+            CompanyDLV.MASTER.value: -1001669708234,
+            CompanyDLV.PUTILIN.value: -1001669708234,
+            CompanyDLV.MASTER_SPB.value: -1001669708234,
+            'group_expenses': -1001669708234,
+            'group_report': -1001669708234
+        }
+
+    else:
+        token = getenv ("TOKEN")
+        db_url = getenv ('DB_URL')
+        bot_name = 'MatrixDeliveryBot'
+        host = getenv ('HOST')
+        work_chats = {
+            CompanyDLV.MASTER.value: -1001838764189,
+            CompanyDLV.PUTILIN.value: -1001864910335,
+            CompanyDLV.MASTER_SPB.value: -1001653186290,
+            'group_expenses': -1001903349475,
+            'group_report': -1001863016934
+        }
+
+
     tz = 'Europe/Moscow'
-    db_url = getenv ('DB_URL')
-    bot_name = 'MatrixDeliveryBot'
-    group_expenses = -1001669708234
-    group_expenses_work = -1001903349475
-    group_report = -1001669708234
-    group_report_work = -1001863016934
     day_form = '%d.%m'
-    time_form = '%d.%m %H:%M'
-    only_time_form = '%H:%M'
-    file_google_path = os.path.join('data', 'cred.json')
+    datetime_form = '%d.%m.%Y %H:%M'
+    time_form = '%H:%M'
+    file_google_path = os.path.join ('data', 'cred.json')
     data_path = 'data'
     table_file = 'google_table'
-    host = getenv('HOST')
-    redis_port = getenv('REDIS_PORT')
-    redis_db = 0

@@ -5,7 +5,7 @@ import sqlalchemy.dialects.postgresql as sa_postgresql
 
 from .base import METADATA, begin_connection
 from init import TZ
-from config import config
+from config import Config
 
 
 class ReportRow(t.Protocol):

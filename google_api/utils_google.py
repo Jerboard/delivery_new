@@ -6,7 +6,7 @@ from gspread.spreadsheet import Spreadsheet
 from datetime import datetime
 
 import db
-from config import config
+from config import Config
 from init import TZ, bot
 import utils.json_utils as js
 from enums import OrderStatus
@@ -19,14 +19,14 @@ test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 
 def get_google_connect() -> Spreadsheet:
-    gc = gspread.service_account (filename=config.file_google_path)
-    table_id = js.get_json_data(config.table_file)
+    gc = gspread.service_account (filename=Config.file_google_path)
+    table_id = js.get_json_data(Config.table_file)
     return gc.open_by_key (table_id['tab_id'])
 
 
 # проверяет подключение к таблице
 def is_table_exist(tab_id: str) -> bool:
-    gc = gspread.service_account(filename=config.file_google_path)
+    gc = gspread.service_account(filename=Config.file_google_path)
     try:
         gc.open_by_key(tab_id)
         return True

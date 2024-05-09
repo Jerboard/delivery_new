@@ -45,10 +45,7 @@ async def search(msg: Message):
                     # elif order.g in [OrderStatus.NEW.value, OrderStatus.TAKE.value]:
                     elif order.g == OrderStatus.NEW.value:
                         counter += 1
-                        await msg.answer(text, reply_markup=kb.get_free_order_kb(
-                            order_id=order.id,
-                            order_status=order.g
-                        ))
+                        await msg.answer(text, reply_markup=kb.get_free_order_kb(order_id=order.id))
                 except Exception as ex:
                     log_error(ex)
 

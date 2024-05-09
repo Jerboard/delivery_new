@@ -105,40 +105,40 @@ async def index_table():
 # добавляет строку
 async def add_row(
     row_num: int,
-    b: str,
-    c: str,
-    d: str,
-    e: str,
-    f: str,
-    g: str,
-    h: str,
-    i: str,
-    j: str,
-    k: str,
-    l: str,
-    m: str,
-    n: str,
-    o: str,
-    p: str,
-    q: int,
-    r: int,
-    s: int,
-    t: int,
-    u: int,
-    v: int,
-    w: str,
-    x: str,
-    y: int,
-    z: str,
-    aa: str,
-    ab: str,
-    ac: str,
-    ad: str,
-    ae: str,
-    af: str,
-    ag: str,
-    ah: str,
-    type_update: str,
+    b: str = None,
+    c: str = None,
+    d: str = None,
+    e: str = None,
+    f: str = None,
+    g: str = None,
+    h: str = None,
+    i: str = None,
+    j: str = None,
+    k: str = None,
+    l: str = None,
+    m: str = None,
+    n: str = None,
+    o: str = None,
+    p: str = None,
+    q: int = 0,
+    r: int = 0,
+    s: int = 0,
+    t: int = 0,
+    u: int = 0,
+    v: int = 0,
+    w: str = None,
+    x: str = None,
+    y: int = 0,
+    z: str = None,
+    aa: str = None,
+    ab: str = None,
+    ac: str = None,
+    ad: str = None,
+    ae: str = None,
+    af: str = None,
+    ag: str = None,
+    ah: str = None,
+    type_update: str = None,
     updated: bool = False,
     empty_id: int = None
 ):
@@ -264,20 +264,18 @@ async def update_row_google(
 
 # обновляет несколько заказов
 async def update_multi_orders(
-        orders: list[int],
-        name: str = None,
-        date_e: str = None,
+        date_str: str = None,
         type_update: str = TypeOrderUpdate.EDIT.value
 ):
-    query = OrderTable.update().where(OrderTable.c.id.in_(orders)).values(
+    query = OrderTable.update().where(
+        sa.or_ (OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
+    ).values(
         updated=False,
         time_update=datetime.now(TZ),
-        type_update=type_update
+        type_update=type_update,
+        e=date_str
     )
-    if name:
-        query = query.values(f=name)
-    elif date_e:
-        query = query.values(e=date_e)
+
     async with begin_connection() as conn:
         result = await conn.execute(query)
     return result.all()

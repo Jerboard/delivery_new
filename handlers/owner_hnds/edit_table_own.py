@@ -7,14 +7,12 @@ from asyncio import sleep
 
 import db
 import keyboards as kb
-from init import dp, bot, TZ, log_error
-from config import config
+from init import dp
+from config import Config
 from google_api.utils_google import is_table_exist
 import google_api as ggl
 from utils.json_utils import save_json_data
-from utils.text_utils import get_order_text
-from data.base_data import order_status_data
-from enums import OwnerCB, OrderStatus, RedisKey, UserActions, OwnerStatus, OrderAction, TypeOrderUpdate
+from enums import OwnerCB, OwnerStatus
 
 
 # меняет рабочую таблицу. Запрашивает номер новой таблицы
@@ -61,7 +59,7 @@ async def change_tab_2(msg: Message, state: FSMContext):
         # обновляет отчёт и траты
         await ggl.save_new_report_table()
         # сохраняет новую таблицу
-        save_json_data(data={'tab_id': msg.text}, file_name=config.table_file)
+        save_json_data(data={'tab_id': msg.text}, file_name=Config.table_file)
         time_finish = datetime.now() - time_start
         await sent.edit_text(f'✅ Таблица обновлена\nВремя обновления: {time_finish}')
 

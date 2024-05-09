@@ -5,29 +5,29 @@ from datetime import datetime
 import db
 import keyboards as kb
 from init import dp, bot, TZ, log_error
-from config import config
+from config import Config
 from data import base_data as dt
 from enums import DeliveryCB, OrderStatus, UserActions
 
 
 # отчёт по дням
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_1.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_1.value))
 async def report_dvl_1(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
-    date_str = datetime.now (TZ).date ().strftime (config.day_form)
+    date_str = datetime.now (TZ).date ().strftime (Config.day_form)
     dlv_reports = await db.get_reports_all_dlv(dlv_name=user_info.name, exception_date=date_str)
 
     await cb.message.edit_reply_markup(reply_markup=kb.report_view_days_kb(dlv_reports))
 
 
 # отчёт за день
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_2.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_2.value))
 async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
     if date_str == 'today':
-        date_str = datetime.now(TZ).date().strftime(config.day_form)
+        date_str = datetime.now(TZ).date().strftime(Config.day_form)
         dlv_orders = await db.get_work_orders(cb.from_user.id)
 
     else:
@@ -82,7 +82,7 @@ async def report_dvl_2(cb: CallbackQuery):
 
 
 # подтверждение отчёта
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_3.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_3.value))
 async def report_dvl_3(cb: CallbackQuery):
     text = f'‼️Перед отправкой отчёта проверьте траты'
 
@@ -91,11 +91,11 @@ async def report_dvl_3(cb: CallbackQuery):
 
 
 # отчёт за день. Отправляет в группу
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_DVL_4.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_4.value))
 async def report_dvl_4(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
 
-    await bot.send_message(config.group_report, cb.message.text)
+    await bot.send_message(Config.group_report, cb.message.text)
     await cb.message.edit_text(f'{cb.message.text}\n\n✅ Отчёт отправлен')
     active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
 

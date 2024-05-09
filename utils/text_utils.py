@@ -76,7 +76,7 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
         text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.w} '
                 f'\n---------------------------\n')
 
-    return text.replace('None', 'н/д').strip()
+    return text.replace('None', 'н/д')
 
 
 def get_statistic_text(statistic: list[tuple]) -> str:

@@ -1,11 +1,11 @@
-from enums import OrderStatus
+from enums import OrderStatus, CompanyDLV
 
 
 company = {
-    'post': 'Почта / СДЭК',
-    'master': 'Мастер',
-    'putilin': 'Путилин',
-    'master_spb': 'Мастер СПБ'
+    CompanyDLV.POST.value: 'Почта / СДЭК',
+    CompanyDLV.MASTER.value: 'Мастер',
+    CompanyDLV.PUTILIN.value: 'Путилин',
+    CompanyDLV.MASTER_SPB.value: 'Мастер СПБ'
 }
 
 order_status_data = {

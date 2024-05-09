@@ -8,13 +8,13 @@ from asyncio import sleep
 import db
 import keyboards as kb
 from init import dp, bot, TZ, log_error
-from config import config
+from config import Config
 from google_api.utils_google import is_table_exist
 from google_api.base_google import save_new_order_table, save_new_report_table
 from utils.json_utils import save_json_data
 from utils.base_utils import get_random_code
 from data.base_data import order_status_data
-from enums import OwnerCB, UserRole, RedisKey, UserActions, OwnerStatus, OrderAction, TypeOrderUpdate
+from enums import OwnerCB, UserRole, UserActions, OwnerStatus, OrderAction, TypeOrderUpdate
 
 
 # меняет клавиатуру на клаву с курьерскими
@@ -29,7 +29,7 @@ async def add_user_2(cb: CallbackQuery, state: FSMContext):
     _, role, comp_id = cb.data.split(':')
     code_verif = get_random_code()
 
-    link = f'https://t.me/{config.bot_name}?start={comp_id}-{code_verif}-{role}'
+    link = f'https://t.me/{Config.bot_name}?start={comp_id}-{code_verif}-{role}'
 
     await db.add_temp_link(code_verif)
     text = f'Для начала работы перейдите по ссылке и пройдите простую регистрацию\n\n' \

@@ -14,7 +14,7 @@ import traceback
 import os
 import asyncio
 
-from config import config
+from config import Config
 
 
 try:
@@ -26,14 +26,14 @@ except:
 
 loop = asyncio.get_event_loop()
 dp = Dispatcher()
-bot = Bot(config.token, parse_mode=ParseMode.HTML)
-TZ = timezone(config.tz)
+bot = Bot(Config.token, parse_mode=ParseMode.HTML)
+TZ = timezone(Config.tz)
 
 scheduler = AsyncIOScheduler(timezone=TZ)
 
-ENGINE = create_async_engine(url=config.db_url)
+ENGINE = create_async_engine(url=Config.db_url)
 
-redis_client = Redis(host=config.host, port=config.redis_port, db=config.redis_db)
+# redis_client = Redis(host=Config.host, port=Config.redis_port, db=Config.redis_db)
 
 
 async def set_main_menu():

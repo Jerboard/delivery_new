@@ -30,9 +30,9 @@ class OrderAction(str, Enum):
     DELI = 'edit_cost_dlv'
 
 
-class RedisKey(str, Enum):
+class DataKey(str, Enum):
     ADD_OPR_ORDER = 'add_opr_order'
-    DLV_ORDERS = 'dlv_orders'
+    ORDERS = 'dlv_orders'
 
 
 class UserActions(str, Enum):
@@ -72,3 +72,10 @@ class SearchType(str, Enum):
 class ShortText (str, Enum):
     ACTIVE = 'active_orders'
     FREE = 'free_orders'
+
+
+class CompanyDLV (str, Enum):
+    POST = 'post'
+    MASTER = 'master'
+    PUTILIN = 'putilin'
+    MASTER_SPB = 'master_spb'

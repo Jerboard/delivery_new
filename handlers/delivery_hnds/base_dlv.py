@@ -2,7 +2,7 @@ from datetime import datetime
 
 import db
 from init import bot, TZ
-from config import config
+from config import Config
 import keyboards as kb
 from utils import text_utils as txt
 from utils import redis_utils as rds
@@ -52,7 +52,7 @@ async def save_expenses(
 ):
     user_info = await db.get_user_info (user_id)
 
-    today_str = datetime.now (TZ).strftime (config.day_form)
+    today_str = datetime.now (TZ).strftime (Config.day_form)
     exp_today = await db.get_report_dlv(user_info.name, today_str)
 
     comment = f'{data["exp_sum"]} - {data["comment"]}'
@@ -94,16 +94,16 @@ async def save_expenses(
             row_num=row_num
         )
 
-    today = datetime.now (TZ).strftime (config.time_form)
+    today = datetime.now (TZ).strftime (Config.datetime_form)
     text = (f'Курьер: {user_info.name}\n'
             f'Время: {today}\n'
             f'Сумма: {data["exp_sum"]} ₽\n'
             f'Комментарий: {data["comment"]}')
 
     if data.get('photo_id'):
-        await bot.send_photo (config.group_expenses, photo=data['photo_id'], caption=text)
+        await bot.send_photo (Config.group_expenses, photo=data['photo_id'], caption=text)
     else:
-        await bot.send_message (config.group_expenses, text)
+        await bot.send_message (Config.group_expenses, text)
 
     await bot.send_message (user_id, '✅Ваша трата учтена')
     await db.save_user_action(user_id, user_info.name, UserActions.ADD_EXPENSES.value, text)

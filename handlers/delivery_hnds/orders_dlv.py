@@ -8,22 +8,22 @@ from asyncio import sleep
 import db
 import keyboards as kb
 from init import dp, bot, TZ, log_error
-from config import config
-from utils.redis_utils import get_redis_data
+from config import Config
+from utils import local_data_utils as dt
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data
-from enums import DeliveryCB, OrderStatus, RedisKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate
+from enums import DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate
 
 
 # кнопка взять заказ
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_1.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_1.value))
 async def dlv_order_1(cb: CallbackQuery):
     # _, row_num, order_id = map(int, cb.data.split(':')[1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
 
     user_info = await db.get_user_info(cb.from_user.id)
-    take_date = datetime.now(TZ).date().strftime(config.day_form)
+    take_date = datetime.now(TZ).date().strftime(Config.day_form)
 
     await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
     await db.update_row_google(
@@ -65,7 +65,7 @@ async def dlv_order_2(cb: CallbackQuery):
     else:
         user_info = await db.get_user_info (cb.from_user.id)
 
-        take_date = datetime.now (TZ).date ().strftime (config.day_form)
+        take_date = datetime.now (TZ).date ().strftime (Config.day_form)
         await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
         await db.update_row_google (
             order_id=order_id,
@@ -74,14 +74,16 @@ async def dlv_order_2(cb: CallbackQuery):
             take_date=take_date
         )
 
-        sent_chats = get_redis_data(f'{RedisKey.ADD_OPR_ORDER.value}:{order_id}')
-        for msg in sent_chats:
+        key = f'{DataKey.ADD_OPR_ORDER.value}-{order_id}'
+        data_order = dt.get_opr_msg_data(key)
+        dt.del_opr_msg_data(key)
+        for msg in data_order['sent_list']:
             try:
-                await bot.delete_message(chat_id=msg['chat_id'], message_id=msg['message_id'])
-            except:
-                pass
+                await bot.delete_message(chat_id=msg['user_id'], message_id=msg['message_id'])
+            except Exception as ex:
+                print(ex)
+                # log_error(ex)
 
-        dlv_info = await db.get_user_info(user_id=cb.from_user.id)
         opr_info = await db.get_user_info(name=order.k)
 
         await cb.message.edit_text(
@@ -89,18 +91,18 @@ async def dlv_order_2(cb: CallbackQuery):
             entities=cb.message.entities,
             parse_mode=None
         )
-        text = f'✅Заказ принят. {dlv_info.name}\n\n{cb.message.text}'
+        text = f'✅Заказ принят. {user_info.name}\n\n{cb.message.text}'
         await bot.send_message(opr_info.user_id, text)
         # журнал действий
         await db.save_user_action(
             user_id=cb.from_user.id,
-            dlv_name=dlv_info.name,
+            dlv_name=user_info.name,
             action=UserActions.TAKE_ORDER_TAKE.value,
             comment=str(order_id))
 
 
 # Подтвердить доставку либо отмену заказа
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_2.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_2.value))
 async def dlv_order_2(cb: CallbackQuery):
     _, action, order_id_str = cb.data.split(':')
     order_id = int(order_id_str)
@@ -126,7 +128,7 @@ async def dlv_order_2(cb: CallbackQuery):
 
 
 # закрытие заказа
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_4.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_4.value))
 async def dlv_order_4(cb: CallbackQuery):
     _, new_order_status, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
@@ -181,7 +183,7 @@ async def dlv_order_4(cb: CallbackQuery):
 
 
 # закрытие заказа с изминениями. Запрос суммы изминений
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_6.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_6.value))
 async def dlv_order_6(cb: CallbackQuery, state: FSMContext):
     _, action, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
@@ -260,7 +262,7 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
 
 
 # кнопка передать заказ
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.DLV_ORDER_3.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_3.value))
 async def dlv_order_3(cb: CallbackQuery):
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)

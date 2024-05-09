@@ -4,13 +4,13 @@ from data.base_data import company
 from enums import BaseCB
 
 
-# курьерская для забора
-def take_order_company_kb() -> InlineKeyboardMarkup:
-    kb = InlineKeyboardBuilder()
-    for name, comp_id in company.items():
-        kb.button(text=name, callback_data=f'{BaseCB.TAKE_ORDER_1.value}:{comp_id}')
-
-    return kb.adjust(1).as_markup()
+# # курьерская для забора
+# def take_order_company_kb() -> InlineKeyboardMarkup:
+#     kb = InlineKeyboardBuilder()
+#     for comp_id, name in company.items():
+#         kb.button(text=name, callback_data=f'{BaseCB.TAKE_ORDER_1.value}:{comp_id}')
+#
+#     return kb.adjust(1).as_markup()
 
 
 # кнопка отмены

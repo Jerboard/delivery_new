@@ -9,14 +9,14 @@ from enums import DeliveryCB, DeliveryStatus
 
 
 # возвращает в лк курьера
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.BACK_DLV_MAIN.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.BACK_MAIN.value))
 async def expenses_dvl_0(cb: CallbackQuery, state: FSMContext):
     await state.clear()
     await get_profile_dlv(cb.from_user.id)
 
 
 # смена имени курьера запрос имени
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.EDIT_DLV_NAME.value))
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.EDIT_NAME.value))
 async def edit_dlv_name(cb: CallbackQuery, state: FSMContext):
     user_info = await db.get_user_info(cb.from_user.id)
 
