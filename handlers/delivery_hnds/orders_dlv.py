@@ -26,6 +26,7 @@ async def dlv_order_1(cb: CallbackQuery):
     take_date = datetime.now(TZ).date().strftime(Config.day_form)
 
     await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
+    # добавить смену курьерской
     await db.update_row_google(
         order_id=order_id,
         dlv_name=user_info.name,

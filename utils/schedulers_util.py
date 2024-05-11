@@ -32,18 +32,19 @@ async def resent_take_order(order_id: int, text: str, sent_list: list[dict]):
 async def check_take_orders():
     orders = dt.get_opr_msg_data()
 
-    one_hour_ago = datetime.now(TZ) - timedelta(hours=1)
-    for key, order in orders.items():
-        created = TZ.localize(datetime.strptime(order['updated_at'], Config.datetime_form))
-        print(created, one_hour_ago, created < one_hour_ago)
-        if created < one_hour_ago:
-            await resent_take_order(
-                order_id=order['order_id'],
-                text=order['text'],
-                sent_list=order['sent_list'],
-            )
-            order['updated_at'] = datetime.now(TZ).replace(microsecond=0).strftime(Config.datetime_form)
-            dt.save_opr_msg_data(key=key, new_data=order)
+    if orders:
+        one_hour_ago = datetime.now(TZ) - timedelta(hours=1)
+        for key, order in orders.items():
+            created = TZ.localize(datetime.strptime(order['updated_at'], Config.datetime_form))
+            # print(created, one_hour_ago, created < one_hour_ago)
+            if created < one_hour_ago:
+                await resent_take_order(
+                    order_id=order['order_id'],
+                    text=order['text'],
+                    sent_list=order['sent_list'],
+                )
+                order['updated_at'] = datetime.now(TZ).replace(microsecond=0).strftime(Config.datetime_form)
+                dt.save_opr_msg_data(key=key, new_data=order)
 
 
 # обновляет дату у заказов на руках
