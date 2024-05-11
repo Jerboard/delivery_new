@@ -29,6 +29,7 @@ async def get_work_orders(user_id: int, only_active: bool = False) -> tuple[Orde
     query = (
         sa.select (
             OrderTable.c.id,
+            OrderTable.c.d,
             OrderTable.c.e,
             OrderTable.c.f,
             OrderTable.c.g,

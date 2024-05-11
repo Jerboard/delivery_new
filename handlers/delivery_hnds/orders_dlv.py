@@ -51,7 +51,6 @@ async def dlv_order_1(cb: CallbackQuery):
 # взять заказ на забор
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.TAKE_ORDER_2.value))
 async def dlv_order_2(cb: CallbackQuery):
-    # _, row_num, order_id = map (int, cb.data.split (':') [1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
 
@@ -108,7 +107,8 @@ async def dlv_order_2(cb: CallbackQuery):
     order_id = int(order_id_str)
 
     if action == OrderAction.SUC.value:
-        await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(order_id=order_id))
+        await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(
+            order_id=order_id, order_status=action))
 
     elif action == OrderAction.NOT_COME.value:
         await db.update_row_google(
@@ -128,58 +128,72 @@ async def dlv_order_2(cb: CallbackQuery):
 
 
 # закрытие заказа
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_7.value))
+async def dlv_order_7(cb: CallbackQuery):
+    _, order_action, order_id_str = cb.data.split (':')
+    order_id = int (order_id_str)
+
+    await cb.message.edit_reply_markup(reply_markup=kb.get_close_lit_kb(order_action=order_action, order_id=order_id))
+
+
+# закрытие заказа
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_4.value))
 async def dlv_order_4(cb: CallbackQuery):
-    _, new_order_status, order_id_str = cb.data.split (':')
+    _, action, order_id_str, lit = cb.data.split (':')
     order_id = int (order_id_str)
 
     order_info = await db.get_order (order_id)
 
-    if new_order_status in [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]:
-        # тут буковку надо ещё добавить
-        await db.update_row_google (
-            order_id=order_id,
-            status=new_order_status,
-            type_update=TypeOrderUpdate.STATE.value
-        )
-        await cb.message.edit_text(
-            text=f'{cb.message.text}\n\n✅Выполнен',
-            entities=cb.message.entities,
-            parse_mode=None
-        )
+    await db.update_row_google (
+        order_id=order_id,
+        comment=lit,
+        status=action,
+        type_update=TypeOrderUpdate.STATE.value
+    )
+    await cb.message.edit_text(
+        text=f'{cb.message.text}\n\n✅Выполнен',
+        entities=cb.message.entities,
+        parse_mode=None
+    )
 
-        action = UserActions.SUCCESS_ORDER.value
-        if new_order_status == OrderStatus.SUC_TAKE.value:
-            opr_info = await db.get_user_info (name=order_info.k)
-            text = f'✅Заказ получен курьером\n\n{cb.message.text}'
-            await bot.send_message(opr_info.user_id, text)
-            action = UserActions.SUCCESS_TAKE_ORDER.value
+    if action == OrderStatus.SUC_TAKE.value:
+        opr_info = await db.get_user_info (name=order_info.k)
+        text = f'✅Заказ получен курьером\n\n{cb.message.text}'
+        await bot.send_message(opr_info.user_id, text)
+        action = UserActions.SUCCESS_TAKE_ORDER.value
 
-        # журнал действий
-        await db.save_user_action (
-            user_id=cb.from_user.id,
-            dlv_name=order_info.f,
-            action=action,
-            comment=order_id_str)
+    # журнал действий
+    await db.save_user_action (
+        user_id=cb.from_user.id,
+        dlv_name=order_info.f,
+        action=action,
+        comment=order_id_str)
 
-    else:
-        await db.update_row_google (
-            order_id=order_id,
-            status=new_order_status,
-            type_update=TypeOrderUpdate.STATE.value
-        )
-        await cb.message.edit_text(
-            text=f'{cb.message.text} ✖️Отказ',
-            entities=cb.message.entities,
-            parse_mode=None
-        )
 
-        # журнал действий
-        await db.save_user_action(
-            user_id=cb.from_user.id,
-            dlv_name=order_info.f,
-            action=UserActions.REFUSE_ORDER.value,
-            comment=order_id_str)
+# отмена заказа
+@dp.callback_query (lambda cb: cb.data.startswith (DeliveryCB.ORDER_5.value))
+async def dlv_order_5(cb: CallbackQuery):
+    _, order_id_str = cb.data.split (':')
+    order_id = int (order_id_str)
+
+    order_info = await db.get_order (order_id)
+    await db.update_row_google (
+        order_id=order_id,
+        status=OrderStatus.REF.value,
+        type_update=TypeOrderUpdate.STATE.value
+    )
+    await cb.message.edit_text(
+        text=f'{cb.message.text} ✖️Отказ',
+        entities=cb.message.entities,
+        parse_mode=None
+    )
+
+    # журнал действий
+    await db.save_user_action(
+        user_id=cb.from_user.id,
+        dlv_name=order_info.f,
+        action=UserActions.REFUSE_ORDER.value,
+        comment=order_id_str)
 
 
 # закрытие заказа с изминениями. Запрос суммы изминений

@@ -42,7 +42,8 @@ async def report_dvl_2(cb: CallbackQuery):
         prepay = order.u + order.v
         cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
         comment = f'({order.ab})' if order.ab is not None else ''
-        row_text = f'{dt.order_status_data.get(order.g)} {order.n}  {cost} + {order.s} {order.w} {comment}\n'
+        comment_d = f'({order.d})' if order.d is not None else ''
+        row_text = f'{comment_d} {dt.order_status_data.get(order.g)} {order.n}  {cost} + {order.s} {order.w} {comment}\n'
 
         if order.g == OrderStatus.SUC.value:
             cost_prod += cost

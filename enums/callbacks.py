@@ -35,6 +35,7 @@ class DeliveryCB(str, Enum):
     ORDER_4 = 'dlv_order_4'
     ORDER_5 = 'dlv_order_5'
     ORDER_6 = 'dlv_order_6'
+    ORDER_7 = 'dlv_order_7'
     TAKE_ORDER_2 = 'dlv_take_order_2'
     EDIT_NAME = 'dlv_edit_name'
     REPORT_1 = 'dlv_report_1'

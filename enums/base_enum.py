@@ -24,6 +24,7 @@ class OrderStatus(str, Enum):
 class OrderAction(str, Enum):
     SUC = 'success'
     NOT_COME = 'not_come'
+    SUC_TAKE = 'success_take'
     REF = 'refuse'
     TRANS = 'trans'
     COST = 'edit_cost'
