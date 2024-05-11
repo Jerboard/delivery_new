@@ -32,7 +32,7 @@ async def com_start(msg: Message, state: FSMContext):
                 company=comp_id
             )
             await state.set_state(DeliveryStatus.REG_NAME)
-            await state.update_data (data={'role': user_info.role})
+            await state.update_data (data={'role': role})
             await msg.answer('Введите ваше имя')
             await db.delete_temp_link(veryf_code)
 
