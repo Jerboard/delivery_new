@@ -88,8 +88,6 @@ async def get_statistic_dlv(user_id: int) -> list[tuple]:
 
 # добавляет заказ
 async def add_work_order(user_id: int, order_id: int) -> None:
-    print(user_id, order_id)
-    print(type(user_id), type(order_id))
     query = WorkTable.insert().values(user_id=user_id, order_id=order_id)
     # query = (
     #     sa_postgresql.insert (WorkTable)

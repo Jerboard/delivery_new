@@ -127,14 +127,16 @@ async def trans_order_2(cb: CallbackQuery):
     )
 
     order_info = await db.get_order(order_id=order_id)
-    text = txt.get_admin_order_text (order_info)
+    dlv_text = txt.get_order_text (order_info)
+    text = f'❗️ Вам назначен заказ\n\n{dlv_text}'
     await bot.send_message(chat_id=user_id, text=text, reply_markup=kb.get_dlv_main_order_kb(
         order_id=order_id,
         order_status=OrderStatus.ACTIVE.value
     ))
 
+    new_text = txt.get_admin_order_text (order_info)
     await cb.message.edit_text(
-        text=f'{cb.message.text}\n\nЗаказ передан курьеру {user_info.name}',
+        text=new_text,
         reply_markup=kb.get_busy_order_own_kb (order_id=order_id)
     )
     await db.save_user_action(

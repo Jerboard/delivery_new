@@ -1,8 +1,16 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 import db
 from data.base_data import expensis_dlv
 from enums import DeliveryCB, OrderAction, OrderStatus, TypeOrderUpdate
+
+
+# отправить контакт
+def get_send_contact_kb():
+    return ReplyKeyboardMarkup(resize_keyboard=True, keyboard=[
+        [KeyboardButton(text='📱 Отправить номер', request_contact=True)]
+    ])
 
 
 # клавиатура ЛК курьера

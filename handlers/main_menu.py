@@ -1,6 +1,9 @@
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import CommandStart, StateFilter, Command
+from aiogram.enums.content_type import ContentType
+
+import asyncio
 
 import db
 import keyboards as kb
@@ -29,6 +32,7 @@ async def com_start(msg: Message, state: FSMContext):
                 company=comp_id
             )
             await state.set_state(DeliveryStatus.REG_NAME)
+            await state.update_data (data={'role': user_info.role})
             await msg.answer('Введите ваше имя')
             await db.delete_temp_link(veryf_code)
 
@@ -40,12 +44,16 @@ async def com_start(msg: Message, state: FSMContext):
             await msg.answer('❌ У вас нет доступа. Для получения доступа обратитесь к администратору')
 
         elif user_info.role == UserRole.DLV.value:
-            if user_info.name:
-                await delivery_start(user_id=msg.from_user.id, dlv_name=user_info.name)
-            else:
+            if not user_info.name:
                 await state.set_state (DeliveryStatus.REG_NAME)
-                await state.update_data (data={'comp_id': user_info.company, 'role': user_info.role})
                 await msg.answer ('Введите ваше имя')
+
+            elif not user_info.phone:
+                await state.set_state (DeliveryStatus.REG_PHONE)
+                await msg.answer (f'Отправьте актуальный номер телефона', reply_markup=kb.get_send_contact_kb ())
+
+            else:
+                await delivery_start (user_id=msg.from_user.id, dlv_name=user_info.name)
 
         elif user_info.role == UserRole.OPR.value:
 
@@ -62,14 +70,39 @@ async def com_start(msg: Message, state: FSMContext):
 # регистрирует имя
 @dp.message(StateFilter(DeliveryStatus.REG_NAME))
 async def reg_dlv_1(msg: Message, state: FSMContext):
-    await state.clear()
-
     await db.update_user_info(
         user_id=msg.from_user.id,
         name=msg.text,
     )
-    text = f'Вы зарегистрированы. Для поиска заказов отправьте номер получателя или часть адреса сообщением'
-    await msg.answer(text)
+    data = await state.get_data()
+    if data.get('role') == UserRole.DLV.value:
+        await state.set_state (DeliveryStatus.REG_PHONE)
+        text = f'Отправьте актуальный номер телефона'
+        await msg.answer (text, reply_markup=kb.get_send_contact_kb ())
+
+    else:
+        await state.clear ()
+        text = f'Вы зарегистрированы. Для поиска заказов отправьте номер получателя или часть адреса сообщением'
+        await msg.answer (text)
+
+
+# регистрирует телефон
+@dp.message(StateFilter(DeliveryStatus.REG_PHONE))
+async def reg_dlv_2(msg: Message, state: FSMContext):
+    await state.clear()
+
+    phone = msg.contact.phone_number if msg.content_type == ContentType.CONTACT.value else msg.text
+    if phone:
+        await db.update_user_info(
+            user_id=msg.from_user.id,
+            phone=phone,
+        )
+        text = f'Вы зарегистрированы. Для поиска заказов отправьте номер получателя или часть адреса сообщением'
+        await msg.answer(text, reply_markup=ReplyKeyboardRemove())
+    else:
+        sent = await msg.answer('❗️Некорректный номер телефона')
+        await asyncio.sleep(5)
+        await sent.delete()
 
 
 # Личный кабинет

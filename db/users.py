@@ -88,14 +88,16 @@ async def update_user_info(
         user_id: int,
         name: str = None,
         company: str = None,
+        phone: str = None,
 ) -> None:
     query = UserTable.update().where(UserTable.c.user_id == user_id)
 
     if name:
         query = query.values(name=name)
-
     if company:
         query = query.values(company_id=company)
+    if phone:
+        query = query.values(phone=phone)
 
     async with begin_connection() as conn:
         await conn.execute(query)
