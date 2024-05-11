@@ -36,7 +36,6 @@ class Config:
             'group_report': -1001863016934
         }
 
-
     tz = 'Europe/Moscow'
     day_form = '%d.%m'
     datetime_form = '%d.%m.%Y %H:%M'

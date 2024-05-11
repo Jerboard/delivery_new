@@ -1,6 +1,7 @@
 from datetime import datetime
 import typing as t
 import sqlalchemy as sa
+import sqlalchemy.dialects.postgresql as sa_postgresql
 
 from .base import METADATA, begin_connection
 from db.orders_table import OrderRow, OrderTable
@@ -19,7 +20,7 @@ WorkTable: sa.Table = sa.Table(
 
     sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
     sa.Column('user_id', sa.BigInteger),
-    sa.Column('order_id', sa.Integer),
+    sa.Column('order_id', sa.Integer, unique=True),
 )
 
 
@@ -87,7 +88,20 @@ async def get_statistic_dlv(user_id: int) -> list[tuple]:
 
 # добавляет заказ
 async def add_work_order(user_id: int, order_id: int) -> None:
+    print(user_id, order_id)
+    print(type(user_id), type(order_id))
     query = WorkTable.insert().values(user_id=user_id, order_id=order_id)
+    # query = (
+    #     sa_postgresql.insert (WorkTable)
+    #     .values (
+    #         user_id=user_id,
+    #         order_id=order_id
+    #     )
+    #     .on_conflict_do_update (
+    #         index_elements=[WorkTable.c.order_id],
+    #         set_={"user_id": user_id}
+    #     )
+    # )
     async with begin_connection() as conn:
         await conn.execute(query)
 

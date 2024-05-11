@@ -21,9 +21,11 @@ async def search(msg: Message):
         search_on = SearchType.PHONE if query.isdigit() else SearchType.METRO
         comp = user_info.company if user_info.role == UserRole.DLV.value else None
 
-        orders = await db.search_orders (search_query=query, search_on=search_on, comp=comp)
+        # orders = await db.search_orders (search_query=query, search_on=search_on, comp=comp)
+        orders = await db.get_orders (search_query=query, search_on=search_on)
         if not orders:
-            orders = await db.search_orders (search_query=query, search_on=SearchType.NAME, comp=comp)
+            # orders = await db.search_orders (search_query=query, search_on=SearchType.NAME.value, comp=comp)
+            orders = await db.get_orders (search_query=query, search_on=SearchType.NAME)
 
         if not orders:
             await msg.answer ('❌ По вашему запросу ничего не найдено')
@@ -32,7 +34,6 @@ async def search(msg: Message):
         if user_info.role == UserRole.DLV.value:
             counter = 0
             for order in orders:
-                print(order)
                 try:
                     text = txt.get_order_text(order)
                     if order.f == user_info.name and order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
@@ -60,14 +61,17 @@ async def search(msg: Message):
                     keyboard = None
                     if user_info.role == UserRole.OWN.value:
                         if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
-                            keyboard = kb.get_busy_order_own_kb (order_id=order.id, dlv_name=order.f)
+                            keyboard = kb.get_busy_order_own_kb (order_id=order.id)
 
                         elif order.g == OrderStatus.NEW.value:
-                            keyboard = kb.get_free_order_own_kb(order_id=order.id, dlv_name=order.f)
+                            keyboard = kb.get_free_order_own_kb(order_id=order.id)
 
                         else:
-                            keyboard = kb.get_close_order_own_kb(order_id=order.id, dlv_name=order.f)
-
+                            keyboard = kb.get_close_order_own_kb(
+                                order_id=order.id,
+                                dlv_name=order.f,
+                                user_id=order.user_id
+                            )
                     await msg.answer(text, reply_markup=keyboard)
 
             elif len(orders) > 30:

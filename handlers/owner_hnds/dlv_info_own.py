@@ -74,7 +74,6 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
             sent = await cb.message.answer (title_text)
             title_message = sent.message_id
         for order in free_orders[start:fin]:
-            print (f'counter: {counter}')
             text = txt.get_short_order_row (order, for_=ShortText.FREE.value)
 
             keyboard = None

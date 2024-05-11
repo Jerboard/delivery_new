@@ -35,6 +35,7 @@ async def check_take_orders():
     one_hour_ago = datetime.now(TZ) - timedelta(hours=1)
     for key, order in orders.items():
         created = TZ.localize(datetime.strptime(order['updated_at'], Config.datetime_form))
+        print(created, one_hour_ago, created < one_hour_ago)
         if created < one_hour_ago:
             await resent_take_order(
                 order_id=order['order_id'],

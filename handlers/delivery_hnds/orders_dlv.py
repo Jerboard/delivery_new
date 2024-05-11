@@ -11,7 +11,7 @@ from init import dp, bot, TZ, log_error
 from config import Config
 from utils import local_data_utils as dt
 from utils.text_utils import get_order_text
-from data.base_data import order_status_data
+from data.base_data import order_status_data, order_actions
 from enums import DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate
 
 
@@ -226,9 +226,8 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
 async def edit_order_close_2(msg: Message, state: FSMContext):
     data = await state.get_data()
     await state.clear()
-    print(data)
 
-    note = f'{data ["discount"]} - {msg.text}'
+    note = f' {order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'
     if data['action'] == OrderAction.COST.value:
         await db.update_row_google(
             order_id=data['order_id'],

@@ -1,4 +1,4 @@
-from enums import OrderStatus, CompanyDLV
+from enums import OrderStatus, CompanyDLV, OrderAction
 
 
 company = {
@@ -12,9 +12,9 @@ order_status_data = {
     OrderStatus.NEW.value: '',
     OrderStatus.SUC.value: 'доставлен',
     OrderStatus.ACTIVE.value: 'на руках',
-    OrderStatus.ACTIVE_TAKE.value: 'на руках',
+    OrderStatus.ACTIVE_TAKE.value: 'на руках (забрать)',
     OrderStatus.REF.value: 'отказ',
-    OrderStatus.TAKE.value: 'принят',
+    OrderStatus.TAKE.value: 'Забор',
     OrderStatus.SUC_TAKE.value: 'забран',
     OrderStatus.REF_TAKE.value: 'отказан',
     OrderStatus.REMAKE.value: 'переделка',
@@ -44,4 +44,9 @@ expensis_dlv = {
     'h': 'Комус',
     'i': 'Почта / СДЭК',
     'k': 'ЗП'
+}
+
+order_actions = {
+    OrderAction.COST.value: 'Скидка',
+    OrderAction.DELI.value: 'Доставка',
 }

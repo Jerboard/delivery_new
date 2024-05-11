@@ -14,6 +14,7 @@ class UserRow(t.Protocol):
     role: str
     name: str
     company: str
+    phone: str
 
 
 UserTable: sa.Table = sa.Table(
@@ -26,7 +27,8 @@ UserTable: sa.Table = sa.Table(
     sa.Column('username', sa.String(255)),
     sa.Column('role', sa.String(255)),
     sa.Column('name', sa.String(255)),
-    sa.Column('company', sa.String(255))
+    sa.Column('company', sa.String(255)),
+    sa.Column('phone', sa.String(255)),
 )
 
 
@@ -51,7 +53,7 @@ async def add_user(user_id: int, full_name: str, username: str, role: str, compa
 
 
 # возвращает пользователя
-async def get_user_info(user_id: int = None, name: str = None) -> UserRow:
+async def get_user_info(user_id: int = None, name: str = None, phone: str = None) -> UserRow:
     query = UserTable.select()
 
     if user_id:

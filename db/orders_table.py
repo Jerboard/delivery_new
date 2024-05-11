@@ -4,6 +4,7 @@ import typing as tp
 import sqlalchemy as sa
 
 from .base import METADATA, begin_connection, ENGINE
+from db.users import UserTable
 from init import TZ
 from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate
 
@@ -48,6 +49,8 @@ class OrderRow(tp.Protocol):
     type_update: str
     discount: int
     row_num: int
+    user_id: int
+    phone: str
 
 
 OrderTable: sa.Table = sa.Table(
@@ -288,22 +291,74 @@ async def get_orders(
         get_new: bool = False,
         get_wait_update: bool = False,
         on_date: str = None,
+        search_query: str = None,
+        search_on: str = None
 ) -> tuple[OrderRow]:
-    query = OrderTable.select()
+    query = sa.select(
+        OrderTable.c.id,
+        OrderTable.c.b,
+        OrderTable.c.c,
+        OrderTable.c.d,
+        OrderTable.c.e,
+        OrderTable.c.f,
+        OrderTable.c.g,
+        OrderTable.c.h,
+        OrderTable.c.i,
+        OrderTable.c.j,
+        OrderTable.c.k,
+        OrderTable.c.l,
+        OrderTable.c.m,
+        OrderTable.c.n,
+        OrderTable.c.o,
+        OrderTable.c.p,
+        OrderTable.c.q,
+        OrderTable.c.r,
+        OrderTable.c.s,
+        OrderTable.c.clmn_t,
+        OrderTable.c.u,
+        OrderTable.c.v,
+        OrderTable.c.w,
+        OrderTable.c.x,
+        OrderTable.c.y,
+        OrderTable.c.z,
+        OrderTable.c.aa,
+        OrderTable.c.ab,
+        OrderTable.c.ac,
+        OrderTable.c.ad,
+        OrderTable.c.ae,
+        OrderTable.c.af,
+        OrderTable.c.ag,
+        OrderTable.c.ah,
+        OrderTable.c.updated,
+        OrderTable.c.time_update,
+        OrderTable.c.type_update,
+        OrderTable.c.discount,
+        OrderTable.c.row_num,
+        OrderTable.c.id,
+        UserTable.c.user_id,
+        UserTable.c.phone,
+    ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if get_active:
         query = query.where(
             sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
         )
     elif get_new:
-        query = query.where(sa.or_(OrderTable.c.g == OrderStatus.NEW.value))
+        query = query.where(sa.and_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.i.isnot(None)))
     elif get_wait_update:
-        query = query.where (OrderTable.c.updated == False)
+        query = query.where (OrderTable.c.updated.is_(False))
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
+
+    if search_on == SearchType.PHONE:
+        query = query.where(sa.or_(OrderTable.c.n.like(f'%{search_query}%'), OrderTable.c.o.like(f'%{search_query}%')))
+    elif search_on == SearchType.NAME:
+        query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
+    elif search_on == SearchType.METRO:
+        query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
@@ -313,12 +368,55 @@ async def get_orders(
 
 # возвращает одну строку таблицы
 async def get_order(order_id: int = 0, for_update: bool = False) -> tp.Union[OrderRow, None]:
-    query = OrderTable.select()
+    query = sa.select (
+        OrderTable.c.id,
+        OrderTable.c.b,
+        OrderTable.c.c,
+        OrderTable.c.d,
+        OrderTable.c.e,
+        OrderTable.c.f,
+        OrderTable.c.g,
+        OrderTable.c.h,
+        OrderTable.c.i,
+        OrderTable.c.j,
+        OrderTable.c.k,
+        OrderTable.c.l,
+        OrderTable.c.m,
+        OrderTable.c.n,
+        OrderTable.c.o,
+        OrderTable.c.p,
+        OrderTable.c.q,
+        OrderTable.c.r,
+        OrderTable.c.s,
+        OrderTable.c.clmn_t,
+        OrderTable.c.u,
+        OrderTable.c.v,
+        OrderTable.c.w,
+        OrderTable.c.x,
+        OrderTable.c.y,
+        OrderTable.c.z,
+        OrderTable.c.aa,
+        OrderTable.c.ab,
+        OrderTable.c.ac,
+        OrderTable.c.ad,
+        OrderTable.c.ae,
+        OrderTable.c.af,
+        OrderTable.c.ag,
+        OrderTable.c.ah,
+        OrderTable.c.updated,
+        OrderTable.c.time_update,
+        OrderTable.c.type_update,
+        OrderTable.c.discount,
+        OrderTable.c.row_num,
+        OrderTable.c.id,
+        UserTable.c.user_id,
+        UserTable.c.phone,
+    ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if order_id:
         query = query.where (OrderTable.c.id == order_id)
     elif for_update:
-        query = query.where(OrderTable.c.updated == False).order_by(OrderTable.c.time_update)
+        query = query.where(OrderTable.c.updated.is_(False)).order_by(OrderTable.c.time_update)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
@@ -343,22 +441,22 @@ async def delete_orders():
 
 
 # поиск заказов
-async def search_orders(search_query: str, search_on: str, comp: str = None) -> tuple[OrderRow]:
-    query = OrderTable.select()
-
-    if search_on == SearchType.PHONE:
-        query = query.where(sa.or_(OrderTable.c.n.like(f'%{search_query}%'), OrderTable.c.o.like(f'%{search_query}%')))
-    elif search_on == SearchType.NAME:
-        query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
-    elif search_on == SearchType.METRO:
-        query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
-
-    # if comp:
-    #     query = query.where(OrderTable.c.ac == comp)
-
-    async with begin_connection() as conn:
-        result = await conn.execute(query)
-    return result.all()
+# async def search_orders(search_query: str, search_on: str, comp: str = None) -> tuple[OrderRow]:
+#     query = OrderTable.select()
+#
+#     if search_on == SearchType.PHONE:
+#         query = query.where(sa.or_(OrderTable.c.n.like(f'%{search_query}%'), OrderTable.c.o.like(f'%{search_query}%')))
+#     elif search_on == SearchType.NAME:
+#         query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
+#     elif search_on == SearchType.METRO:
+#         query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
+#
+#     # if comp:
+#     #     query = query.where(OrderTable.c.ac == comp)
+#
+#     async with begin_connection() as conn:
+#         result = await conn.execute(query)
+#     return result.all()
 
 
 # статистика заказов

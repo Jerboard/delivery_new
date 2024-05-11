@@ -21,9 +21,11 @@ class OwnerCB(str, Enum):
     VIEW_FREE_ORDERS_1 = 'own_view_free_orders_1'
     UPDATE_USERS_TABLE_1 = 'own_update_users_table_1'
     UPDATE_USERS_TABLE_2 = 'own_update_users_table_2'
-    MAKE_ORDER_EMPTY = 'own_make_order_empty'
+    MAKE_ORDER_FREE = 'own_make_order_free'
+    ADD_ORDER = 'own_add_order'
     TRANS_ORDER_1 = 'own_trans_order_1'
     TRANS_ORDER_2 = 'own_trans_order_2'
+    BACK_FREE = 'own_free_back_order'
 
 
 class DeliveryCB(str, Enum):

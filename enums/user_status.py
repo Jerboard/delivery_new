@@ -14,6 +14,7 @@ class DeliveryStatus(str, Enum):
 class OwnerStatus(str, Enum):
     CHANGE_TAB = 'change_tab'
     VIEW_FREE_ORDERS = 'view_free_orders'
+    ADD_ORDER = 'own_add_order'
 
 
 class OperatorStatus(str, Enum):

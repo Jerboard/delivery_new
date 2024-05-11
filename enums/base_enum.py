@@ -46,9 +46,11 @@ class UserActions(str, Enum):
     ADD_DISCOUNT = 'Добавил скидку'
     ADD_DISCOUNT_DLV = 'Изменил стоимость доставки'
     TRANSFER_ORDER = 'Передал заказ'
+    TRANSFER_ORDER_OWN = 'Назначен заказ'
     ADD_EXPENSES = 'Добавил трату'
     VIEW_REPORT = 'Просмотрел отчёт'
     SEND_REPORT = 'Отправил отчёт'
+    ADD_TAKE_ORDER = 'Добавил заказ на забор'
 
 
 class TypeOrderUpdate(str, Enum):

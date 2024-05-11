@@ -33,26 +33,26 @@ def get_add_dlv_comp_kb() -> InlineKeyboardMarkup:
 
 
 # Владелец для заказов на руках
-def get_busy_order_own_kb(order_id: int, dlv_name: str) -> InlineKeyboardMarkup:
+def get_busy_order_own_kb(order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='Снять', callback_data=f'{OwnerCB.MAKE_ORDER_EMPTY}:{order_id}:{dlv_name}')
-    kb.button(text='Передать', callback_data=f'{OwnerCB.TRANS_ORDER_1}:{order_id}:{dlv_name}')
+    kb.button(text='Снять', callback_data=f'{OwnerCB.MAKE_ORDER_FREE.value}:{order_id}')
+    kb.button(text='Передать', callback_data=f'{OwnerCB.TRANS_ORDER_1.value}:{order_id}')
     return kb.adjust(2).as_markup()
 
 
 # кнопка назначить заказ заказа
-def get_free_order_own_kb(order_id: int, dlv_name: str) -> InlineKeyboardMarkup:
+def get_free_order_own_kb(order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder ()
-    kb.button (text='Назначить', callback_data=f'{OwnerCB.TRANS_ORDER_1}:{order_id}:{dlv_name}')
+    kb.button (text='Назначить', callback_data=f'{OwnerCB.TRANS_ORDER_1.value}:{order_id}')
     return kb.as_markup ()
 
 
 # вернуть заказ курьеру
-def get_close_order_own_kb(order_id: int, dlv_name: str) -> InlineKeyboardMarkup:
+def get_close_order_own_kb(order_id: int, dlv_name: str, user_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder ()
     kb.button (
         text=f'↪️ Вернуть курьеру {dlv_name}',
-        callback_data=f'{OwnerCB.TRANS_ORDER_2.value}:{order_id}:{dlv_name}')
+        callback_data=f'{OwnerCB.TRANS_ORDER_2.value}:{user_id}:{order_id}')
     return kb.as_markup ()
 
 
@@ -62,6 +62,16 @@ def get_del_user_kb(users: tuple[db.UserRow], user_role: str) -> InlineKeyboardM
     kb.button (text='🔙 Назад', callback_data=OwnerCB.BACK.value)
     for user in users:
         kb.button (text=user.name, callback_data=f'{OwnerCB.DEL_USER_2.value}:{user.user_id}:{user_role}')
+
+    return kb.adjust (1, 2).as_markup ()
+
+
+# список кур назначитьзаказ
+def get_trans_orders_users_kb(users: tuple[db.UserRow], order_id: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder ()
+    kb.button (text='🔙 Назад', callback_data=f'{OwnerCB.BACK_FREE.value}:{order_id}')
+    for user in users:
+        kb.button (text=user.name, callback_data=f'{OwnerCB.TRANS_ORDER_2.value}:{user.user_id}:{order_id}')
 
     return kb.adjust (1, 2).as_markup ()
 

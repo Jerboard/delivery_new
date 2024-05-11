@@ -12,8 +12,8 @@ import keyboards as kb
 from init import dp, bot, log_error, TZ
 from config import Config
 from utils import local_data_utils as dt
-from data.base_data import company
-from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey
+from data.base_data import company, order_status_data
+from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions
 
 
 # кнопка взять заказ
@@ -26,6 +26,7 @@ async def take_order_1(cb: CallbackQuery, state: FSMContext):
            f'Партнер:\n' \
            f'ФИО:\n' \
            f'Номер:\n' \
+           f'Доп.номер::\n' \
            f'Забрать:\n' \
            f'Цена:\n' \
            f'Доставка:\n' \
@@ -50,7 +51,7 @@ async def take_order(msg: Message, state: FSMContext):
     )
 
 
-# кнопка взять заказ
+# добавляет заказ и рассылает его курьерам
 @dp.callback_query(lambda cb: cb.data.startswith(OperatorCB.TAKE_ORDER_2.value))
 async def take_order_2(cb: CallbackQuery, state: FSMContext):
     sent_wait = await cb.message.answer ('⏳')
@@ -62,16 +63,18 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
     order_id = await db.add_row(
         row_num=last_row + 1,
         g=OrderStatus.NEW.value,
+        h=order_status_data.get(OrderStatus.TAKE.value),
         k=data_text[0].replace('Оператор:', '').strip(),
         l=data_text[1].replace('Партнер:', '').strip(),
         m=data_text[2].replace('ФИО:', '').strip(),
-        n=data_text[3].replace('Номер:', '').strip(),
-        p=data_text[4].replace('Забрать:', '').strip(),
-        q=int(re.sub (r'\D+', '', data_text[5])),
-        t=int(re.sub (r'\D+', '', data_text[6])),
-        w=data_text[7].replace('Метро:', '').strip(),
-        x=data_text[8].replace('Адрес:', '').strip(),
-        ab=data_text[9].replace('Примечание:', '').strip(),
+        n=re.sub (r'\D+', '', data_text[3]),
+        o=re.sub (r'\D+', '', data_text[4]),
+        p=data_text[5].replace('Забрать:', '').strip(),
+        q=int(re.sub (r'\D+', '0', data_text[6])),
+        t=int(re.sub (r'\D+', '0', data_text[7])),
+        w=data_text[8].replace('Метро:', '').strip(),
+        x=data_text[9].replace('Адрес:', '').strip(),
+        ab=data_text[10].replace('Примечание:', '').strip(),
         ac=company.get(data ['comp_id'], 'н/д'),
         type_update=TypeOrderUpdate.ADD_OPR.value
     )
@@ -108,3 +111,11 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
     await sent_wait.edit_text(text)
 
     await bot.send_message (Config.work_chats[data['comp_id']], cb.message.text)
+
+    user_info = await db.get_user_info(user_id=cb.from_user.id)
+    await db.save_user_action(
+        user_id=cb.from_user.id,
+        dlv_name=user_info.name,
+        action=UserActions.ADD_TAKE_ORDER.value,
+        comment=f'Добавлен заказ №{order_id} для {company.get(data["comp_id"], "н/д")}'
+    )

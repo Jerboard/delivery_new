@@ -7,14 +7,14 @@ from pytz import timezone
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy.ext.asyncio import create_async_engine
 from datetime import datetime
-from redis import Redis
 
 import logging
 import traceback
 import os
 import asyncio
+import re
 
-from config import Config
+from config import Config, DEBUG
 
 
 try:
@@ -58,6 +58,15 @@ def log_error(message, with_traceback: bool = True):
     logging.basicConfig (level=logging.WARNING, filename=log_file_path, encoding='utf-8')
     if with_traceback:
         ex_traceback = traceback.format_exc()
-        logging.warning(f'{now}\n{ex_traceback}\n{message}\n---------------------------------')
+        tb = ''
+        start_row = '  File "C:' if DEBUG else '  File "/home'
+        tb_split = ex_traceback.split('\n')
+        for row in tb_split:
+            if row.startswith(start_row) and not re.search ('venv', row):
+                tb += f'{row}\n'
+
+        msg = "\n".join(tb_split[-5:])
+        logging.warning(f'{now}\n{tb}\n{msg}\n---------------------------------\n')
+        # logging.warning(f'{now}\n{ex_traceback}\n\n---------------------------------\n')
     else:
-        logging.warning(f'{now}\n{message}\n---------------------------------')
+        logging.warning(f'{now}\n{message}\n\n---------------------------------\n')

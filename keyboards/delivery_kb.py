@@ -8,10 +8,11 @@ from enums import DeliveryCB, OrderAction, OrderStatus, TypeOrderUpdate
 # клавиатура ЛК курьера
 def main_dvl_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='🖌 Сменить имя', callback_data=DeliveryCB.EDIT_NAME.value)
+    kb.button(text='🖊 Сменить имя', callback_data=DeliveryCB.EDIT_NAME.value)
+    kb.button(text='📱 Мой номер телефона', callback_data='in_dev')
     kb.button(text='📝 Отчёт', callback_data=DeliveryCB.REPORT_1.value)
     kb.button(text='💸 Траты', callback_data=DeliveryCB.EXPENSES_1.value)
-    kb.button(text='💸 Посмотреть траты за сегодня', callback_data=DeliveryCB.EXPENSES_VIEW.value)
+    kb.button(text='💵 Траты сегодня', callback_data=DeliveryCB.EXPENSES_VIEW.value)
     return kb.adjust(2).as_markup()
 
 
