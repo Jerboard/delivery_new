@@ -123,7 +123,7 @@ async def save_new_order_table() -> None:
                 ag=row [32].strip () if row [32] else None,
                 ah=row [33].strip () if row [33] else None,
                 type_update=TypeOrderUpdate.ADD.value,
-                updated=True
+                updated=False
             )
             log_error (f'Успех {eid}', with_traceback=False)
         except Exception as ex:
