@@ -123,7 +123,7 @@ async def save_new_order_table() -> None:
                 ag=row [32].strip () if row [32] else None,
                 ah=row [33].strip () if row [33] else None,
                 type_update=TypeOrderUpdate.ADD.value,
-                updated=False
+                updated=True
             )
             log_error (f'Успех {eid}', with_traceback=False)
         except Exception as ex:
@@ -294,6 +294,7 @@ async def update_google_table(user_id: int) -> None:
 # добавляет одно последнее изменение в таблицу
 async def update_google_row() -> None:
     order = await db.get_order(for_update=True)
+    print(order)
 
     if order:
         sh = ug.get_google_connect()
