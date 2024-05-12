@@ -15,7 +15,7 @@ async def main() -> None:
     # await check_take_orders()
     await init_models()
     await set_main_menu()
-    await start_scheduler()
+    # await start_scheduler()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
     print ('>>>>>stop 1')
@@ -25,7 +25,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     if DEBUG:
-        logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     else:
         log_error('start_bot', with_traceback=False)
     asyncio.run(main())
