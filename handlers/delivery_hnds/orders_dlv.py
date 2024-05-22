@@ -18,7 +18,6 @@ from enums import DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus,
 # кнопка взять заказ
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_1.value))
 async def dlv_order_1(cb: CallbackQuery):
-    # _, row_num, order_id = map(int, cb.data.split(':')[1:])
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
 
@@ -109,7 +108,9 @@ async def dlv_order_2(cb: CallbackQuery):
 
     if action == OrderAction.SUC.value:
         await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(
-            order_id=order_id, order_status=action))
+            order_id=order_id,
+            order_status=action
+        ))
 
     elif action == OrderAction.NOT_COME.value:
         await db.update_row_google(
@@ -128,7 +129,7 @@ async def dlv_order_2(cb: CallbackQuery):
             reply_markup=kb.get_close_order_kb(new_status_order=OrderStatus.REF.value, order_id=order_id))
 
 
-# закрытие заказа
+# закрытие заказа буквы
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_7.value))
 async def dlv_order_7(cb: CallbackQuery):
     _, order_action, order_id_str = cb.data.split (':')
@@ -197,7 +198,7 @@ async def dlv_order_5(cb: CallbackQuery):
         comment=order_id_str)
 
 
-# закрытие заказа с изминениями. Запрос суммы изминений
+# Закрытие заказа с изменениями. Запрос суммы изменений
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_6.value))
 async def dlv_order_6(cb: CallbackQuery, state: FSMContext):
     _, action, order_id_str = cb.data.split (':')
@@ -214,7 +215,7 @@ async def dlv_order_6(cb: CallbackQuery, state: FSMContext):
     await cb.message.answer(text, reply_markup=kb.get_close_kb())
 
 
-# закрытие заказа с изминениями. Запрос причины изминений
+# Закрытие заказа с изменениями. Запрос причины изменений
 @dp.message(StateFilter(DeliveryStatus.EDIT_ORDER_CLOSE_1))
 async def edit_order_close_1(msg: Message, state: FSMContext):
 
@@ -227,8 +228,7 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
             await state.update_data(data={'cost': msg.text, 'discount': int(msg.text)})
 
         await state.set_state(DeliveryStatus.EDIT_ORDER_CLOSE_2)
-        sent = await msg.answer('Причина изменения стоимости')
-        # await state.update_data(data={'msg2': sent.message_id, 'msg3': msg.message_id})
+        await msg.answer('Причина изменения стоимости')
 
     else:
         sent = await msg.answer('‼️Отправьте целое число')
@@ -236,13 +236,17 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
         await sent.delete()
 
 
-# закрытие заказа с изменениями. закрытие
+# Закрытие заказа с изменениями. Закрытие
 @dp.message(StateFilter(DeliveryStatus.EDIT_ORDER_CLOSE_2))
 async def edit_order_close_2(msg: Message, state: FSMContext):
     data = await state.get_data()
     await state.clear()
 
-    note = f' {order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'
+    order_info = await db.get_order(order_id=data['order_id'])
+
+    old_note = order_info.ab or ''
+    note = f'{old_note}\n{order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'.strip()
+
     if data['action'] == OrderAction.COST.value:
         await db.update_row_google(
             order_id=data['order_id'],
@@ -265,7 +269,8 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
 
     order_info = await db.get_order(data['order_id'])
     text = get_order_text(order_info)
-    await msg.answer(text, reply_markup=kb.get_close_order_option_kb(data['order_id']))
+    action = OrderAction.SUC_TAKE.value if order_info.g == OrderStatus.ACTIVE_TAKE.value else OrderAction.SUC.value
+    await msg.answer(text, reply_markup=kb.get_close_order_option_kb(data['order_id'], order_status=action))
 
     # журнал действий
     await db.save_user_action(

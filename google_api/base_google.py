@@ -331,7 +331,7 @@ async def update_google_row() -> None:
                 [
                     str(order.id) if order.id else '', str(order.b) if order.b else '',
                     str(order.c) if order.c else '', str(order.d) if order.d else '',
-                    str(order.e) if order.e else '', str(order.f) if order.f else '',
+                    str(order.e) if order.e else '', str(order.f) if order.f else '-',
                     order_status_data.get (order.g), str(order.h) if order.h else '',
                     str(order.i) if order.i else '', str(order.j) if order.j else '',
                     str(order.k) if order.k else '', str(order.l) if order.l else '',

@@ -5,7 +5,7 @@ import sys
 from handlers import dp
 from config import DEBUG
 from init import set_main_menu, bot, log_error
-from db.base import init_models
+from db.base import init_models, create_trigger
 from utils.schedulers_util import start_scheduler, check_take_orders
 
 from google_api.base_google import save_new_order_table

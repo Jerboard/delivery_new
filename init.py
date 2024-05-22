@@ -69,9 +69,8 @@ def log_error(message, with_traceback: bool = True):
             if not row.startswith(' '):
                 msg += f'{row}\n'
 
-        # msg = "\n".join(tb_split[-5:])
-        # msg = ex_traceback.split('\n\n')[-1]
         logging.warning(f'{now}\n{tb}\n\n{msg}\n---------------------------------\n')
-        # logging.warning(f'{now}\n{ex_traceback}\n\n---------------------------------\n')
+        return msg
     else:
         logging.warning(f'{now}\n{message}\n\n---------------------------------\n')
+

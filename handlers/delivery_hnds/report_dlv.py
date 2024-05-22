@@ -43,7 +43,7 @@ async def report_dvl_2(cb: CallbackQuery):
         cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
         comment = f'({order.ab})' if order.ab is not None else ''
         comment_d = f'({order.d})' if order.d is not None else ''
-        row_text = f'{comment_d} {dt.order_status_data.get(order.g)} {order.n}  {cost} + {order.s} {order.w} {comment}\n'
+        row_text = f'{comment_d} {dt.order_status_data.get(order.g)} {order.n} {cost} + {order.s} {order.w} {comment}\n'
 
         if order.g == OrderStatus.SUC.value:
             cost_prod += cost
@@ -91,12 +91,12 @@ async def report_dvl_3(cb: CallbackQuery):
     await cb.answer(text, show_alert=True)
 
 
-# отчёт за день. Отправляет в группу
+# Отчёт за день. Отправляет в группу
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_4.value))
 async def report_dvl_4(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
 
-    await bot.send_message(Config.group_report, cb.message.text)
+    await bot.send_message(Config.work_chats['group_report'], cb.message.text)
     await cb.message.edit_text(f'{cb.message.text}\n\n✅ Отчёт отправлен')
     active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
 

@@ -1,3 +1,5 @@
+from aiogram.types import ReplyKeyboardRemove
+
 from datetime import datetime
 
 import db
@@ -29,7 +31,7 @@ async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
     if msg_id:
         await bot.edit_message_text(text, chat_id=user_id, message_id=msg_id)
     else:
-        await bot.send_message (user_id, text)
+        await bot.send_message (user_id, text, reply_markup=ReplyKeyboardRemove())
 
 
 async def get_profile_dlv(user_id: int, user_info: db.UserRow = None, msg_id: int = None):
@@ -100,10 +102,11 @@ async def save_expenses(
             f'Сумма: {data["exp_sum"]} ₽\n'
             f'Комментарий: {data["comment"]}')
 
+    print(Config.work_chats['group_expenses'])
     if data.get('photo_id'):
-        await bot.send_photo (Config.group_expenses, photo=data['photo_id'], caption=text)
+        await bot.send_photo (Config.work_chats['group_expenses'], photo=data['photo_id'], caption=text)
     else:
-        await bot.send_message (Config.group_expenses, text)
+        await bot.send_message (Config.work_chats['group_expenses'], text)
 
     await bot.send_message (user_id, '✅Ваша трата учтена')
     await db.save_user_action(user_id, user_info.name, UserActions.ADD_EXPENSES.value, text)
