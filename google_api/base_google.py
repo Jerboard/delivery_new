@@ -80,14 +80,15 @@ async def save_new_order_table() -> None:
                     type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
-            except IntegrityError as ex:
+            # except IntegrityError as ex:
+            except Exception as ex:
                 row[0] = new_row_num
                 rewrite_list.append(row)
 
-            except Exception as ex:
-                exc_list.append (row)
-                # log_error (ex, with_traceback=False)
-                log_error (ex)
+            # except Exception as ex:
+            #     exc_list.append (row)
+            #     # log_error (ex, with_traceback=False)
+            #     log_error (ex)
 
     for row in rewrite_list:
         # log_error (f'Пропуск {row[0]} {row[13]}', with_traceback=False)
