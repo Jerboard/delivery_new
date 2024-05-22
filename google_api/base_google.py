@@ -35,7 +35,7 @@ async def save_new_order_table() -> None:
         if row [13].strip () != '':
             try:
                 await db.add_row (
-                    empty_id=int(row[0]),
+                    entry_id=int(row[0]),
                     row_num=new_row_num,
                     b=row [1].strip () if row [1] else None,
                     c=row [2].strip () if row [2] else None,
