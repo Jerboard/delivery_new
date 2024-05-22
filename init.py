@@ -65,7 +65,8 @@ def log_error(message, with_traceback: bool = True):
             if row.startswith(start_row) and not re.search ('venv', row):
                 tb += f'{row}\n'
 
-        msg = "\n".join(tb_split[-5:])
+        # msg = "\n".join(tb_split[-5:])
+        msg = ex_traceback.split('\n\n')[-1]
         logging.warning(f'{now}\n{tb}\n{msg}\n---------------------------------\n')
         # logging.warning(f'{now}\n{ex_traceback}\n\n---------------------------------\n')
     else:
