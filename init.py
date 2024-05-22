@@ -59,15 +59,19 @@ def log_error(message, with_traceback: bool = True):
     if with_traceback:
         ex_traceback = traceback.format_exc()
         tb = ''
-        start_row = '  File "C:' if DEBUG else '  File "/home'
+        msg = ''
+        start_row = '  File'
         tb_split = ex_traceback.split('\n')
         for row in tb_split:
             if row.startswith(start_row) and not re.search ('venv', row):
                 tb += f'{row}\n'
 
+            if not row.startswith(' '):
+                msg += f'{row}\n'
+
         # msg = "\n".join(tb_split[-5:])
-        msg = ex_traceback.split('\n\n')[-1]
-        logging.warning(f'{now}\n{tb}\n{msg}\n---------------------------------\n')
+        # msg = ex_traceback.split('\n\n')[-1]
+        logging.warning(f'{now}\n{tb}\n\n{msg}\n---------------------------------\n')
         # logging.warning(f'{now}\n{ex_traceback}\n\n---------------------------------\n')
     else:
         logging.warning(f'{now}\n{message}\n\n---------------------------------\n')

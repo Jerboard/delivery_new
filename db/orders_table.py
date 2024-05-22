@@ -143,7 +143,7 @@ async def add_row(
     ah: str = None,
     type_update: str = None,
     updated: bool = False,
-    empty_id: int = None
+    entry_id: int = None
 ):
     query = OrderTable.insert().values(
         row_num=row_num,
@@ -184,8 +184,8 @@ async def add_row(
         time_update=datetime.now(TZ),
         updated=updated
     )
-    if empty_id:
-        query = query.values(id=empty_id)
+    if entry_id:
+        query = query.values(id=entry_id)
     async with begin_connection() as conn:
         result = await conn.execute(query)
     return result.inserted_primary_key[0]
