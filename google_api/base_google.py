@@ -30,12 +30,9 @@ async def save_new_order_table() -> None:
     exc_list = []
 
     new_row_num = 4
-    # 4985 - 4978
     for row in new_orders [4:]:
         new_row_num += 1
-        # print(row[13], row[0])
         if row [13].strip () != '':
-            print(f'row: {row}')
             try:
                 await db.add_row (
                     empty_id=int(row[0]),
@@ -91,10 +88,9 @@ async def save_new_order_table() -> None:
                 exc_list.append (row)
                 # log_error (ex, with_traceback=False)
                 log_error (ex)
-                break
 
     for row in rewrite_list:
-        log_error (f'Пропуск {row[0]} {row[13]}', with_traceback=False)
+        # log_error (f'Пропуск {row[0]} {row[13]}', with_traceback=False)
         try:
             eid = await db.add_row (
                 row_num=row [0],
@@ -141,11 +137,11 @@ async def save_new_order_table() -> None:
                 type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
-            log_error (f'Успех {eid}', with_traceback=False)
+            # log_error (f'Успех {eid}', with_traceback=False)
         except Exception as ex:
-            log_error (f'Фейл', with_traceback=False)
+            # log_error (f'Фейл', with_traceback=False)
             exc_list.append (row)
-            log_error (ex, with_traceback=False)
+            log_error (ex)
 
     ex_text = ''
     for row in exc_list:
