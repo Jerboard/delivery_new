@@ -15,7 +15,8 @@ async def main() -> None:
     # await check_take_orders()
     await init_models()
     await set_main_menu()
-    # await start_scheduler()
+    if not DEBUG:
+        await start_scheduler()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
     print ('>>>>>stop 1')
