@@ -12,18 +12,16 @@ from google_api.base_google import save_new_order_table
 
 
 async def main() -> None:
-    # await check_take_orders()
+    # await create_trigger()
     await init_models()
     await set_main_menu()
     if not DEBUG:
-        await create_trigger()
+        # await create_trigger()
         await start_scheduler()
     # await start_scheduler ()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
-    print ('>>>>>stop 1')
-    # await bot.session.close()
-    print('>>>>>stop 2')
+
 
 
 if __name__ == "__main__":
