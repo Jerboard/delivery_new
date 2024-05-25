@@ -27,7 +27,7 @@ async def change_tab_1(cb: CallbackQuery, state: FSMContext):
     await cb.message.answer(text, reply_markup=kb.get_close_kb())
 
 
-# меняет рабочую таблицу. Проверяет таблицу
+# Меняет рабочую таблицу. Проверяет таблицу
 @dp.message(StateFilter(OwnerStatus.CHANGE_TAB))
 async def change_tab_2(msg: Message, state: FSMContext):
     await state.clear()
