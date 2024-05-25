@@ -14,7 +14,7 @@ order_status_data = {
     OrderStatus.ACTIVE.value: 'на руках',
     OrderStatus.ACTIVE_TAKE.value: 'на руках (забрать)',
     OrderStatus.REF.value: 'отказ',
-    OrderStatus.TAKE.value: 'Забор',
+    OrderStatus.TAKE.value: 'принят',
     OrderStatus.SUC_TAKE.value: 'забран',
     OrderStatus.REF_TAKE.value: 'отказан',
     OrderStatus.REMAKE.value: 'переделка',

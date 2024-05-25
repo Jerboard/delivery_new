@@ -18,23 +18,24 @@ def clearing_text(text: str) -> str:
 
 
 # текст заказа по строке
-def get_order_text(order_info: db.OrderRow) -> str:
-    prepay = order_info.u + order_info.v
+def get_order_text(order: db.OrderRow) -> str:
+    prepay = order.u + order.v
 
-    if order_info.q == 0 and prepay != 0:
+    if order.q == 0 and prepay != 0:
         cost = 0
     else:
-        cost = order_info.q + order_info.r + order_info.clmn_t - order_info.y
+        # (q + r + s - y) + t
+        cost = order.q + order.r + order.s - order.y
 
-    text = f'Заказ от: {order_info.j} \n' \
-           f'Оператор: {order_info.k}\n' \
-           f'Клиент: {order_info.m}\n' \
-           f'Номер: <code>{order_info.n}</code>    <code>{order_info.o}</code>      \n' \
-           f'Доставка: {order_info.w}\n' \
-           f'Адрес: {order_info.x}\n' \
-           f'Цена: {cost} + {order_info.s}\n' \
-           f'Курьеру к оплате: {cost + order_info.s}\n' \
-           f'Примечания: {order_info.ab} '
+    text = f'Заказ от: {order.j} \n' \
+           f'Оператор: {order.k}\n' \
+           f'Клиент: {order.m}\n' \
+           f'Номер: <code>{order.n}</code>    <code>{order.o}</code>      \n' \
+           f'Доставка: {order.w}\n' \
+           f'Адрес: {order.x}\n' \
+           f'Цена: {cost} + {order.clmn_t}\n' \
+           f'Курьеру к оплате: {cost + order.clmn_t}\n' \
+           f'Примечания: {order.ab} '
 
     return text.replace('None', '').strip()
 
@@ -46,7 +47,8 @@ def get_admin_order_text(order: db.OrderRow) -> str:
     if order.q == 0 and prepay != 0:
         cost = 0
     else:
-        cost = order.q + order.r + order.clmn_t - order.y
+        # (q + r + s - y) + t
+        cost = order.q + order.r + order.s - order.y
 
     status = dt.order_status_data.get(order.g)
     text = (f'#Заказ от {order.j}, исполнитель {order.h}\n'
@@ -64,8 +66,8 @@ def get_admin_order_text(order: db.OrderRow) -> str:
             f'Доставка: {order.clmn_t}\n'
             f'Биток: {order.b}\n'
             f'Предоплата: {prepay}\n\n'
-            f'Курьеру к оплате: ({ order.q + order.r + order.s}) + ({ order.clmn_t })\n'
-            f'Итого: { order.q + order.r + order.s + order.clmn_t }\n\n'
+            f'Курьеру к оплате: ({cost}) + {order.clmn_t}\n'
+            f'Итого: {cost + order.clmn_t}\n\n'
             f'Примечания: {order.ab}\n')
 
     return clearing_text(text)
@@ -74,8 +76,9 @@ def get_admin_order_text(order: db.OrderRow) -> str:
 # краткий заказ строка
 def get_short_order_row(order: db.OrderRow, for_: str) -> str:
     prepay = order.u + order.v
-    cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
-    cost_qrs = order.q + order.r + order.s
+    # (q + r + s - y) + t
+    cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y
+    cost_qrs = order.q + order.r + order.s - order.y
 
     if for_ in [UserRole.OWN.value, UserRole.OPR.value]:
         text = (f'<code>{order.n}</code>, <code>{order.o}</code>  {order.m} {order.x} '
@@ -83,7 +86,7 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
 
     elif for_ == ShortText.ACTIVE.value:
         text = (f'{order.i} | {order.k} | {order.m} | <code>{order.n}</code> <code>{order.o}</code> '
-                f'| {cost} + {order.s}| {order.w}')
+                f'| {cost} + {order.clmn_t}| {order.w}')
 
     elif for_ == ShortText.FREE.value:
         text = (f'принят {order.j} | оператор {order.k} | ФИО {order.m} | '
@@ -91,7 +94,7 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
                 f'цена+наценка+доп {cost_qrs} + доставка {order.clmn_t} | метро {order.w} | адрес {order.x}')
 
     else:
-        text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.s} {order.w} '
+        text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} '
                 f'\n---------------------------\n')
 
     return text.replace('None', 'н/д')
