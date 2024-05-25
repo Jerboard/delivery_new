@@ -89,9 +89,9 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
                 f'| {cost} + {order.clmn_t}| {order.w}')
 
     elif for_ == ShortText.FREE.value:
-        text = (f'принят {order.j} | оператор {order.k} | ФИО {order.m} | '
-                f'тел <code>{order.n}</code> тел2 <code>{order.o}</code> | '
-                f'цена+наценка+доп {cost} + доставка {order.clmn_t} | метро {order.w} | адрес {order.x}')
+        # [ J ] | [ K ] | [ М ] | [ N ] [ O ] | ([ Q ]+[ R ]+[ S ]) + ([ T ]) | [ W ] | [ X ]
+        text = (f'{order.j} | {order.k} | {order.m} | <code>{order.n}</code>  <code>{order.o}</code> |'
+                f' {cost} + {order.clmn_t} | {order.w} | {order.x}')
 
     else:
         text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} '
