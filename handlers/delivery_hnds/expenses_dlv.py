@@ -8,9 +8,10 @@ from asyncio import sleep
 
 import db
 import keyboards as kb
-from init import dp
+from config import Config
+from init import dp, TZ, bot
 from .base_dlv import save_expenses
-from enums import DeliveryCB, DeliveryStatus
+from enums import DeliveryCB, DeliveryStatus, UserActions
 
 
 # смена клавиатуры на клавиатуру с тратами
@@ -79,28 +80,29 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
 # сохраняет коммент
 @dp.message(StateFilter(DeliveryStatus.EXPENSES_5))
 async def expenses_dvl_5(msg: Message, state: FSMContext):
-    data = await state.get_data ()
+    # data = await state.get_data ()
     await state.update_data (data={'comment': msg.text})
     data = await state.get_data()
     await state.clear()
 
     await save_expenses (msg.from_user.id, data)
 
-    # today = datetime.now(TZ).strftime(config.time_form)
-    # text = f'Курьер: {user_info.name}\n' \
-    #        f'Время: {today}\n' \
-    #        f'Сумма: {data["sum"]} ₽\n' \
-    #        f'Комментарий: {msg.text}'
-    #
-    # await bot.send_photo(config.group_expenses, photo=data['photo'], caption=text)
-    # await msg.answer('✅ Ваша трата учтена')
+    user_info = await db.get_user_info(user_id=msg.from_user.id)
+    today = datetime.now(TZ).strftime(Config.time_form)
+    text = f'Курьер: {user_info.name}\n' \
+           f'Время: {today}\n' \
+           f'Сумма: {data["sum"]} ₽\n' \
+           f'Комментарий: {msg.text}'
+
+    await bot.send_photo(Config.group_expenses, photo=data['photo'], caption=text)
+    await msg.answer('✅ Ваша трата учтена')
     # журнал действий
-    # await db.save_user_action (
-    #     user_id=msg.from_user.id,
-    #     dlv_name=user_info.name,
-    #     action=UserActions.ADD_EXPENSES.value,
-    #     comment=text
-    # )
+    await db.save_user_action (
+        user_id=msg.from_user.id,
+        dlv_name=user_info.name,
+        action=UserActions.ADD_EXPENSES.value,
+        comment=text
+    )
 
 
 # посмотреть траты за сегодня
