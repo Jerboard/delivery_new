@@ -336,14 +336,13 @@ async def update_google_row() -> None:
                     str(order.i) if order.i else '', str(order.j) if order.j else '',
                     str(order.k) if order.k else '', str(order.l) if order.l else '',
                     str(order.m) if order.m else '', str(order.n) if order.n else '',
-                    # str(order.o) if order.o else '', str(order.p) if order.p else '',
+                    str(order.o) if order.o else '', str(order.p) if order.p else '',
                     # str(order.q) if order.q else '', str(order.r) if order.r else '',
                     # str(order.s) if order.s else '', str(order.clmn_t) if order.clmn_t else '',
                     # str(order.u) if order.u else '', str(order.v) if order.v else '',
-                    str (order.o) if order.o else '0', str (order.p) if order.p else '0',
-                    str (order.q) if order.q else '0', str (order.r) if order.r else '0',
-                    str (order.s) if order.s else '0', str (order.clmn_t) if order.clmn_t else '0',
-                    str (order.u) if order.u else '0', str (order.v) if order.v else '0',
+                    str (order.q) if order.q else '0', str (order.r) if order.r else '',
+                    str (order.s) if order.s else '', str (order.clmn_t) if order.clmn_t else '0',
+                    str (order.u) if order.u else '', str (order.v) if order.v else '',
                     str(order.w) if order.w else '', str(order.x) if order.x else '',
                     str(order.y) if order.y else '', str(order.z) if order.z else ''
                 ]
