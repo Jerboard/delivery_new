@@ -9,10 +9,11 @@ from db.base import init_models, create_trigger
 from utils.schedulers_util import start_scheduler, check_take_orders
 
 from google_api.base_google import save_new_order_table
+from utils.base_utils import get_dlv_name_dict, get_work_orders_list
 
 
 async def main() -> None:
-    # await create_trigger()
+    await create_trigger()
     await init_models()
     await set_main_menu()
     if not DEBUG:
@@ -21,7 +22,6 @@ async def main() -> None:
     # await start_scheduler ()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
-
 
 
 if __name__ == "__main__":

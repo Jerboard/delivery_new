@@ -48,9 +48,10 @@ class DeliveryCB(str, Enum):
     EXPENSES_4 = 'dlv_expenses_4'
     EXPENSES_5 = 'dlv_expenses_5'
     EXPENSES_VIEW = 'dlv_expenses_view'
+    BACK_MAIN = 'dlv_back_main_menu'
     BACK_MAIN_ORDER = 'dlv_back_main_order'
+    BACK_CLOSE_ORDER = 'dlv_back_close_order'
     TRANS_ORDER = 'dlv_trans_order'
-    BACK_MAIN = 'dlv_back_main'
 
 
 class OperatorCB(str, Enum):

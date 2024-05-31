@@ -44,10 +44,10 @@ def get_dlv_main_order_kb(order_id: int, order_status: str) -> InlineKeyboardMar
 
     kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.ORDER_2.value}:{OrderAction.REF.value}:{order_id}')
 
-    if order_status == OrderStatus.ACTIVE.value:
-        kb.button(
-            text='✖️ Клиент не явился',
-            callback_data=f'{DeliveryCB.ORDER_2.value}:{OrderStatus.NOT_COME.value}:{order_id}')
+    # if order_status == OrderStatus.ACTIVE.value:
+    kb.button(
+        text='✖️ Клиент не явился',
+        callback_data=f'{DeliveryCB.ORDER_2.value}:{OrderStatus.NOT_COME.value}:{order_id}')
     kb.button(text='↩️ Передать другому курьеру', callback_data=f'{DeliveryCB.ORDER_3.value}:{order_id}')
     return kb.adjust(1).as_markup()
 
@@ -57,7 +57,8 @@ def get_close_order_option_kb(order_id: int, order_status: str) -> InlineKeyboar
     kb = InlineKeyboardBuilder()
     kb.button(
         text='✅ Закрыть заказ',
-        callback_data=f'{DeliveryCB.ORDER_7.value}:{order_status}:{order_id}')
+        # callback_data=f'{DeliveryCB.ORDER_7.value}:{order_status}:{order_id}')
+        callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}')
     kb.button(
         text='🖍 Изменить стоимость',
         callback_data=f'{DeliveryCB.ORDER_6.value}:{OrderAction.COST.value}:{order_id}')
@@ -68,13 +69,20 @@ def get_close_order_option_kb(order_id: int, order_status: str) -> InlineKeyboar
     return kb.adjust(1).as_markup()
 
 
-# выбрать букву
-def get_close_lit_kb(order_action: str, order_id: int) -> InlineKeyboardMarkup:
+# вернуться к закрытию заказа
+def get_back_close_order_kb(order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button (text='День', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_action}:{order_id}:Д')
-    kb.button (text='Вечер', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_action}:{order_id}:В')
-    kb.button (text='Адрес', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_action}:{order_id}:А')
-    kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_MAIN_ORDER.value}:{order_id}')
+    kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_CLOSE_ORDER.value}:{order_id}')
+    return kb.adjust(1).as_markup()
+
+
+# выбрать букву
+def get_close_lit_kb(order_id: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button (text='День', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:Д')
+    kb.button (text='Вечер', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:В')
+    kb.button (text='Адрес', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:А')
+    kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_CLOSE_ORDER.value}:{order_id}')
     return kb.adjust(1).as_markup()
 
 

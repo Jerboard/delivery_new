@@ -91,10 +91,10 @@ async def expenses_dvl_5(msg: Message, state: FSMContext):
     today = datetime.now(TZ).strftime(Config.time_form)
     text = f'Курьер: {user_info.name}\n' \
            f'Время: {today}\n' \
-           f'Сумма: {data["sum"]} ₽\n' \
+           f'Сумма: {data.get("sum")} ₽\n' \
            f'Комментарий: {msg.text}'
 
-    await bot.send_photo(Config.group_expenses, photo=data['photo'], caption=text)
+    await bot.send_photo(Config.work_chats["group_expenses"], photo=data['photo'], caption=text)
     await msg.answer('✅ Ваша трата учтена')
     # журнал действий
     await db.save_user_action (

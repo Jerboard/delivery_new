@@ -10,14 +10,33 @@ import utils.json_utils as js
 import google_api.utils_google as ug
 from config import Config
 from init import TZ, bot, log_error
+from utils.base_utils import get_dlv_name_dict, get_work_orders_list
 from data.base_data import order_status_data, company
-from enums import TypeOrderUpdate, UserRole
+from enums import TypeOrderUpdate, UserRole, OrderStatus
 
 
 # (a - 0, b - 1, c - 2, d - 3, e - 4, f - 5, g - 6, h - 7, i - 8, j - 9, k - 10,
 #  l - 11, m - 12, n - 13, o - 14, p - 15, q - 16, r - 17, s - 18, t - 19, u - 20,
 #  v - 21, w - 22, x - 23, y - 24, z - 25.)
 test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
+
+
+async def check_work_order_on_update(
+        dlv_name_dict: dict,
+        work_orders: list[int],
+        order_id: int,
+        order_status: str,
+        order_user_name: str
+) -> None:
+    order_user_id = dlv_name_dict.get (order_user_name)
+    if order_id in work_orders:
+        if order_status == OrderStatus.NEW.value:
+            await db.delete_work_order (order_id=order_id)
+        elif order_user_id:
+            await db.update_work_order (user_id=order_user_id, order_id=order_id)
+
+    elif order_status == [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+        await db.add_work_order (user_id=order_user_id, order_id=order_id)
 
 
 # обновляет таблицу по команде
@@ -29,20 +48,26 @@ async def save_new_order_table() -> None:
     rewrite_list = []
     exc_list = []
 
+    dlv_name_dict = await get_dlv_name_dict()
+    work_orders = await get_work_orders_list ()
+
     new_row_num = 4
     for row in new_orders [4:]:
         new_row_num += 1
         if row [13].strip () != '':
             try:
+                entry_id = int (row [0])
+                order_user_name = row [5].strip () if row [5] else None
+                order_status = order_status_data.get(row[6].strip())
                 await db.add_row (
-                    entry_id=int(row[0]),
+                    entry_id=entry_id,
                     row_num=new_row_num,
                     b=row [1].strip () if row [1] else None,
                     c=row [2].strip () if row [2] else None,
                     d=row [3].strip () if row [3] else None,
                     e=row [4].strip () if row [4] else None,
-                    f=row [5].strip () if row [5] else None,
-                    g=order_status_data.get(row[6].strip()),
+                    f=order_user_name,
+                    g=order_status,
                     h=row [7].strip () if row [7] else None,
                     i=row [8].strip () if row [8] else None,
                     j=row [9].strip () if row [9] else None,
@@ -58,16 +83,9 @@ async def save_new_order_table() -> None:
                     t=int (re.sub (r'\D+', '', row [19]) or 0),
                     u=int (re.sub (r'\D+', '', row [20]) or 0),
                     v=int (re.sub (r'\D+', '', row [21]) or 0),
-                    # q=int (row [16]) if row [16] else 0,
-                    # r=int (row [17]) if row [17] else 0,
-                    # s=int (row [18]) if row [18] else 0,
-                    # t=int (row [19]) if row [19] else 0,
-                    # u=int (row [20]) if row [20] else 0,
-                    # v=int (row [21]) if row [21] else 0,
                     w=row [22].strip () if row [22] else None,
                     x=row [23].strip () if row [23] else None,
                     y=int (re.sub (r'\D+', '', row [24]) or 0),
-                    # y=int (row [24]) if row [24] else 0,
                     z=row [25].strip () if row [25] else None,
                     aa=row [26].strip () if row [26] else None,
                     ab=row [27].strip () if row [27] else None,
@@ -80,27 +98,29 @@ async def save_new_order_table() -> None:
                     type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
-            # except IntegrityError as ex:
+                await check_work_order_on_update(
+                    dlv_name_dict=dlv_name_dict,
+                    work_orders=work_orders,
+                    order_id=entry_id,
+                    order_status=order_status,
+                    order_user_name=order_user_name
+                )
             except Exception as ex:
                 row[0] = new_row_num
                 rewrite_list.append(row)
 
-            # except Exception as ex:
-            #     exc_list.append (row)
-            #     # log_error (ex, with_traceback=False)
-            #     log_error (ex)
-
     for row in rewrite_list:
-        # log_error (f'Пропуск {row[0]} {row[13]}', with_traceback=False)
         try:
-            eid = await db.add_row (
+            order_user_name = row [5].strip () if row [5] else None
+            order_status = order_status_data.get (row [6].strip ())
+            entry_id = await db.add_row (
                 row_num=row [0],
                 b=row [1].strip () if row [1] else None,
                 c=row [2].strip () if row [2] else None,
                 d=row [3].strip () if row [3] else None,
                 e=row [4].strip () if row [4] else None,
                 f=row [5].strip () if row [5] else None,
-                g=order_status_data.get (row [6].strip ()),
+                g=order_status,
                 h=row [7].strip () if row [7] else None,
                 i=row [8].strip () if row [8] else None,
                 j=row [9].strip () if row [9] else None,
@@ -116,16 +136,9 @@ async def save_new_order_table() -> None:
                 t=int (re.sub (r'\D+', '', row [19]) or 0),
                 u=int (re.sub (r'\D+', '', row [20]) or 0),
                 v=int (re.sub (r'\D+', '', row [21]) or 0),
-                # q=int (row [16]) if row [16] else 0,
-                # r=int (row [17]) if row [17] else 0,
-                # s=int (row [18]) if row [18] else 0,
-                # t=int (row [19]) if row [19] else 0,
-                # u=int (row [20]) if row [20] else 0,
-                # v=int (row [21]) if row [21] else 0,
                 w=row [22].strip () if row [22] else None,
                 x=row [23].strip () if row [23] else None,
                 y=int (re.sub (r'\D+', '', row [24]) or 0),
-                # y=int (row [24]) if row [24] else 0,
                 z=row [25].strip () if row [25] else None,
                 aa=row [26].strip () if row [26] else None,
                 ab=row [27].strip () if row [27] else None,
@@ -138,9 +151,14 @@ async def save_new_order_table() -> None:
                 type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
-            # log_error (f'Успех {eid}', with_traceback=False)
+            await check_work_order_on_update (
+                dlv_name_dict=dlv_name_dict,
+                work_orders=work_orders,
+                order_id=entry_id,
+                order_status=order_status,
+                order_user_name=order_user_name
+            )
         except Exception as ex:
-            # log_error (f'Фейл', with_traceback=False)
             exc_list.append (row)
             log_error (ex)
 
@@ -198,21 +216,27 @@ async def update_google_table(user_id: int) -> None:
     ug.clear_new_order_table(sh, len(new_orders))
     exception_list = []
 
+    dlv_name_dict = await get_dlv_name_dict ()
+    work_orders = await get_work_orders_list()
+
     # i = 0
     for row in new_orders[1:]:
         if row[13].strip() != '':
             # i += 1
             if row[0].isdigit():
                 try:
+                    order_id = int (row [0])
+                    order_user_name = row [5].strip () if row [5] else None
+                    order_status = order_status_data.get (row [6].strip ())
                     await db.update_row_google(
-                        order_id=int(row[0]),
+                        order_id=order_id,
                         all_row=True,
                         b=row[1].strip() if row[1] else None,
                         c=row[2].strip() if row[2] else None,
                         d=row[3].strip() if row[3] else None,
                         e=row[4].strip() if row[4] else None,
-                        f=row[5].strip() if row[5] else None,
-                        g=order_status_data.get (row [6].strip ()),
+                        f=order_user_name,
+                        g=order_status,
                         h=row[7].strip() if row[7] else None,
                         i=row[8].strip() if row[8] else None,
                         j=row[9].strip() if row[9] else None,
@@ -228,12 +252,6 @@ async def update_google_table(user_id: int) -> None:
                         t=int (re.sub (r'\D+', '', row [19]) or 0),
                         u=int (re.sub (r'\D+', '', row [20]) or 0),
                         v=int (re.sub (r'\D+', '', row [21]) or 0),
-                        # q=int(row[16]) if row[16] else 0,
-                        # r=int(row[17]) if row[17] else 0,
-                        # s=int(row[18]) if row[18] else 0,
-                        # t=int(row[19]) if row[19] else 0,
-                        # u=int(row[20]) if row[20] else 0,
-                        # v=int(row[21]) if row[21] else 0,
                         w=row[22].strip() if row[22] else None,
                         x=row[23].strip() if row[23] else None,
                         y=int(row[24]) if row[24] else 0,
@@ -246,6 +264,13 @@ async def update_google_table(user_id: int) -> None:
                         af=row[31].strip() if row[31] else None,
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
+                    )
+                    await check_work_order_on_update (
+                        dlv_name_dict=dlv_name_dict,
+                        work_orders=work_orders,
+                        order_id=order_id,
+                        order_status=order_status,
+                        order_user_name=order_user_name
                     )
                 except Exception as ex:
                     exception_list.append(row[:24])
@@ -278,16 +303,9 @@ async def update_google_table(user_id: int) -> None:
                         t=int (re.sub (r'\D+', '', row [19]) or 0),
                         u=int (re.sub (r'\D+', '', row [20]) or 0),
                         v=int (re.sub (r'\D+', '', row [21]) or 0),
-                        # q=int(row[16]) if row[16] else 0,
-                        # r=int(row[17]) if row[17] else 0,
-                        # s=int(row[18]) if row[18] else 0,
-                        # t=int(row[19]) if row[19] else 0,
-                        # u=int(row[20]) if row[20] else 0,
-                        # v=int(row[21]) if row[21] else 0,
                         w=row[22].strip() if row[22] else None,
                         x=row[23].strip() if row[23] else None,
                         y=int (re.sub (r'\D+', '', row [24]) or 0),
-                        # y=int(row[24]) if row[24] else 0,
                         z=row[25].strip() if row[25] else None,
                         aa=row[26].strip() if row[26] else None,
                         ab=row[27].strip() if row[27] else None,
@@ -337,9 +355,6 @@ async def update_google_row() -> None:
                     str(order.k) if order.k else '', str(order.l) if order.l else '',
                     str(order.m) if order.m else '', str(order.n) if order.n else '',
                     str(order.o) if order.o else '', str(order.p) if order.p else '',
-                    # str(order.q) if order.q else '', str(order.r) if order.r else '',
-                    # str(order.s) if order.s else '', str(order.clmn_t) if order.clmn_t else '',
-                    # str(order.u) if order.u else '', str(order.v) if order.v else '',
                     str (order.q) if order.q else '0', str (order.r) if order.r else '',
                     str (order.s) if order.s else '', str (order.clmn_t) if order.clmn_t else '0',
                     str (order.u) if order.u else '', str (order.v) if order.v else '',
@@ -371,21 +386,6 @@ async def update_google_row() -> None:
                 sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
                 cell = f'J{order.row_num}:Z{order.row_num}'
                 sh.sheet1.format (cell, {"backgroundColor": col})
-
-                # помечает не явился
-            # elif order['type'] == 'not_come':
-            #     sh.sheet1.update(f'AB{order.row_num}', order['ab'])
-
-                # обновляет дату
-            # elif order['type'] == 'up_date':
-            #     sh.sheet1.update(f'E{order.row_num}', order['e'])
-
-                # даёт ид
-            # elif order[35] == 'get_id':
-            #     sh.sheet1.update(f'A{order.row_num}', order[1])
-
-            # else:
-            #     log_error(f'Ошибка записи из таблицы темп:\n{order}', with_traceback=False)
 
             await db.update_row_google(order_id=order.id, update_row=True)
 

@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from aiogram.filters import StateFilter
 from aiogram.fsm.state import default_state
+from aiogram.enums.chat_type import ChatType
 
 import db
 import keyboards as kb
@@ -12,6 +13,9 @@ from enums import UserRole, SearchType, OrderStatus
 # поиск заказов
 @dp.message(StateFilter(default_state))
 async def search(msg: Message):
+    if msg.chat.type != ChatType.PRIVATE:
+        return
+
     user_info = await db.get_user_info(msg.from_user.id)
     if not user_info:
         await msg.answer('❌ У вас нет доступа. Для получения доступа обратитесь к администратору')
@@ -19,12 +23,10 @@ async def search(msg: Message):
     elif len(msg.text) >= 1:
         query = msg.text.lower()
         search_on = SearchType.PHONE if query.isdigit() else SearchType.METRO
-        comp = user_info.company if user_info.role == UserRole.DLV.value else None
+        # comp = user_info.company if user_info.role == UserRole.DLV.value else None
 
-        # orders = await db.search_orders (search_query=query, search_on=search_on, comp=comp)
         orders = await db.get_orders (search_query=query, search_on=search_on)
         if not orders:
-            # orders = await db.search_orders (search_query=query, search_on=SearchType.NAME.value, comp=comp)
             orders = await db.get_orders (search_query=query, search_on=SearchType.NAME)
 
         if not orders:

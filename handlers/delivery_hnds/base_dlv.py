@@ -13,7 +13,8 @@ from enums import UserActions, UserRole
 
 # старт курьера
 async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
-    orders = await db.get_orders(dlv_name=dlv_name, get_active=True)
+    # orders = await db.get_orders(dlv_name=dlv_name, get_active=True)
+    orders = await db.get_work_orders(user_id, only_active=True)
 
     orders_text = ''
     counter = 0
@@ -78,7 +79,6 @@ async def save_expenses(
 
     else:
         last_row = await db.get_last_updated_report(last_row=True)
-        print(last_row)
         row_num = last_row.row_num + 1 if last_row.m == today_str else last_row.row_num + 2
         await db.add_report_row (
             l=[comment],
@@ -102,7 +102,6 @@ async def save_expenses(
             f'Сумма: {data["exp_sum"]} ₽\n'
             f'Комментарий: {data["comment"]}')
 
-    print(Config.work_chats['group_expenses'])
     if data.get('photo_id'):
         await bot.send_photo (Config.work_chats['group_expenses'], photo=data['photo_id'], caption=text)
     else:

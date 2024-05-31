@@ -10,11 +10,11 @@ class UserRole(str, Enum):
 class OrderStatus(str, Enum):
     NEW = 'new'
     SUC = 'success'
+    SUC_TAKE = 'success_take'
     ACTIVE = 'active'
     ACTIVE_TAKE = 'active_take'
     REF = 'refuse'
     TAKE = 'take'
-    SUC_TAKE = 'success_take'
     REF_TAKE = 'refuse_take'
     NOT_COME = 'not_come'
     REMAKE = 'remake'

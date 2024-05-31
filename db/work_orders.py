@@ -25,7 +25,7 @@ WorkTable: sa.Table = sa.Table(
 
 
 # возвращает заказы курьера
-async def get_work_orders(user_id: int, only_active: bool = False) -> tuple[OrderRow]:
+async def get_work_orders(user_id: int = None, only_active: bool = False) -> tuple[OrderRow]:
     query = (
         sa.select (
             OrderTable.c.id,
@@ -55,14 +55,14 @@ async def get_work_orders(user_id: int, only_active: bool = False) -> tuple[Orde
             OrderTable.c.ab,
             OrderTable.c.ac,
         )
-        .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
-        where(WorkTable.c.user_id == user_id)
+        .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id))
     )
+    if user_id:
+        query = query.where(WorkTable.c.user_id == user_id)
     if only_active:
         query = query.where(
             sa.or_(OrderTable.c.g == OrderStatus.ACTIVE.value, OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value)
         )
-
     async with begin_connection () as conn:
         result = await conn.execute (query)
 
@@ -89,18 +89,18 @@ async def get_statistic_dlv(user_id: int) -> list[tuple]:
 
 # добавляет заказ
 async def add_work_order(user_id: int, order_id: int) -> None:
-    query = WorkTable.insert().values(user_id=user_id, order_id=order_id)
-    # query = (
-    #     sa_postgresql.insert (WorkTable)
-    #     .values (
-    #         user_id=user_id,
-    #         order_id=order_id
-    #     )
-    #     .on_conflict_do_update (
-    #         index_elements=[WorkTable.c.order_id],
-    #         set_={"user_id": user_id}
-    #     )
-    # )
+    # query = WorkTable.insert().values(user_id=user_id, order_id=order_id)
+    query = (
+        sa_postgresql.insert (WorkTable)
+        .values (
+            user_id=user_id,
+            order_id=order_id
+        )
+        .on_conflict_do_update (
+            index_elements=[WorkTable.c.order_id],
+            set_={"user_id": user_id}
+        )
+    )
     async with begin_connection() as conn:
         await conn.execute(query)
 
@@ -114,12 +114,13 @@ async def update_work_order(order_id: int, user_id: int) -> None:
 
 # добавляет заказ
 async def delete_work_order(order_id: int = None, user_id: int = None, except_list: list[int] = None) -> None:
+    query = WorkTable.delete ()
     if order_id:
-        query = WorkTable.delete().where(WorkTable.c.order_id == order_id)
+        query = query.where(WorkTable.c.order_id == order_id)
     elif user_id:
-        query = WorkTable.delete().where(WorkTable.c.user_id == user_id)
-    else:
-        return
+        query = query.where(WorkTable.c.user_id == user_id)
+    # else:
+    #     return
 
     if except_list:
         query = query.where(WorkTable.c.order_id.notin_(except_list))
