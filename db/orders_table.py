@@ -105,6 +105,12 @@ async def index_table():
     idx.create(ENGINE)
 
 
+# синхронезирует автоинкримент с последним id
+async def syncing_id():
+    with begin_connection () as conn:
+        await conn.execute (sa.text ("SELECT setval('orders_ggl_id_seq', (SELECT MAX(id) FROM orders_ggl));"))
+
+
 # добавляет строку
 async def add_row(
     row_num: int,

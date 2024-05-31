@@ -89,6 +89,9 @@ async def save_new_order_table(table_id: str) -> str:
                 row[0] = new_row_num
                 rewrite_list.append(row)
 
+    # СИНХРОНИЗИРУЕТ ID
+    await db.syncing_id()
+
     for row in rewrite_list:
         try:
             order_user_name = row [5].strip () if row [5] else None

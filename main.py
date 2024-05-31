@@ -20,7 +20,7 @@ async def main() -> None:
     await init_models()
     await set_main_menu()
     if not DEBUG:
-        await create_trigger()
+        # await create_trigger()
         await start_scheduler()
     # await start_scheduler ()
     await bot.delete_webhook (drop_pending_updates=True)

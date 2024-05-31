@@ -18,6 +18,11 @@ async def init_models():
         await conn.run_sync (METADATA.create_all)
 
 
+# async def syncing_id():
+#     with begin_connection () as conn:
+#         await conn.execute (sa.text ("SELECT setval('orders_ggl_id_seq', (SELECT MAX(id) FROM orders_ggl));"))
+
+
 # создать колонку
 # with begin_connection() as conn:
 #     # Добавляем новую колонку к таблице
