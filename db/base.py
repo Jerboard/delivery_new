@@ -19,9 +19,9 @@ async def init_models():
 
 
 async def create_trigger():
-    async with ENGINE.begin () as conn:
+    async with ENGINE.begin() as conn:
         # Выполнить команду создания функции
-        await conn.execute (sa.text ("""
+        await conn.execute(sa.text("""
             CREATE OR REPLACE FUNCTION update_orders_ggl_id()
             RETURNS TRIGGER AS $$
             BEGIN
@@ -31,13 +31,44 @@ async def create_trigger():
             $$ LANGUAGE plpgsql;
         """))
 
-        # Выполнить команду создания триггера
-        await conn.execute (sa.text ("""
-            CREATE TRIGGER orders_ggl_id_trigger
-            BEFORE INSERT ON orders_ggl
-            FOR EACH ROW
-            EXECUTE PROCEDURE update_orders_ggl_id();
+        # Выполнить команду создания триггера, если он не существует
+        await conn.execute(sa.text("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM pg_trigger
+                    WHERE tgname = 'orders_ggl_id_trigger'
+                ) THEN
+                    CREATE TRIGGER orders_ggl_id_trigger
+                    BEFORE INSERT ON orders_ggl
+                    FOR EACH ROW
+                    EXECUTE FUNCTION update_orders_ggl_id();
+                END IF;
+            END $$;
         """))
+
+#
+# async def create_trigger():
+#     async with ENGINE.begin () as conn:
+#         # Выполнить команду создания функции
+#         await conn.execute (sa.text ("""
+#             CREATE OR REPLACE FUNCTION update_orders_ggl_id()
+#             RETURNS TRIGGER AS $$
+#             BEGIN
+#                 NEW.id := (SELECT COALESCE(MAX(id), 0) + 1 FROM orders_ggl);
+#                 RETURN NEW;
+#             END;
+#             $$ LANGUAGE plpgsql;
+#         """))
+#
+#         # Выполнить команду создания триггера
+#         await conn.execute (sa.text ("""
+#             CREATE TRIGGER orders_ggl_id_trigger
+#             BEFORE INSERT ON orders_ggl
+#             FOR EACH ROW
+#             EXECUTE PROCEDURE update_orders_ggl_id();
+#         """))
 
 
 # async def create_trigger():
