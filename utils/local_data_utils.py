@@ -14,6 +14,12 @@ def create_local_data_files():
         with open (data_file_path, 'w') as file:
             json.dump (data, file)
 
+    data_file_path = os.path.join (Config.data_path, Config.table_file)
+    if not os.path.exists (data_file_path):
+        data = {}
+        with open (data_file_path, 'w') as file:
+            json.dump (data, file)
+
 
 # Сохраняет данные
 def save_opr_msg_data(key: str, new_data: dict):
