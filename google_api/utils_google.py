@@ -19,10 +19,10 @@ from enums import OrderStatus
 test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 
-def get_google_connect() -> Spreadsheet:
+def get_google_connect(table_id: str = None) -> Spreadsheet:
     gc = gspread.service_account (filename=Config.file_google_path)
-    # table_id = js.get_json_data(Config.table_file)
-    table_id = get_table_id()
+    if not table_id:
+        table_id = get_table_id()
     return gc.open_by_key (table_id)
 
 

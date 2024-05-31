@@ -18,27 +18,9 @@ from enums import TypeOrderUpdate, UserRole, OrderStatus
 test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 
-# async def check_work_order_on_update(
-#         dlv_name_dict: dict,
-#         work_orders: list[int],
-#         order_id: int,
-#         order_status: str,
-#         order_user_name: str
-# ) -> None:
-#     order_user_id = dlv_name_dict.get (order_user_name)
-#     if order_id in work_orders:
-#         if order_status == OrderStatus.NEW.value:
-#             await db.delete_work_order (order_id=order_id)
-#         elif order_user_id:
-#             await db.update_work_order (user_id=order_user_id, order_id=order_id)
-#
-#     elif order_status == [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
-#         await db.add_work_order (user_id=order_user_id, order_id=order_id)
-
-
 # обновляет таблицу по команде
-async def save_new_order_table() -> None:
-    sh = ug.get_google_connect ()
+async def save_new_order_table(table_id: str) -> None:
+    sh = ug.get_google_connect (table_id)
 
     new_orders = sh.sheet1.get_all_values ()
 
@@ -166,15 +148,15 @@ async def save_new_order_table() -> None:
 
 
 # сохраняет таблицу отчётов
-async def save_new_report_table() -> None:
-    sh = ug.get_google_connect ()
+async def save_new_report_table(table_id: str) -> None:
+    sh = ug.get_google_connect (table_id)
     table = sh.get_worksheet (6).get_all_values ()
     counter = 4
     for row in table [4:]:
         counter += 1
         try:
             if row [13]:
-                print(counter, row)
+                # print(counter, row)
                 l_list = row [11].split ('\n')
                 await db.add_report_row (
                     b=int (re.sub (r'\D+', '', row [1]) or 0),

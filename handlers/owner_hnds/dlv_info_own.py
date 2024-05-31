@@ -8,12 +8,7 @@ from asyncio import sleep
 import db
 import keyboards as kb
 from init import dp, bot, TZ, log_error
-from config import Config
-from google_api.utils_google import is_table_exist
-from google_api.base_google import save_new_order_table, save_new_report_table
 from utils import text_utils as txt
-from utils.base_utils import get_random_code
-from data.base_data import order_status_data
 from enums import OwnerCB, ShortText, OwnerStatus, UserActions, OrderAction, TypeOrderUpdate
 
 

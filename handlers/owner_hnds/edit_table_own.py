@@ -54,11 +54,11 @@ async def change_tab_2(msg: Message, state: FSMContext):
         # очистить таблицу
         await db.delete_orders ()
         # обновляет таблицу
-        await ggl.save_new_order_table()
+        await ggl.save_new_order_table(msg.text)
         # очистить таблицу отчётов
         await db.clear_report_table ()
         # обновляет отчёт и траты
-        await ggl.save_new_report_table()
+        await ggl.save_new_report_table(msg.text)
         # сохраняет новую таблицу
         # save_json_data(data={'tab_id': msg.text}, file_name=Config.table_file)
         save_table_id(msg.text)

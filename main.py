@@ -9,7 +9,6 @@ from db.base import init_models, create_trigger
 from utils.schedulers_util import start_scheduler, check_take_orders
 from utils.local_data_utils import create_local_data_files
 
-from google_api.base_google import save_new_order_table
 from utils.local_data_utils import save_table_id, get_table_id
 
 
