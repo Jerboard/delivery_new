@@ -26,6 +26,7 @@ WorkTable: sa.Table = sa.Table(
 
 # возвращает заказы курьера
 async def get_work_orders(user_id: int = None, only_active: bool = False) -> tuple[OrderRow]:
+    print(user_id, only_active)
     query = (
         sa.select (
             OrderTable.c.id,

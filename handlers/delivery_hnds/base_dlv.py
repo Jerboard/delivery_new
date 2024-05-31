@@ -14,7 +14,12 @@ from enums import UserActions, UserRole
 # старт курьера
 async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
     # orders = await db.get_orders(dlv_name=dlv_name, get_active=True)
+    # print(user_id)
     orders = await db.get_work_orders(user_id, only_active=True)
+    # print(len(orders))
+
+    # orders_all = await db.get_work_orders ()
+    # print (len (orders_all))
 
     orders_text = ''
     counter = 0
