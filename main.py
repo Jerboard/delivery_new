@@ -7,13 +7,15 @@ from config import DEBUG
 from init import set_main_menu, bot, log_error
 from db.base import init_models, create_trigger
 from utils.schedulers_util import start_scheduler, check_take_orders
+from utils.local_data_utils import create_local_data_files
 
 from google_api.base_google import save_new_order_table
 from utils.base_utils import get_dlv_name_dict, get_work_orders_list
 
 
 async def main() -> None:
-    await create_trigger()
+    create_local_data_files()
+    # await create_trigger()
     await init_models()
     await set_main_menu()
     if not DEBUG:
