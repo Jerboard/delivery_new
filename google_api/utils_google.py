@@ -8,7 +8,8 @@ from datetime import datetime
 import db
 from config import Config
 from init import TZ, bot
-import utils.json_utils as js
+# import utils.json_utils as js
+from utils.local_data_utils import get_table_id
 from enums import OrderStatus
 
 
@@ -20,8 +21,9 @@ test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 def get_google_connect() -> Spreadsheet:
     gc = gspread.service_account (filename=Config.file_google_path)
-    table_id = js.get_json_data(Config.table_file)
-    return gc.open_by_key (table_id['tab_id'])
+    # table_id = js.get_json_data(Config.table_file)
+    table_id = get_table_id()
+    return gc.open_by_key (table_id)
 
 
 # проверяет подключение к таблице
@@ -34,12 +36,22 @@ def is_table_exist(tab_id: str) -> bool:
         return False
 
 
-# возвращает номер последней свободной строки
-# def search_last_row(sh: Spreadsheet) -> int:
-#     id_column = sh.sheet1.col_values(1)
-#     while not str(id_column[-1]).isdigit():
-#         id_column = id_column[-1]
-#     return len (id_column) + 1
+async def check_work_order_on_update(
+        dlv_name_dict: dict,
+        work_orders: list[int],
+        order_id: int,
+        order_status: str,
+        order_user_name: str
+) -> None:
+    order_user_id = dlv_name_dict.get (order_user_name)
+    if order_id in work_orders:
+        if order_status == OrderStatus.NEW.value:
+            await db.delete_work_order (order_id=order_id)
+        elif order_user_id:
+            await db.update_work_order (user_id=order_user_id, order_id=order_id)
+
+    elif order_status == [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+        await db.add_work_order (user_id=order_user_id, order_id=order_id)
 
 
 async def add_order_in_google_table(sh: Spreadsheet, row_num: int, row: list, order_id: int):

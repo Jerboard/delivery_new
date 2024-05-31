@@ -11,7 +11,8 @@ from init import dp
 from config import Config
 from google_api.utils_google import is_table_exist
 import google_api as ggl
-from utils.json_utils import save_json_data
+# from utils.json_utils import save_json_data
+from utils.local_data_utils import save_table_id
 from enums import OwnerCB, OwnerStatus
 
 
@@ -59,7 +60,8 @@ async def change_tab_2(msg: Message, state: FSMContext):
         # обновляет отчёт и траты
         await ggl.save_new_report_table()
         # сохраняет новую таблицу
-        save_json_data(data={'tab_id': msg.text}, file_name=Config.table_file)
+        # save_json_data(data={'tab_id': msg.text}, file_name=Config.table_file)
+        save_table_id(msg.text)
         time_finish = datetime.now() - time_start
         await sent.edit_text(f'✅ Таблица обновлена\nВремя обновления: {time_finish}')
 

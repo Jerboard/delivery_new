@@ -1,12 +1,9 @@
 import re
 import asyncio
 
-from gspread.spreadsheet import Spreadsheet
-from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
 import db
-import utils.json_utils as js
 import google_api.utils_google as ug
 from config import Config
 from init import TZ, bot, log_error
@@ -21,22 +18,22 @@ from enums import TypeOrderUpdate, UserRole, OrderStatus
 test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 
-async def check_work_order_on_update(
-        dlv_name_dict: dict,
-        work_orders: list[int],
-        order_id: int,
-        order_status: str,
-        order_user_name: str
-) -> None:
-    order_user_id = dlv_name_dict.get (order_user_name)
-    if order_id in work_orders:
-        if order_status == OrderStatus.NEW.value:
-            await db.delete_work_order (order_id=order_id)
-        elif order_user_id:
-            await db.update_work_order (user_id=order_user_id, order_id=order_id)
-
-    elif order_status == [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
-        await db.add_work_order (user_id=order_user_id, order_id=order_id)
+# async def check_work_order_on_update(
+#         dlv_name_dict: dict,
+#         work_orders: list[int],
+#         order_id: int,
+#         order_status: str,
+#         order_user_name: str
+# ) -> None:
+#     order_user_id = dlv_name_dict.get (order_user_name)
+#     if order_id in work_orders:
+#         if order_status == OrderStatus.NEW.value:
+#             await db.delete_work_order (order_id=order_id)
+#         elif order_user_id:
+#             await db.update_work_order (user_id=order_user_id, order_id=order_id)
+#
+#     elif order_status == [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+#         await db.add_work_order (user_id=order_user_id, order_id=order_id)
 
 
 # обновляет таблицу по команде
@@ -98,7 +95,7 @@ async def save_new_order_table() -> None:
                     type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
-                await check_work_order_on_update(
+                await ug.check_work_order_on_update(
                     dlv_name_dict=dlv_name_dict,
                     work_orders=work_orders,
                     order_id=entry_id,
@@ -151,7 +148,7 @@ async def save_new_order_table() -> None:
                 type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
-            await check_work_order_on_update (
+            await ug.check_work_order_on_update (
                 dlv_name_dict=dlv_name_dict,
                 work_orders=work_orders,
                 order_id=entry_id,
@@ -265,7 +262,7 @@ async def update_google_table(user_id: int) -> None:
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
                     )
-                    await check_work_order_on_update (
+                    await ug.check_work_order_on_update (
                         dlv_name_dict=dlv_name_dict,
                         work_orders=work_orders,
                         order_id=order_id,
