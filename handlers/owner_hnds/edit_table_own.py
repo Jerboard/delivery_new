@@ -12,6 +12,7 @@ from config import Config
 from google_api.utils_google import is_table_exist
 import google_api as ggl
 # from utils.json_utils import save_json_data
+from handlers.owner_hnds.owner_base import owner_start
 from utils.local_data_utils import save_table_id
 from enums import OwnerCB, OwnerStatus
 
@@ -54,16 +55,17 @@ async def change_tab_2(msg: Message, state: FSMContext):
         # очистить таблицу
         await db.delete_orders ()
         # обновляет таблицу
-        await ggl.save_new_order_table(msg.text)
+        error_text = await ggl.save_new_order_table(msg.text)
         # очистить таблицу отчётов
         await db.clear_report_table ()
         # обновляет отчёт и траты
         await ggl.save_new_report_table(msg.text)
         # сохраняет новую таблицу
-        # save_json_data(data={'tab_id': msg.text}, file_name=Config.table_file)
         save_table_id(msg.text)
         time_finish = datetime.now() - time_start
         await sent.edit_text(f'✅ Таблица обновлена\nВремя обновления: {time_finish}')
+        if error_text:
+            await msg.answer(f'{error_text}\n\n‼️ Обратитесь к разработчику')
 
     else:
         await sent.delete()
@@ -83,7 +85,9 @@ async def update_google_table(cb: CallbackQuery):
         # обновляет отчёт и траты
         await ggl.save_new_report_table ()
 
+    await owner_start(user_id=cb.from_user.id, msg_id=cb.message.message_id)
     await sent.delete()
+
 
 
 # вернуть клавиатуру передачи заказа

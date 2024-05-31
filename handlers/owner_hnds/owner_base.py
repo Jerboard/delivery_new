@@ -14,7 +14,10 @@ async def owner_start(user_id: int, msg_id: int = None):
     text = f'Заказы\n\n{statistic_text}'
 
     if msg_id:
-        await bot.edit_message_text (chat_id=user_id, message_id=msg_id, text=text, reply_markup=kb.main_owner_kb ())
+        try:
+            await bot.edit_message_text (chat_id=user_id, message_id=msg_id, text=text, reply_markup=kb.main_owner_kb ())
+        except Exception as ex:
+            pass
     else:
         await bot.send_message (user_id, text, reply_markup=kb.main_owner_kb ())
 

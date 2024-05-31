@@ -204,7 +204,6 @@ async def update_expenses_dlv(
     if row_num:
         query = query.values(row_num=row_num)
 
-    print(query)
     async with begin_connection() as conn:
         await conn.execute(query)
 

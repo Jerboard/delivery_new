@@ -18,6 +18,11 @@ async def init_models():
         await conn.run_sync (METADATA.create_all)
 
 
+# создать колонку
+with begin_connection() as conn:
+    # Добавляем новую колонку к таблице
+    conn.execute(sa.text('ALTER TABLE my_table ADD COLUMN new_column VARCHAR'))
+
 async def create_trigger():
     async with ENGINE.begin() as conn:
         # Выполнить команду создания функции

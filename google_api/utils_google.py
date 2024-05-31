@@ -44,14 +44,13 @@ async def check_work_order_on_update(
         order_user_name: str
 ) -> None:
     order_user_id = dlv_name_dict.get (order_user_name)
+
+    if order_status == OrderStatus.NEW.value and order_id in work_orders:
+        await db.delete_work_order (order_id=order_id)
     if not order_user_id:
         return
     if order_id in work_orders:
-        if order_status == OrderStatus.NEW.value:
-            await db.delete_work_order (order_id=order_id)
-        elif order_user_id:
-            await db.update_work_order (user_id=order_user_id, order_id=order_id)
-
+        await db.update_work_order (user_id=order_user_id, order_id=order_id)
     elif order_status in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
         await db.add_work_order (user_id=order_user_id, order_id=order_id)
 

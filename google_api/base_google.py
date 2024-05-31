@@ -19,7 +19,7 @@ test_table = '12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM'
 
 
 # обновляет таблицу по команде
-async def save_new_order_table(table_id: str) -> None:
+async def save_new_order_table(table_id: str) -> str:
     sh = ug.get_google_connect (table_id)
 
     new_orders = sh.sheet1.get_all_values ()
@@ -145,11 +145,14 @@ async def save_new_order_table(table_id: str) -> None:
     ex_text = ''
     for row in exc_list:
         ex_text += f'{row}\n'
-    log_error (f'Всего ошибок: {len(exc_list)}\n{ex_text}', with_traceback=False)
+    error_text = f'Всего ошибок: {len(exc_list)}'
+    log_error (f'{error_text}\n{ex_text}', with_traceback=False)
+    if len(exc_list):
+        return error_text
 
 
 # сохраняет таблицу отчётов
-async def save_new_report_table(table_id: str) -> None:
+async def save_new_report_table(table_id: str = None) -> None:
     sh = ug.get_google_connect (table_id)
     table = sh.get_worksheet (6).get_all_values ()
     counter = 4
@@ -260,7 +263,7 @@ async def update_google_table(user_id: int) -> None:
 
             else:
                 try:
-                    await db.add_row(
+                    order_id = await db.add_row(
                         row_num=new_row,
                         b=row[1].strip() if row[1] else None,
                         c=row[2].strip() if row[2] else None,
@@ -298,6 +301,13 @@ async def update_google_table(user_id: int) -> None:
                         type_update=TypeOrderUpdate.ADD.value,
                     )
                     new_row += 1
+                    await ug.check_work_order_on_update (
+                        dlv_name_dict=dlv_name_dict,
+                        work_orders=work_orders,
+                        order_id=order_id,
+                        order_status=order_status,
+                        order_user_name=order_user_name
+                    )
                 except Exception as ex:
                     exception_list.append (row)
                     log_error(ex)
