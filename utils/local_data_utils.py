@@ -56,3 +56,17 @@ def del_opr_msg_data(key: str):
 
         with open (data_file_path, 'w') as file:
             json.dump (data, file)
+
+
+# сохраняет id таблицы
+def save_table_id(table_id: str):
+    path = os.path.join (Config.data_path, Config.table_file)
+    with open(path, 'w', encoding='utf-8') as file:
+        file.write(table_id)
+
+
+# возвращает id таблицы
+def get_table_id() -> str:
+    path = os.path.join (Config.data_path, Config.table_file)
+    with open (path, 'r', encoding='utf-8') as file:
+        return file.read ().strip ()

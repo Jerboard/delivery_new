@@ -10,20 +10,22 @@ from utils.schedulers_util import start_scheduler, check_take_orders
 from utils.local_data_utils import create_local_data_files
 
 from google_api.base_google import save_new_order_table
-from utils.base_utils import get_dlv_name_dict, get_work_orders_list
+from utils.local_data_utils import save_table_id, get_table_id
 
 
 async def main() -> None:
-    create_local_data_files()
-    # await create_trigger()
-    await init_models()
-    await set_main_menu()
-    if not DEBUG:
-        # await create_trigger()
-        await start_scheduler()
-    # await start_scheduler ()
-    await bot.delete_webhook (drop_pending_updates=True)
-    await dp.start_polling(bot)
+    save_table_id('12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM')
+    print(get_table_id())
+    # create_local_data_files()
+    # # await create_trigger()
+    # await init_models()
+    # await set_main_menu()
+    # if not DEBUG:
+    #     # await create_trigger()
+    #     await start_scheduler()
+    # # await start_scheduler ()
+    # await bot.delete_webhook (drop_pending_updates=True)
+    # await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
