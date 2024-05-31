@@ -107,7 +107,7 @@ async def index_table():
 
 # синхронезирует автоинкримент с последним id
 async def syncing_id():
-    with begin_connection () as conn:
+    async with begin_connection() as conn:
         await conn.execute (sa.text ("SELECT setval('orders_ggl_id_seq', (SELECT MAX(id) FROM orders_ggl));"))
 
 

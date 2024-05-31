@@ -31,8 +31,8 @@ async def save_new_order_table(table_id: str) -> str:
     work_orders = await get_work_orders_list ()
 
     new_row_num = 4
-    for row in new_orders [4:]:
-    # for row in new_orders[5223:5244]:
+    # for row in new_orders [4:]:
+    for row in new_orders[5223:5244]:
         new_row_num += 1
         if row [13].strip () != '':
             try:
@@ -89,7 +89,7 @@ async def save_new_order_table(table_id: str) -> str:
                 row[0] = new_row_num
                 rewrite_list.append(row)
 
-    # СИНХРОНИЗИРУЕТ ID
+    # синхронизирует ID
     await db.syncing_id()
 
     for row in rewrite_list:
