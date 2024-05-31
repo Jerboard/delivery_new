@@ -16,7 +16,7 @@ from utils.local_data_utils import save_table_id, get_table_id
 async def main() -> None:
     # await save_new_order_table('12Sm-PMgBy_ANC2WuesE8WWo_sawyaqx4QeMlkWTVfmM')
     create_local_data_files()
-    # await create_trigger()
+    await create_trigger()
     await init_models()
     await set_main_menu()
     if not DEBUG:

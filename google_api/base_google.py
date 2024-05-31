@@ -32,13 +32,14 @@ async def save_new_order_table(table_id: str) -> None:
 
     new_row_num = 4
     for row in new_orders [4:]:
+    # for row in new_orders[5223:5244]:
         new_row_num += 1
         if row [13].strip () != '':
             try:
                 entry_id = int (row [0])
                 order_user_name = row [5].strip () if row [5] else None
                 order_status = order_status_data.get(row[6].strip())
-                await db.add_row (
+                en_id = await db.add_row (
                     entry_id=entry_id,
                     row_num=new_row_num,
                     b=row [1].strip () if row [1] else None,

@@ -185,6 +185,7 @@ async def add_row(
         updated=updated
     )
     if entry_id:
+        print(f'en> {entry_id}')
         query = query.values(id=entry_id)
     async with begin_connection() as conn:
         result = await conn.execute(query)

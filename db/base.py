@@ -21,13 +21,25 @@ async def init_models():
 async def create_trigger():
     async with ENGINE.begin() as conn:
         # Выполнить команду создания функции
+        # await conn.execute(sa.text("""
+        #     CREATE OR REPLACE FUNCTION update_orders_ggl_id()
+        #     RETURNS TRIGGER AS $$
+        #     BEGIN
+        #         NEW.id := (SELECT COALESCE(MAX(id), 0) + 1 FROM orders_ggl);
+        #         RETURN NEW;
+        #     END;
+        #     $$ LANGUAGE plpgsql;
+        # """))
+
         await conn.execute(sa.text("""
             CREATE OR REPLACE FUNCTION update_orders_ggl_id()
             RETURNS TRIGGER AS $$
             BEGIN
-                NEW.id := (SELECT COALESCE(MAX(id), 0) + 1 FROM orders_ggl);
+                IF NEW.id IS NULL THEN
+                    NEW.id := (SELECT COALESCE(MAX(id), 0) + 1 FROM orders_ggl);
+                END IF;
                 RETURN NEW;
-            END;
+             END;
             $$ LANGUAGE plpgsql;
         """))
 
@@ -47,6 +59,18 @@ async def create_trigger():
                 END IF;
             END $$;
         """))
+
+'''
+CREATE OR REPLACE FUNCTION update_orders_ggl_id()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.id IS NULL THEN
+        NEW.id := (SELECT COALESCE(MAX(id), 0) + 1 FROM orders_ggl);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+'''
 
 #
 # async def create_trigger():
