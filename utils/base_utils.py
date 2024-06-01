@@ -33,6 +33,15 @@ async def get_work_orders_list() -> list[int]:
     return [order.id for order in orders]
 
 
+# считает стоимость
+def get_order_cost(order: db.OrderRow, with_t: bool = False) -> int:
+    prepay = order.u + order.v
+    if with_t:
+        return (0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y) + order.clmn_t
+    else:
+        return 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y
+
+
 # async def start_test_work():
 #     await db.delete_work_order()
 #

@@ -257,22 +257,30 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
 
     old_note = order_info.ab or ''
     note = f'{old_note}\n{order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'.strip()
-    await db.update_row_google (
-        order_id=data ['order_id'],
-        type_update=data ['action'],
-        cost_delivery=data ['discount'],
-        note=note
-    )
+
+    if data ['action'] == OrderAction.COST.value:
+        await db.update_row_google (
+            order_id=data ['order_id'],
+            type_update=data ['action'],
+            discount=data ['discount'],
+            note=note
+        )
+        user_action = UserActions.ADD_DISCOUNT.value
+    else:
+        await db.update_row_google (
+            order_id=data ['order_id'],
+            type_update=data ['action'],
+            cost_delivery=data ['discount'],
+            note=note
+        )
+        user_action = UserActions.ADD_DISCOUNT_DLV.value
+
     order_info = await db.get_order(data['order_id'])
     text = get_order_text(order_info)
     action = OrderAction.SUC_TAKE.value if order_info.g == OrderStatus.ACTIVE_TAKE.value else OrderAction.SUC.value
     await msg.answer(text, reply_markup=kb.get_close_order_option_kb(data['order_id'], order_status=action))
 
     # журнал действий
-    if data ['action'] == OrderAction.COST.value:
-        user_action = UserActions.ADD_DISCOUNT.value
-    else:
-        user_action = UserActions.ADD_DISCOUNT_DLV.value
     await db.save_user_action(
         user_id=msg.from_user.id,
         dlv_name=order_info.f,

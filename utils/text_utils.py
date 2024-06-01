@@ -1,6 +1,7 @@
 import re
 
 import db
+from utils.base_utils import get_order_cost
 from data import base_data as dt
 from enums import OrderStatus, UserRole, ShortText
 
@@ -75,10 +76,11 @@ def get_admin_order_text(order: db.OrderRow) -> str:
 
 # краткий заказ строка
 def get_short_order_row(order: db.OrderRow, for_: str) -> str:
-    prepay = order.u + order.v
+    # prepay = order.u + order.v
     # (q + r + s - y) + t
-    cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y
+    # cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y
     # cost_qrs = order.q + order.r + order.s - order.y
+    cost = get_order_cost(order)
 
     if for_ in [UserRole.OWN.value, UserRole.OPR.value]:
         text = (f'<code>{order.n}</code>, <code>{order.o}</code>  {order.m} {order.x} '
@@ -92,6 +94,11 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
         # [ J ] | [ K ] | [ М ] | [ N ] [ O ] | ([ Q ]+[ R ]+[ S ]) + ([ T ]) | [ W ] | [ X ]
         text = (f'{order.j} | {order.k} | {order.m} | <code>{order.n}</code>  <code>{order.o}</code> |'
                 f' {cost} + {order.clmn_t} | {order.w} | {order.x}')
+
+    elif for_ == ShortText.REPORT.value:
+        comment = f'({order.ab})' if order.ab is not None else ''
+        comment_d = f'({order.d})' if order.d is not None else ''
+        text = f'{comment_d} {dt.order_status_data.get (order.g)} {order.n} {cost} + {order.clmn_t} {order.w} {comment}\n'
 
     else:
         text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} '

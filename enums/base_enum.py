@@ -75,6 +75,7 @@ class SearchType(str, Enum):
 class ShortText (str, Enum):
     ACTIVE = 'active_orders'
     FREE = 'free_orders'
+    REPORT = 'report'
 
 
 class CompanyDLV (str, Enum):

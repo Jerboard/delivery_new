@@ -7,13 +7,13 @@ from init import bot, TZ
 from config import Config
 import keyboards as kb
 from utils import text_utils as txt
-from utils import redis_utils as rds
 from enums import UserActions, UserRole
 
 
 # старт курьера
 async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
     orders = await db.get_work_orders(user_id, only_active=True)
+    # orders = await db.get_work_orders(6600572025, only_active=True)
 
     orders_text = ''
     counter = 0
