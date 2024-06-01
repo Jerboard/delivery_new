@@ -141,7 +141,8 @@ async def dlv_order_7(cb: CallbackQuery):
 # закрытие заказа
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_4.value))
 async def dlv_order_4(cb: CallbackQuery):
-    _, action, order_id_str, lit = cb.data.split (':')
+    print(cb.data)
+    _, order_id_str, lit = cb.data.split (':')
     order_id = int (order_id_str)
 
     order_info = await db.get_order (order_id)
@@ -157,7 +158,7 @@ async def dlv_order_4(cb: CallbackQuery):
         entities=cb.message.entities,
         parse_mode=None
     )
-
+    action = UserActions.SUCCESS_ORDER.value
     # if action == OrderStatus.SUC_TAKE.value:
     if order_info.g == OrderStatus.ACTIVE_TAKE.value:
         opr_info = await db.get_user_info (user_id=cb.from_user.id)
