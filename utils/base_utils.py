@@ -33,13 +33,13 @@ async def get_work_orders_list() -> list[int]:
     return [order.id for order in orders]
 
 
-async def start_test_work():
-    await db.delete_work_order()
-
-    users = await db.get_users(role=UserRole.DLV.value)
-
-    for user in users:
-        orders = await db.get_orders(dlv_name=user.name, get_active=True)
-
-        for order in orders:
-            await db.add_work_order(user_id=user.user_id, order_id=order.id)
+# async def start_test_work():
+#     await db.delete_work_order()
+#
+#     users = await db.get_users(role=UserRole.DLV.value)
+#
+#     for user in users:
+#         orders = await db.get_orders(dlv_name=user.name, get_active=True)
+#
+#         for order in orders:
+#             await db.add_work_order(user_id=user.user_id, order_id=order.id)
