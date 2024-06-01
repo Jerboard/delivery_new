@@ -40,7 +40,7 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
     _, start_str = cb.data.split(':')
     start = int(start_str)
     free_orders = await db.get_orders(get_new=True)
-    free_orders = free_orders[:57]
+    # free_orders = free_orders[:57]
 
     if len(free_orders) < 20:
         await cb.message.answer('Страница 1/1')
@@ -88,9 +88,9 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
 
             counter += 1
 
-        print(counter < len_pg)
+        # print(counter < len_pg)
         if counter < batch_size:
-            print(old_messages[counter:])
+            # print(old_messages[counter:])
             for msg_id in old_messages[counter:]:
                 await bot.delete_message(chat_id=cb.message.chat.id, message_id=msg_id)
                 old_messages.remove(msg_id)
