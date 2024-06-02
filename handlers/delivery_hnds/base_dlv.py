@@ -75,6 +75,7 @@ async def save_expenses(
             i=exp_today.i + (data.get('i', 0)),
             k=exp_today.k + (data.get('k', 0)),
         )
+        await db.save_user_action (user_id, user_info.name, 'Обновил трату', str(exp_today))
 
     else:
         last_row = await db.get_last_updated_report(last_row=True)
@@ -94,10 +95,12 @@ async def save_expenses(
             k=data.get('k', 0),
             row_num=row_num
         )
+        await db.save_user_action (user_id, user_info.name, UserActions.ADD_EXPENSES.value, text)
 
     today = datetime.now (TZ).strftime (Config.datetime_form)
     text = (f'Курьер: {user_info.name}\n'
             f'Время: {today}\n'
+            f'Колонка: {data.get("column")}\n'
             f'Сумма: {data["exp_sum"]} ₽\n'
             f'Комментарий: {data["comment"]}')
 

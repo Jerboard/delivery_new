@@ -5,6 +5,7 @@ import sqlalchemy.dialects.postgresql as sa_postgresql
 
 from .base import METADATA, begin_connection
 from db.orders_table import OrderRow, OrderTable
+from db.action_journal import save_user_action
 from enums import OrderStatus
 
 
@@ -104,6 +105,13 @@ async def add_work_order(user_id: int, order_id: int) -> None:
     )
     async with begin_connection() as conn:
         await conn.execute(query)
+
+    await save_user_action(
+        user_id=user_id,
+        dlv_name=str(user_id),
+        action='add work order',
+        comment=str(order_id)
+    )
 
 
 # добавляет заказ
