@@ -29,11 +29,11 @@ async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=5051573626)
+    # user_info = await db.get_user_info (user_id=5766385456)
     if date_str == 'today':
         date_str = datetime.now(TZ).date().strftime(Config.day_form)
         dlv_orders = await db.get_work_orders(cb.from_user.id)
-        # dlv_orders = await db.get_work_orders(5051573626)
+        # dlv_orders = await db.get_work_orders(5766385456)
 
     else:
         dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
@@ -71,13 +71,15 @@ async def report_dvl_2(cb: CallbackQuery):
             not_come += row_text
 
     if dlv_report:
-        print(dlv_report)
+        # print(dlv_report)
+        # print(dlv_report.b, dlv_report.c, dlv_report.d, dlv_report.e, dlv_report.f, dlv_report.g, dlv_report.h, dlv_report.i, dlv_report.j, dlv_report.j)
         total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
-                          dlv_report.h + dlv_report.i + dlv_report.j + dlv_report.j)
+                          dlv_report.h + dlv_report.i + dlv_report.j + dlv_report.k)
     else:
         total_expenses = 0
 
     total = cost_prod - total_expenses
+    # print(cost_prod, total_expenses)
     expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 
     spt = '\n---------------------------\n'
