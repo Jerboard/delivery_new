@@ -95,7 +95,7 @@ async def save_expenses(
             k=data.get('k', 0),
             row_num=row_num
         )
-        await db.save_user_action (user_id, user_info.name, UserActions.ADD_EXPENSES.value, text)
+        await db.save_user_action (user_id, user_info.name, UserActions.ADD_EXPENSES.value, str(data))
 
     today = datetime.now (TZ).strftime (Config.datetime_form)
     text = (f'Курьер: {user_info.name}\n'

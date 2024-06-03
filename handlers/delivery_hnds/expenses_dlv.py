@@ -94,7 +94,10 @@ async def expenses_dvl_5(msg: Message, state: FSMContext):
            f'Сумма: {data.get("sum")} ₽\n' \
            f'Комментарий: {msg.text}'
 
-    await bot.send_photo(Config.work_chats["group_expenses"], photo=data['photo'], caption=text)
+    if data.get('photo'):
+        await bot.send_photo(Config.work_chats["group_expenses"], photo=data['photo'], caption=text)
+    else:
+        await bot.send_message(Config.work_chats["group_expenses"], text=text)
     await msg.answer('✅ Ваша трата учтена')
     # журнал действий
     await db.save_user_action (
