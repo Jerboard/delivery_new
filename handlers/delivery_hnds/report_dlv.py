@@ -9,7 +9,7 @@ from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
 from data import base_data as dt
-from enums import DeliveryCB, OrderStatus, UserActions, ShortText
+from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter
 
 
 # отчёт по дням
@@ -29,11 +29,11 @@ async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=6600572025)
+    # user_info = await db.get_user_info (user_id=5051573626)
     if date_str == 'today':
         date_str = datetime.now(TZ).date().strftime(Config.day_form)
         dlv_orders = await db.get_work_orders(cb.from_user.id)
-        # dlv_orders = await db.get_work_orders(6600572025)
+        # dlv_orders = await db.get_work_orders(5051573626)
 
     else:
         dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
@@ -41,29 +41,25 @@ async def report_dvl_2(cb: CallbackQuery):
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
     suc_text, refuse_text, active_text, not_come = '', '', '', ''
-    # cost_prod, cost_dlv, discount = 0, 0, 0
     cost_prod, cost_dlv = 0, 0
+    salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0, }
 
     for order in dlv_orders:
-        # prepay = order.u + order.v
-        # cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
-        # comment = f'({order.ab})' if order.ab is not None else ''
-        # comment_d = f'({order.d})' if order.d is not None else ''
-        # row_text = f'{comment_d} {dt.order_status_data.get(order.g)} {order.n} {cost} + {order.s} {order.w} {comment}\n'
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
         if order.g == OrderStatus.SUC.value:
-            cost_prod += get_order_cost(order, with_t=True)
-            # discount += order.y
-            # suc_text = f'{suc_text}{row_text}'
+            cost = get_order_cost(order, with_t=True)
+            cost_prod += cost
             suc_text += row_text
+            summary = salary.get(order.d, 0)
+            # print(summary)
+            # if summary:
+            salary[order.d] = summary + 1
 
         elif order.g == OrderStatus.REF.value:
-            # refuse_text = f'{refuse_text}{row_text}'
             refuse_text += row_text
 
         elif order.g == OrderStatus.ACTIVE.value:
-            # active_text = f'{active_text}{row_text}'
             active_text += row_text
 
         elif order.g == OrderStatus.NOT_COME.value:
@@ -71,20 +67,23 @@ async def report_dvl_2(cb: CallbackQuery):
             not_come += row_text
 
     if dlv_report:
-        # print(dlv_report)
-        # print(dlv_report.b, dlv_report.c, dlv_report.d, dlv_report.e, dlv_report.f, dlv_report.g, dlv_report.h, dlv_report.i, dlv_report.j, dlv_report.j)
         total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
                           dlv_report.h + dlv_report.i + dlv_report.j + dlv_report.k)
     else:
         total_expenses = 0
 
+    salary_str = ''
+    for k, v in salary.items():
+        if v:
+            salary_str += f'{dt.letters.get(k)} - {v}\n'
+
     total = cost_prod - total_expenses
-    # print(cost_prod, total_expenses)
     expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 
     spt = '\n---------------------------\n'
     text = (f'{user_info.name}\n\n'
-            f'{date_str}\n\n'
+            f'{date_str}\n'
+            f'{salary_str}\n'
             f'{suc_text}{spt}{refuse_text}{spt}{active_text}{spt}{not_come}{spt}'
             f'Касса: {cost_prod}\n\n'
             f'{expenses}\n\n'

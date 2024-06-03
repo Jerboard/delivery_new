@@ -7,6 +7,7 @@ from init import bot, TZ
 from config import Config
 import keyboards as kb
 from utils import text_utils as txt
+from data.base_data import expensis_dlv
 from enums import UserActions, UserRole
 
 
@@ -57,11 +58,18 @@ async def save_expenses(
     today_str = datetime.now (TZ).strftime (Config.day_form)
     exp_today = await db.get_report_dlv(user_info.name, today_str)
 
-    comment = f'{data["exp_sum"]} - {data["comment"]}'
+    ex_info = expensis_dlv [data ['ex_id']]
+    comment = data["comment"] if data.get('comment') else ex_info ["text"]
+    comment = f'{data ["exp_sum"]} - {comment}'
+    # if data.get('comment'):
+    #     comment = f'{data["exp_sum"]} - {data["comment"]}'
+    # else:
+    #     ex_info = expensis_dlv[data['ex_id']]
+    #     comment = f'{data ["exp_sum"]} - {ex_info ["text"]}'
 
     if exp_today:
-        comment_list: list = exp_today.l
-        comment_list.append(comment)
+        # comment_list: list = exp_today.l
+        # comment_list.append(comment)
         await db.update_expenses_dlv(
             entry_id=exp_today.id,
             l=comment,
@@ -75,7 +83,7 @@ async def save_expenses(
             i=exp_today.i + (data.get('i', 0)),
             k=exp_today.k + (data.get('k', 0)),
         )
-        await db.save_user_action (user_id, user_info.name, 'Обновил трату', str(exp_today))
+        await db.save_user_action (user_id, user_info.name, 'Обновил трату', str(exp_today)[:250])
 
     else:
         last_row = await db.get_last_updated_report(last_row=True)
@@ -103,9 +111,8 @@ async def save_expenses(
     today = datetime.now (TZ).strftime (Config.datetime_form)
     text = (f'Курьер: {user_info.name}\n'
             f'Время: {today}\n'
-            f'Колонка: {data.get("column")}\n'
             f'Сумма: {data["exp_sum"]} ₽\n'
-            f'Комментарий: {data["comment"]}')
+            f'Комментарий: {comment}')
 
     if data.get('photo_id'):
         await bot.send_photo (Config.work_chats['group_expenses'], photo=data['photo_id'], caption=text)
