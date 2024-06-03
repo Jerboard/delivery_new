@@ -1,4 +1,4 @@
-from enums import OrderStatus, CompanyDLV, OrderAction
+from enums import OrderStatus, CompanyDLV, OrderAction, Letter
 
 
 company = {
