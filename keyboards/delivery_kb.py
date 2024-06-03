@@ -105,15 +105,18 @@ def get_transfer_order_kb(users: tuple[db.UserRow], order_id) -> InlineKeyboardM
 
 
 # клавиатура трат курьера
-def expenses_dvl_kb(is_report=0, cb_1=0, cb_2=0) -> InlineKeyboardMarkup:
+# def expenses_dvl_kb(is_report=0, cb_1=0, cb_2=0) -> InlineKeyboardMarkup:
+def expenses_dvl_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    if is_report == 0:
-        kb.button(text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
-    else:
-        kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.REPORT_1.value}:{cb_1}:{cb_2}')
+    # if is_report == 0:
+    #     kb.button(text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
+    # else:
+    #     kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.REPORT_1.value}:{cb_1}:{cb_2}')
 
-    for column, name in expensis_dlv.items():
-        kb.button(text=f'💸 {name}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{column}')
+    kb.button (text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
+    for k, v in expensis_dlv.items():
+        kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{k}')
+        # kb.button(text=f'💸 {name}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{column}')
 
     return kb.adjust(1, 2).as_markup()
 

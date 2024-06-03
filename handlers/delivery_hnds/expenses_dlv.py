@@ -11,6 +11,7 @@ import keyboards as kb
 from config import Config
 from init import dp, TZ, bot
 from .base_dlv import save_expenses
+from data.base_data import expensis_dlv
 from enums import DeliveryCB, DeliveryStatus, UserActions
 
 
@@ -23,9 +24,12 @@ async def expenses_dvl_1(cb: CallbackQuery):
 # запрос подтверждения траты 1 Просит отправить сумму
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.EXPENSES_2.value))
 async def expenses_dvl_2(cb: CallbackQuery, state: FSMContext):
-    _, category_id = cb.data.split(':')
+    _, ex_id_str = cb.data.split(':')
+    ex_id = int(ex_id_str)
+
     await state.set_state(DeliveryStatus.EXPENSES_3)
-    await state.update_data(data={'column': category_id})
+    # await state.update_data(data={'column': category_id})
+    await state.update_data(data={'ex_id': ex_id})
     await cb.message.answer('Отправьте сумму расходов', reply_markup=kb.get_close_kb())
 
 
@@ -35,7 +39,9 @@ async def expenses_dvl_3(msg: Message, state: FSMContext):
     if msg.text.isdigit():
         data = await state.get_data()
 
-        await state.update_data(data={data["column"]: int(msg.text), 'exp_sum': int(msg.text)})
+        ex_info = expensis_dlv[data['ex_id']]
+
+        await state.update_data(data={data[ex_info['column']]: int(msg.text), 'exp_sum': int(msg.text)})
         await state.set_state(DeliveryStatus.EXPENSES_4)
 
         if data['column'] in ['b', 'g', 'k']:
