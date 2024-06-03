@@ -41,29 +41,21 @@ async def report_dvl_2(cb: CallbackQuery):
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
     suc_text, refuse_text, active_text, not_come = '', '', '', ''
-    # cost_prod, cost_dlv, discount = 0, 0, 0
     cost_prod, cost_dlv = 0, 0
+    salary = {}
 
     for order in dlv_orders:
-        # prepay = order.u + order.v
-        # cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.clmn_t - order.y
-        # comment = f'({order.ab})' if order.ab is not None else ''
-        # comment_d = f'({order.d})' if order.d is not None else ''
-        # row_text = f'{comment_d} {dt.order_status_data.get(order.g)} {order.n} {cost} + {order.s} {order.w} {comment}\n'
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
         if order.g == OrderStatus.SUC.value:
             cost_prod += get_order_cost(order, with_t=True)
-            # discount += order.y
-            # suc_text = f'{suc_text}{row_text}'
             suc_text += row_text
 
+
         elif order.g == OrderStatus.REF.value:
-            # refuse_text = f'{refuse_text}{row_text}'
             refuse_text += row_text
 
         elif order.g == OrderStatus.ACTIVE.value:
-            # active_text = f'{active_text}{row_text}'
             active_text += row_text
 
         elif order.g == OrderStatus.NOT_COME.value:
@@ -71,15 +63,12 @@ async def report_dvl_2(cb: CallbackQuery):
             not_come += row_text
 
     if dlv_report:
-        # print(dlv_report)
-        # print(dlv_report.b, dlv_report.c, dlv_report.d, dlv_report.e, dlv_report.f, dlv_report.g, dlv_report.h, dlv_report.i, dlv_report.j, dlv_report.j)
         total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
                           dlv_report.h + dlv_report.i + dlv_report.j + dlv_report.k)
     else:
         total_expenses = 0
 
     total = cost_prod - total_expenses
-    # print(cost_prod, total_expenses)
     expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 
     spt = '\n---------------------------\n'
