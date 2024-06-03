@@ -12,7 +12,7 @@ from enums import DeliveryCB, DeliveryStatus
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.BACK_MAIN.value))
 async def expenses_dvl_0(cb: CallbackQuery, state: FSMContext):
     await state.clear()
-    await get_profile_dlv(cb.from_user.id)
+    await get_profile_dlv(cb.from_user.id, msg_id=cb.message.message_id)
 
 
 # смена имени курьера запрос имени

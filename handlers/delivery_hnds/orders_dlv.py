@@ -135,7 +135,7 @@ async def dlv_order_7(cb: CallbackQuery):
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
 
-    await cb.message.edit_reply_markup(reply_markup=kb.get_close_lit_kb(order_id=order_id))
+    await cb.message.edit_reply_markup(reply_markup=kb.get_done_order_letters_kb(order_id=order_id))
 
 
 # закрытие заказа

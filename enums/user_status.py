@@ -9,7 +9,6 @@ class DeliveryStatus(str, Enum):
     EDIT_ORDER_CLOSE_2 = 'edit_order_close_2'
     EXPENSES_3 = 'expenses_dvl_3'
     EXPENSES_4 = 'expenses_dvl_4'
-    EXPENSES_5 = 'expenses_dvl_5'
 
 
 class OwnerStatus(str, Enum):

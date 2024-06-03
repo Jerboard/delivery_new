@@ -2,8 +2,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 import db
-from data.base_data import expensis_dlv
-from enums import DeliveryCB, OrderAction, OrderStatus, TypeOrderUpdate
+from data.base_data import expensis_dlv, letters
+from enums import DeliveryCB, BaseCB, OrderAction, OrderStatus
 
 
 # отправить контакт
@@ -76,13 +76,22 @@ def get_back_close_order_kb(order_id: int) -> InlineKeyboardMarkup:
     return kb.adjust(1).as_markup()
 
 
-# выбрать букву
-def get_close_lit_kb(order_id: int) -> InlineKeyboardMarkup:
+# выбрать букву при закрытии заказа
+def get_done_order_letters_kb(order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button (text='День', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:Д')
-    kb.button (text='Вечер', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:В')
-    kb.button (text='Адрес', callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:А')
+    for k, v in letters.items ():
+        kb.button (text=v, callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:{k}')
     kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_CLOSE_ORDER.value}:{order_id}')
+    return kb.adjust(1).as_markup()
+
+
+# выбрать букву при отправке зп
+def get_expensis_let_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for k, v in letters.items():
+        kb.button (text=v, callback_data=f'{DeliveryCB.EXPENSES_5.value}:{k}')
+
+    kb.button (text='❌ Отмена', callback_data=BaseCB.CLOSE.value)
     return kb.adjust(1).as_markup()
 
 
@@ -143,5 +152,6 @@ def get_day_report_kb() -> InlineKeyboardMarkup:
 # отправить отчёт
 def get_send_day_report_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
+    kb.button (text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_MAIN.value}')
     kb.button(text='📤 Отправить отчёт', callback_data=DeliveryCB.REPORT_3.value)
     return kb.adjust(1).as_markup()
