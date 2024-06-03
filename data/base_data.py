@@ -34,38 +34,38 @@ order_status_data = {
 }
 
 
-# expensis_dlv = {
-#     'b': 'Разное',
-#     'c': 'Связь / SIM',
-#     'd': 'Достависта',
-#     'e': 'Такси / Самокат / Транспорт',
-#     'f': 'Проездной',
-#     'g': 'МЦ',
-#     'h': 'Комус',
-#     'i': 'Почта / СДЭК',
-#     'k': 'ЗП'
-# }
+expensis_dlv = {
+    'b': 'Разное',
+    'c': 'Связь / SIM',
+    'd': 'Достависта',
+    'e': 'Такси / Самокат / Транспорт',
+    'f': 'Проездной',
+    'g': 'МЦ',
+    'h': 'Комус',
+    'i': 'Почта / СДЭК',
+    'k': 'ЗП'
+}
 
 # expensis_dlv = {
 #     1: {'name': '💵 ЗП', 'column': 'k', 'photo': 0, 'comment': 1},
 # }
 
-expensis_dlv = {
-    # 1: {'name': '💵 ЗП', 'column': 'k', 'photo': 0, 'comment': 1},
-    1: {'emoji': '💵', 'text': 'ЗП', 'column': 'k', 'photo': 0, 'comment': 1},
-    2: {'emoji': '📱', 'text': 'Связь', 'column': 'c', 'photo': 1, 'comment': 0},
-    3: {'emoji': '📦', 'text': 'Достависта', 'column': 'd', 'photo': 1, 'comment': 0},
-    4: {'emoji': '🚕', 'text': 'Такси', 'column': 'e', 'photo': 1, 'comment': 0},
-    5: {'emoji': '🚌', 'text': 'Транспорт', 'column': 'e', 'photo': 1, 'comment': 0},
-    6: {'emoji': '🛴', 'text': 'Самокат', 'column': 'e', 'photo': 1, 'comment': 0},
-    7: {'emoji': '🚃', 'text': 'Проездной Метро', 'column': 'f', 'photo': 1, 'comment': 0},
-    8: {'emoji': '🏥', 'text': 'МЦ', 'column': 'g', 'photo': 0, 'comment': 1},
-    9: {'emoji': '🖇', 'text': 'Канцелярия', 'column': 'h', 'photo': 1, 'comment': 0},
-    10: {'emoji': '✉️', 'text': 'Почта / СДЭК', 'column': 'i', 'photo': 0, 'comment': 0},
-    11: {'emoji': '💰', 'text': 'Премия', 'column': 'b', 'photo': 0, 'comment': 0},
-    12: {'emoji': '🏧', 'text': 'Подписка на переводы', 'column': 'b', 'photo': 1, 'comment': 0},
-    13: {'emoji': '💸', 'text': 'Разное', 'column': 'b', 'photo': 0, 'comment': 1},
-}
+# expensis_dlv = {
+#     # 1: {'name': '💵 ЗП', 'column': 'k', 'photo': 0, 'comment': 1},
+#     1: {'emoji': '💵', 'text': 'ЗП', 'column': 'k', 'photo': 0, 'comment': 1},
+#     2: {'emoji': '📱', 'text': 'Связь', 'column': 'c', 'photo': 1, 'comment': 0},
+#     3: {'emoji': '📦', 'text': 'Достависта', 'column': 'd', 'photo': 1, 'comment': 0},
+#     4: {'emoji': '🚕', 'text': 'Такси', 'column': 'e', 'photo': 1, 'comment': 0},
+#     5: {'emoji': '🚌', 'text': 'Транспорт', 'column': 'e', 'photo': 1, 'comment': 0},
+#     6: {'emoji': '🛴', 'text': 'Самокат', 'column': 'e', 'photo': 1, 'comment': 0},
+#     7: {'emoji': '🚃', 'text': 'Проездной Метро', 'column': 'f', 'photo': 1, 'comment': 0},
+#     8: {'emoji': '🏥', 'text': 'МЦ', 'column': 'g', 'photo': 0, 'comment': 1},
+#     9: {'emoji': '🖇', 'text': 'Канцелярия', 'column': 'h', 'photo': 1, 'comment': 0},
+#     10: {'emoji': '✉️', 'text': 'Почта / СДЭК', 'column': 'i', 'photo': 0, 'comment': 0},
+#     11: {'emoji': '💰', 'text': 'Премия', 'column': 'b', 'photo': 0, 'comment': 0},
+#     12: {'emoji': '🏧', 'text': 'Подписка на переводы', 'column': 'b', 'photo': 1, 'comment': 0},
+#     13: {'emoji': '💸', 'text': 'Разное', 'column': 'b', 'photo': 0, 'comment': 1},
+# }
 
 
 '''
