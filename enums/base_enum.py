@@ -83,3 +83,9 @@ class CompanyDLV (str, Enum):
     MASTER = 'master'
     PUTILIN = 'putilin'
     MASTER_SPB = 'master_spb'
+
+
+class Letter (str, Enum):
+    D = 'Д'
+    V = 'В'
+    A = 'А'

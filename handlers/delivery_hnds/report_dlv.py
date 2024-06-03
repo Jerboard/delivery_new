@@ -9,7 +9,7 @@ from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
 from data import base_data as dt
-from enums import DeliveryCB, OrderStatus, UserActions, ShortText
+from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter
 
 
 # отчёт по дням
@@ -29,11 +29,11 @@ async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=6600572025)
+    # user_info = await db.get_user_info (user_id=5051573626)
     if date_str == 'today':
         date_str = datetime.now(TZ).date().strftime(Config.day_form)
         dlv_orders = await db.get_work_orders(cb.from_user.id)
-        # dlv_orders = await db.get_work_orders(6600572025)
+        # dlv_orders = await db.get_work_orders(5051573626)
 
     else:
         dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
@@ -42,15 +42,19 @@ async def report_dvl_2(cb: CallbackQuery):
 
     suc_text, refuse_text, active_text, not_come = '', '', '', ''
     cost_prod, cost_dlv = 0, 0
-    salary = {}
+    salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0, }
 
     for order in dlv_orders:
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
         if order.g == OrderStatus.SUC.value:
-            cost_prod += get_order_cost(order, with_t=True)
+            cost = get_order_cost(order, with_t=True)
+            cost_prod += cost
             suc_text += row_text
-
+            summary = salary.get(order.d, 0)
+            # print(summary)
+            # if summary:
+            salary[order.d] = summary + 1
 
         elif order.g == OrderStatus.REF.value:
             refuse_text += row_text
@@ -68,12 +72,18 @@ async def report_dvl_2(cb: CallbackQuery):
     else:
         total_expenses = 0
 
+    salary_str = ''
+    for k, v in salary.items():
+        if v:
+            salary_str += f'{dt.letters.get(k)} - {v}\n'
+
     total = cost_prod - total_expenses
     expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 
     spt = '\n---------------------------\n'
     text = (f'{user_info.name}\n\n'
-            f'{date_str}\n\n'
+            f'{date_str}\n'
+            f'{salary_str}\n'
             f'{suc_text}{spt}{refuse_text}{spt}{active_text}{spt}{not_come}{spt}'
             f'Касса: {cost_prod}\n\n'
             f'{expenses}\n\n'

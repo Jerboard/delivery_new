@@ -1,4 +1,4 @@
-from enums import OrderStatus, CompanyDLV, OrderAction
+from enums import OrderStatus, CompanyDLV, OrderAction, Letter
 
 
 company = {
@@ -64,9 +64,9 @@ expensis_dlv = {
 
 
 letters = {
-    'Д': 'День',
-    'В': 'Вечер',
-    'А': 'Адрес',
+    Letter.D.value: 'День',
+    Letter.V.value: 'Вечер',
+    Letter.A.value: 'Адрес',
 }
 
 '''
