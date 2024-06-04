@@ -16,6 +16,7 @@ class Config:
         # db_url = getenv ('DB_URL_WORK')
         bot_name = 'MatrixDeliveryBot'
         host = getenv('HOST')
+        report_sheet_num = 6
         work_chats = {
             CompanyDLV.MASTER.value: -1001669708234,
             CompanyDLV.PUTILIN.value: -1001669708234,
@@ -29,6 +30,7 @@ class Config:
         db_url = getenv ('DB_URL')
         bot_name = 'MatrixDeliveryBot'
         host = getenv ('HOST')
+        report_sheet_num = 8
         work_chats = {
             CompanyDLV.MASTER.value: -1001838764189,
             CompanyDLV.PUTILIN.value: -1001864910335,

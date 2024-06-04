@@ -157,7 +157,7 @@ async def save_new_order_table(table_id: str) -> str:
 # сохраняет таблицу отчётов
 async def save_new_report_table(table_id: str = None) -> None:
     sh = ug.get_google_connect (table_id)
-    table = sh.get_worksheet (6).get_all_values ()
+    table = sh.get_worksheet (Config.report_sheet_num).get_all_values ()
     counter = 4
     for row in table [4:]:
         counter += 1
@@ -410,7 +410,7 @@ async def update_google_row() -> None:
                     ]
                 ]
 
-                sh.get_worksheet(6).update(cell, new_row_str)
+                sh.get_worksheet(Config.report_sheet_num).update(cell, new_row_str)
                 await db.update_expenses_dlv(entry_id=new_row.id, updated=True)
             except Exception as ex:
                 log_error(f'Не получилось обновить отчёт {new_row.m} {new_row.n}', with_traceback=False)
@@ -419,7 +419,7 @@ async def update_google_row() -> None:
 
 async def update_report_table():
     sh = ug.get_google_connect()
-    table = sh.get_worksheet(6).get_all_values()
+    table = sh.get_worksheet(Config.report_sheet_num).get_all_values()
     counter = 4
     for row in table[5:]:
         counter += 1
