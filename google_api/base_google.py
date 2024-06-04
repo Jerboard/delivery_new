@@ -364,7 +364,7 @@ async def update_google_row() -> None:
             # изменяет стоимость заказа
             elif order.type_update == TypeOrderUpdate.EDIT_COST.value:
                 color = {"red": 1.0, "green": 0.0, "blue": 0.0}
-                sh.sheet1.update(f'Y{order.row_num}', [[order.y]])
+                # sh.sheet1.update(f'Y{order.row_num}', [[order.y]])
                 sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
                 sh.sheet1.format(f'AB{order.row_num}', {"backgroundColor": color})
 

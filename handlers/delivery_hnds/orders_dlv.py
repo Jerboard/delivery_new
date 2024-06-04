@@ -257,7 +257,7 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
 
     old_note = order_info.ab or ''
     note = f'{old_note}\n{order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'.strip()
-
+    print(data)
     if data ['action'] == OrderAction.COST.value:
         await db.update_row_google (
             order_id=data ['order_id'],

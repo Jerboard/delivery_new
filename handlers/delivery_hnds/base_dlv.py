@@ -61,12 +61,12 @@ async def save_expenses(
 
     today_str = date_str()
     exp_today = await db.get_report_dlv(user_info.name, today_str)
-    print(data)
+    # print(data)
     ex_info = expensis_dlv [data ['ex_id']]
     comment = data["comment"] if data.get('comment') else ex_info ["text"]
-    print (comment)
+    # print (comment)
     comment = f'{data ["exp_sum"]} - {comment}'
-    print(comment)
+    # print(comment)
     # if data.get('comment'):
     #     comment = f'{data["exp_sum"]} - {data["comment"]}'
     # else:

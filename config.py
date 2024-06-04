@@ -13,8 +13,8 @@ DEBUG = bool(int(getenv('DEBUG')))
 class Config:
     if DEBUG:
         token = getenv ("TOKEN_TEST")
-        db_url = getenv ('DB_URL')
-        # db_url = getenv ('DB_URL_WORK')
+        # db_url = getenv ('DB_URL')
+        db_url = getenv ('DB_URL_WORK')
         bot_name = 'MatrixDeliveryBot'
         host = getenv('HOST')
         report_sheet_num = 6

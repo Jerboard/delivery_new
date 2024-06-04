@@ -29,14 +29,15 @@ async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=6600572025)
+    # user_info = await db.get_user_info (user_id=5766385456)
     if date_str == 'today':
         date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
         # dlv_orders = await db.get_work_orders(cb.from_user.id)
         # dlv_orders = await db.get_work_orders(6600572025)
 
     # else:
-    dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
+    # dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
+    dlv_orders = await db.get_orders(user_id=user_info.user_id, on_date=date_str)
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
     suc_text, refuse_text, active_text, not_come = '', '', '', ''
@@ -44,6 +45,7 @@ async def report_dvl_2(cb: CallbackQuery):
     salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0, }
 
     for order in dlv_orders:
+        print(order)
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
         if order.g == OrderStatus.SUC.value:
