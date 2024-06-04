@@ -47,12 +47,11 @@ async def expenses_dvl_3(msg: Message, state: FSMContext):
             await msg.answer('Время работы: ', reply_markup=kb.get_expensis_let_kb())
             return
         elif ex_info['comment']:
-        # if data['column'] in ['b', 'g', 'k']:
             text = f'Отправьте комментарий'
         elif ex_info['photo']:
             text = f'Отправьте фото подтверждение траты'
         else:
-            data['comment'] = ex_info['text']
+            data = await state.get_data ()
             await state.clear()
             await save_expenses(msg.from_user.id, data)
             return
