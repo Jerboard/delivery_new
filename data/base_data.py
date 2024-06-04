@@ -35,7 +35,7 @@ order_status_data = {
 
 
 expensis_dlv = {
-    1: {'emoji': '💵', 'text': 'ЗП', 'column': 'k', 'photo': 0, 'comment': 1},
+    1: {'emoji': '💵', 'text': 'ЗП', 'column': 'k', 'photo': 0, 'comment': 0},
     2: {'emoji': '📱', 'text': 'Связь', 'column': 'c', 'photo': 1, 'comment': 0},
     3: {'emoji': '📦', 'text': 'Достависта', 'column': 'd', 'photo': 1, 'comment': 0},
     4: {'emoji': '🚕', 'text': 'Такси', 'column': 'e', 'photo': 1, 'comment': 0},

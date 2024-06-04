@@ -124,7 +124,10 @@ def expenses_dvl_kb() -> InlineKeyboardMarkup:
 
     kb.button (text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
     for k, v in expensis_dlv.items():
-        kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{k}')
+        if k == 1:
+            kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_5.value}:start')
+        else:
+            kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{k}')
         # kb.button(text=f'💸 {name}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{column}')
 
     return kb.adjust(1, 2).as_markup()

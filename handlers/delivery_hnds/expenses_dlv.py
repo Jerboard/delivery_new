@@ -28,7 +28,6 @@ async def expenses_dvl_2(cb: CallbackQuery, state: FSMContext):
     ex_id = int(ex_id_str)
 
     await state.set_state(DeliveryStatus.EXPENSES_3)
-    # await state.update_data(data={'column': category_id})
     await state.update_data(data={'ex_id': ex_id})
     await cb.message.answer('Отправьте сумму расходов', reply_markup=kb.get_close_kb())
 
@@ -43,10 +42,10 @@ async def expenses_dvl_3(msg: Message, state: FSMContext):
         await state.update_data(data={ex_info['column']: int(msg.text), 'exp_sum': int(msg.text)})
         await state.set_state(DeliveryStatus.EXPENSES_4)
 
-        if data['ex_id'] == 1:
-            await msg.answer('Время работы: ', reply_markup=kb.get_expensis_let_kb())
-            return
-        elif ex_info['comment']:
+        # if data['ex_id'] == 1:
+        #     await msg.answer('Время работы: ', reply_markup=kb.get_expensis_let_kb())
+        #     return
+        if ex_info['comment']:
             text = f'Отправьте комментарий'
         elif ex_info['photo']:
             text = f'Отправьте фото подтверждение траты'
@@ -87,13 +86,23 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
 async def expenses_dvl_5(cb: CallbackQuery, state: FSMContext):
     _, letter = cb.data.split(':')
 
-    data = await state.get_data ()
-    # await cb.message.edit_reply_markup(reply_markup=None)
-    ex_info = expensis_dlv [data ['ex_id']]
-    data['comment'] = f'{ex_info["text"]} {letters[letter]}'
-    await state.clear ()
-    await save_expenses (cb.from_user.id, data)
-    await cb.message.delete ()
+    if letter == 'start':
+        await cb.message.answer ('Время работы: ', reply_markup=kb.get_expensis_let_kb ())
+    else:
+        # await cb.message.delete()
+        await state.set_state (DeliveryStatus.EXPENSES_3)
+        ex_info = expensis_dlv [1]
+        await state.update_data (data={'ex_id': 1, 'comment': f'{ex_info["text"]} {letters[letter]}'})
+        # await cb.message.answer ('Отправьте сумму расходов', reply_markup=kb.get_close_kb ())
+        await cb.message.edit_text ('Отправьте сумму расходов', reply_markup=kb.get_close_kb ())
+
+    # data = await state.get_data ()
+    # # await cb.message.edit_reply_markup(reply_markup=None)
+    # ex_info = expensis_dlv [data ['ex_id']]
+    # data['comment'] = f'{ex_info["text"]} {letters[letter]}'
+    # await state.clear ()
+    # await save_expenses (cb.from_user.id, data)
+    # await cb.message.delete ()
 
 
 # посмотреть траты за сегодня
