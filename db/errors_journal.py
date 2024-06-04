@@ -2,8 +2,8 @@ from datetime import datetime
 import typing as t
 import sqlalchemy as sa
 
+from config import Config
 from .base import METADATA, begin_connection
-from init import TZ
 
 
 class ErrorsRow(t.Protocol):
@@ -27,7 +27,7 @@ ErrorsTable: sa.Table = sa.Table(
 # Сохраняет действие пользователя
 async def save_error(user_id: int, error: str) -> None:
     query = ErrorsTable.insert().values(
-        created_at=datetime.now(TZ).replace(microsecond=0),
+        created_at=datetime.now(Config.tz).replace(microsecond=0),
         user_id=user_id,
         error=error
     )

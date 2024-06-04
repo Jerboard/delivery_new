@@ -7,7 +7,7 @@ from asyncio import sleep
 
 import db
 import keyboards as kb
-from init import dp, bot, TZ, log_error
+from init import dp, bot, log_error
 from config import Config
 from utils.base_utils import get_random_code
 from data.base_data import order_status_data

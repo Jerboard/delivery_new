@@ -9,7 +9,7 @@ from asyncio import sleep
 import db
 import keyboards as kb
 from config import Config
-from init import dp, TZ, bot
+from init import dp, bot
 from .base_dlv import save_expenses
 from data.base_data import expensis_dlv, letters
 from enums import DeliveryCB, DeliveryStatus, UserActions
@@ -123,7 +123,7 @@ async def expenses_dvl_5(cb: CallbackQuery, state: FSMContext):
 #     await save_expenses (msg.from_user.id, data)
 
     # user_info = await db.get_user_info(user_id=msg.from_user.id)
-    # today = datetime.now(TZ).strftime(Config.time_form)
+    # today = datetime.now(Config.tz).strftime(Config.time_form)
     # text = f'Курьер: {user_info.name}\n' \
     #        f'Время: {today}\n' \
     #        f'Сумма: {data.get("sum")} ₽\n' \

@@ -6,7 +6,7 @@ from datetime import datetime
 import re
 import db
 import keyboards as kb
-from init import dp, bot, TZ, log_error
+from init import dp, bot, log_error
 from config import Config
 from utils import text_utils as txt
 from enums import OwnerCB, UserRole, OrderStatus, OwnerStatus, UserActions, TypeOrderUpdate
@@ -111,7 +111,7 @@ async def trans_order_2(cb: CallbackQuery):
     order_id = int(order_id_str)
 
     user_info = await db.get_user_info (user_id=user_id)
-    take_date = datetime.now (TZ).date ().strftime (Config.day_form)
+    take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
 
     await db.add_work_order (user_id=user_info.user_id, order_id=order_id)
     await db.update_row_google (

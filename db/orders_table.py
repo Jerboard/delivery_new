@@ -3,9 +3,9 @@ import typing as tp
 
 import sqlalchemy as sa
 
+from config import Config
 from .base import METADATA, begin_connection, ENGINE
 from db.users import UserTable
-from init import TZ
 from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate
 
 
@@ -92,7 +92,7 @@ OrderTable: sa.Table = sa.Table(
     sa.Column('ag', sa.String(255)),
     sa.Column('ah', sa.String(255)),
     sa.Column('updated', sa.Boolean, default=True),
-    sa.Column('time_update', sa.DateTime(timezone=True), default=datetime.now(TZ)),
+    sa.Column('time_update', sa.DateTime(timezone=True), default=datetime.now(Config.tz)),
     sa.Column('type_update', sa.String(255)),
     sa.Column('discount', sa.Integer(), default=0),
     sa.Column('row_num', sa.Integer()),
@@ -187,7 +187,7 @@ async def add_row(
         ag=ag,
         ah=ah,
         type_update=type_update,
-        time_update=datetime.now(TZ),
+        time_update=datetime.now(Config.tz),
         updated=updated
     )
     if entry_id:
@@ -247,7 +247,7 @@ async def update_row_google(
 ):
     query = (OrderTable.update().where(OrderTable.c.id == order_id).
              values(updated=update_row,
-                    time_update=datetime.now(TZ)))
+                    time_update=datetime.now(Config.tz)))
 
     if take_date:
         query = query.values(e=take_date)
@@ -278,23 +278,23 @@ async def update_row_google(
 async def update_multi_orders(
         date_str: str = None,
         type_update: str = TypeOrderUpdate.EDIT.value
-):
+) -> None:
     query = OrderTable.update().where(
         sa.or_ (OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
     ).values(
         updated=False,
-        time_update=datetime.now(TZ),
+        time_update=datetime.now(Config.tz),
         type_update=type_update,
         e=date_str
     )
 
     async with begin_connection() as conn:
-        result = await conn.execute(query)
-    return result.all()
+        await conn.execute(query)
 
 
 # возвращает строки таблицы
 async def get_orders(
+        user_id: int = None,
         dlv_name: str = None,
         get_active: bool = False,
         get_new: bool = False,
@@ -359,6 +359,8 @@ async def get_orders(
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
+    elif user_id:
+        query = query.where(UserTable.c.user_id == user_id)
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
 
@@ -469,13 +471,15 @@ async def delete_orders():
 
 
 # статистика заказов
-async def get_orders_statistic(dlv_name: str = None):
+async def get_orders_statistic(dlv_name: str = None, on_date: str = None):
     query = (OrderTable.select().
              with_only_columns(OrderTable.c.g, sa.func.count().label('status_count')).
              group_by(OrderTable.c.g))
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
+    if on_date:
+        query = query.where(OrderTable.c.e == on_date)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)

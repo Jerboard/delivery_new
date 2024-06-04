@@ -1,6 +1,8 @@
 from random import choice
+from datetime import datetime
 
 import db
+from config import Config as conf
 from enums import UserRole
 
 
@@ -19,6 +21,11 @@ def hand_digit(values: str) -> int:
 # функция генерирует случайный из латинских букв и цифр
 def get_random_code():
     return ''.join([choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789') for _ in range(8)])
+
+
+# сегодняшняя дата для поиска по таблице
+def get_today_date_str() -> str:
+    return datetime.now (conf.tz).date ().strftime (conf.day_form)
 
 
 # выдаёт словарь для курьеров имя: id

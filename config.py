@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from os import getenv
+from pytz import timezone
 import os
 
 from enums import CompanyDLV
@@ -39,7 +40,7 @@ class Config:
             'group_report': -1001863016934
         }
 
-    tz = 'Europe/Moscow'
+    tz = timezone('Europe/Moscow')
     day_form = '%d.%m'
     datetime_form = '%d.%m.%Y %H:%M'
     time_form = '%H:%M'

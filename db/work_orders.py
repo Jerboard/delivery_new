@@ -72,21 +72,21 @@ async def get_work_orders(user_id: int = None, only_active: bool = False) -> tup
 
 
 # возвращает заказы курьера
-async def get_statistic_dlv(user_id: int) -> list[tuple]:
-    query = (
-        sa.select (
-            OrderTable.c.g,
-            sa.func.count ().label ('status_count')
-        )
-        .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
-        where(WorkTable.c.user_id == user_id).
-        group_by(OrderTable.c.g)
-    )
-
-    async with begin_connection () as conn:
-        result = await conn.execute (query)
-
-    return result.all ()
+# async def get_statistic_dlv(user_id: int) -> list[tuple]:
+#     query = (
+#         sa.select (
+#             OrderTable.c.g,
+#             sa.func.count ().label ('status_count')
+#         )
+#         .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
+#         where(WorkTable.c.user_id == user_id).
+#         group_by(OrderTable.c.g)
+#     )
+#
+#     async with begin_connection () as conn:
+#         result = await conn.execute (query)
+#
+#     return result.all ()
 
 
 # добавляет заказ

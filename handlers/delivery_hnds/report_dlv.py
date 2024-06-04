@@ -4,7 +4,7 @@ from datetime import datetime
 
 import db
 import keyboards as kb
-from init import dp, bot, TZ, log_error
+from init import dp, bot, log_error
 from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
@@ -16,7 +16,7 @@ from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_1.value))
 async def report_dvl_1(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
-    date_str = datetime.now (TZ).date ().strftime (Config.day_form)
+    date_str = datetime.now (Config.tz).date ().strftime (Config.day_form)
     dlv_reports = await db.get_reports_all_dlv(dlv_name=user_info.name, exception_date=date_str)
 
     await cb.message.edit_reply_markup(reply_markup=kb.report_view_days_kb(dlv_reports))
@@ -29,15 +29,14 @@ async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=6600572025)
+    user_info = await db.get_user_info (user_id=6600572025)
     if date_str == 'today':
-        date_str = datetime.now(TZ).date().strftime(Config.day_form)
-        dlv_orders = await db.get_work_orders(cb.from_user.id)
+        date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
+        # dlv_orders = await db.get_work_orders(cb.from_user.id)
         # dlv_orders = await db.get_work_orders(6600572025)
 
-    else:
-        dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
-
+    # else:
+    dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
     suc_text, refuse_text, active_text, not_come = '', '', '', ''

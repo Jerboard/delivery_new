@@ -27,9 +27,8 @@ except:
 loop = asyncio.get_event_loop()
 dp = Dispatcher()
 bot = Bot(Config.token, parse_mode=ParseMode.HTML)
-TZ = timezone(Config.tz)
 
-scheduler = AsyncIOScheduler(timezone=TZ)
+scheduler = AsyncIOScheduler(timezone=Config.tz)
 
 ENGINE = create_async_engine(url=Config.db_url)
 
@@ -47,7 +46,7 @@ async def set_main_menu():
 
 # запись ошибок
 def log_error(message, with_traceback: bool = True):
-    now = datetime.now(TZ)
+    now = datetime.now(Config.tz)
     log_folder = now.strftime ('%m-%Y')
     log_path = os.path.join('logs', log_folder)
 

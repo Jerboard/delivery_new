@@ -2,8 +2,8 @@ from datetime import datetime
 import typing as t
 import sqlalchemy as sa
 
+from config import Config
 from .base import METADATA, begin_connection
-from init import TZ
 
 
 class ActionRow(t.Protocol):
@@ -31,7 +31,7 @@ ActionTable: sa.Table = sa.Table(
 # Сохраняет действие пользователя
 async def save_user_action(user_id: int, dlv_name: str, action: str, comment: str = None) -> None:
     query = ActionTable.insert().values(
-        created_at=datetime.now(TZ).replace(microsecond=0),
+        created_at=datetime.now(Config.tz).replace(microsecond=0),
         user_id=user_id,
         dlv_name=dlv_name,
         action=action,

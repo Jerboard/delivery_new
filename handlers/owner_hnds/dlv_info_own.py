@@ -7,7 +7,7 @@ from asyncio import sleep
 
 import db
 import keyboards as kb
-from init import dp, bot, TZ, log_error
+from init import dp, bot, log_error
 from utils import text_utils as txt
 from enums import OwnerCB, ShortText, OwnerStatus, UserActions, OrderAction, TypeOrderUpdate
 

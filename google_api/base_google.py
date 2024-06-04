@@ -6,7 +6,7 @@ from datetime import datetime
 import db
 import google_api.utils_google as ug
 from config import Config
-from init import TZ, bot, log_error
+from init import bot, log_error
 from utils.base_utils import get_dlv_name_dict, get_work_orders_list
 from data.base_data import order_status_data, company
 from enums import TypeOrderUpdate, UserRole, OrderStatus

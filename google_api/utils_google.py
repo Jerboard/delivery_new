@@ -7,7 +7,7 @@ from datetime import datetime
 
 import db
 from config import Config
-from init import TZ, bot
+from init import bot
 # import utils.json_utils as js
 from utils.local_data_utils import get_table_id
 from enums import OrderStatus

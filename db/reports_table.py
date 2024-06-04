@@ -4,7 +4,6 @@ import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as sa_postgresql
 
 from .base import METADATA, begin_connection
-from init import TZ
 from config import Config
 
 
@@ -55,7 +54,7 @@ ReportTable: sa.Table = sa.Table(
     sa.Column('r', sa.Integer),
     sa.Column('in_google', sa.Boolean),
     sa.Column('row_num', sa.Integer),
-    sa.Column ('time_update', sa.DateTime (timezone=True), default=datetime.now (TZ).replace (microsecond=0))
+    sa.Column ('time_update', sa.DateTime (timezone=True), default=datetime.now (Config.tz).replace (microsecond=0))
 )
 
 
@@ -165,7 +164,7 @@ async def update_expenses_dlv(
     print(m, n)
     query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (
         in_google=updated,
-        time_update=datetime.now (TZ).replace (microsecond=0)
+        time_update=datetime.now (Config.tz).replace (microsecond=0)
     )
     if b:
         query = query.values(b=b)

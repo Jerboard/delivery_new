@@ -7,7 +7,7 @@ from asyncio import sleep
 
 import db
 import keyboards as kb
-from init import dp, bot, TZ, log_error
+from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
 from utils.text_utils import get_order_text
@@ -22,7 +22,7 @@ async def dlv_order_1(cb: CallbackQuery):
     order_id = int (order_id_str)
 
     user_info = await db.get_user_info(cb.from_user.id)
-    take_date = datetime.now(TZ).date().strftime(Config.day_form)
+    take_date = datetime.now(Config.tz).date().strftime(Config.day_form)
 
     await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
     # добавить смену курьерской
@@ -64,7 +64,7 @@ async def dlv_order_2(cb: CallbackQuery):
     else:
         user_info = await db.get_user_info (cb.from_user.id)
 
-        take_date = datetime.now (TZ).date ().strftime (Config.day_form)
+        take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
         await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
         await db.update_row_google (
             order_id=order_id,

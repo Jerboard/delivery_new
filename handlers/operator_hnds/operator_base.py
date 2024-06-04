@@ -9,7 +9,7 @@ from datetime import datetime
 
 import db
 import keyboards as kb
-from init import dp, bot, log_error, TZ
+from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
 from data.base_data import company, order_status_data
@@ -95,7 +95,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
             log_error(f'Заказ не отправлен курьеру {dlv.name}', with_traceback=False)
             log_error(ex)
 
-    now_str = datetime.now(TZ).replace(microsecond=0).strftime(Config.datetime_form)
+    now_str = datetime.now(Config.tz).replace(microsecond=0).strftime(Config.datetime_form)
     key = f'{DataKey.ADD_OPR_ORDER.value}-{order_id}'
     order_data = {
         'opr': cb.from_user.id,
