@@ -24,7 +24,7 @@ async def dlv_order_1(cb: CallbackQuery):
     user_info = await db.get_user_info(cb.from_user.id)
     take_date = datetime.now(Config.tz).date().strftime(Config.day_form)
 
-    await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
+    # await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
     # добавить смену курьерской
     await db.update_row_google(
         order_id=order_id,
@@ -65,7 +65,7 @@ async def dlv_order_2(cb: CallbackQuery):
         user_info = await db.get_user_info (cb.from_user.id)
 
         take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
-        await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
+        # await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
         await db.update_row_google (
             order_id=order_id,
             dlv_name=user_info.name,
@@ -123,10 +123,10 @@ async def dlv_order_2(cb: CallbackQuery):
             parse_mode=None
         )
 
-    else:
-        await cb.answer('Нажмите кнопку "Подтвердить отказ", после этого заказ будет закрыт', show_alert=True)
-        await cb.message.edit_reply_markup(
-            reply_markup=kb.get_close_order_kb(new_status_order=OrderStatus.REF.value, order_id=order_id))
+    # else:
+        # await cb.answer('Нажмите кнопку "Подтвердить отказ", после этого заказ будет закрыт', show_alert=True)
+        # await cb.message.edit_reply_markup(
+        #     reply_markup=kb.get_close_order_kb(new_status_order=OrderStatus.REF.value, order_id=order_id))
 
 
 # закрытие заказа буквы
@@ -175,29 +175,29 @@ async def dlv_order_4(cb: CallbackQuery):
 
 
 # отмена заказа
-@dp.callback_query (lambda cb: cb.data.startswith (DeliveryCB.ORDER_5.value))
-async def dlv_order_5(cb: CallbackQuery):
-    _, order_id_str = cb.data.split (':')
-    order_id = int (order_id_str)
+# @dp.callback_query (lambda cb: cb.data.startswith (DeliveryCB.ORDER_5.value))
+# async def dlv_order_5(cb: CallbackQuery):
+#     _, order_id_str = cb.data.split (':')
+#     order_id = int (order_id_str)
 
-    order_info = await db.get_order (order_id)
-    await db.update_row_google (
-        order_id=order_id,
-        status=OrderStatus.REF.value,
-        type_update=TypeOrderUpdate.STATE.value
-    )
-    await cb.message.edit_text(
-        text=f'{cb.message.text} ✖️Отказ',
-        entities=cb.message.entities,
-        parse_mode=None
-    )
-
-    # журнал действий
-    await db.save_user_action(
-        user_id=cb.from_user.id,
-        dlv_name=order_info.f,
-        action=UserActions.REFUSE_ORDER.value,
-        comment=order_id_str)
+    # order_info = await db.get_order (order_id)
+    # await db.update_row_google (
+    #     order_id=order_id,
+    #     status=OrderStatus.REF.value,
+    #     type_update=TypeOrderUpdate.STATE.value
+    # )
+    # await cb.message.edit_text(
+    #     text=f'{cb.message.text} ✖️Отказ',
+    #     entities=cb.message.entities,
+    #     parse_mode=None
+    # )
+    #
+    # # журнал действий
+    # await db.save_user_action(
+    #     user_id=cb.from_user.id,
+    #     dlv_name=order_info.f,
+    #     action=UserActions.REFUSE_ORDER.value,
+    #     comment=order_id_str)
 
 
 # Закрытие заказа с изменениями. Запрос суммы изменений
@@ -313,7 +313,7 @@ async def trans_order(cb: CallbackQuery, state: FSMContext):
         dlv_name=recip.name,
         type_update=TypeOrderUpdate.TRANS.value
     )
-    await db.update_work_order(order_id=order_id, user_id=recip.user_id)
+    # await db.update_work_order(order_id=order_id, user_id=recip.user_id)
     order_info = await db.get_order(order_id=order_id)
     order_text = get_order_text(order_info)
 

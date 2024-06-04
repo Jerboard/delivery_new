@@ -42,7 +42,7 @@ def get_dlv_main_order_kb(order_id: int, order_status: str) -> InlineKeyboardMar
     else:
         kb.button(text='✅ Забрал', callback_data=f'{DeliveryCB.ORDER_7.value}:{OrderAction.SUC_TAKE.value}:{order_id}')
 
-    kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.ORDER_2.value}:{OrderAction.REF.value}:{order_id}')
+    kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.REF_ORDER_1.value}:{order_id}')
 
     # if order_status == OrderStatus.ACTIVE.value:
     kb.button(
@@ -96,9 +96,9 @@ def get_expensis_let_kb() -> InlineKeyboardMarkup:
 
 
 # кнопка подтвердить Отказа от заказа
-def get_close_order_kb(new_status_order: str, order_id: int) -> InlineKeyboardMarkup:
+def get_close_order_kb(order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='✅ Подтвердить отказ', callback_data=f'{DeliveryCB.ORDER_5.value}:{order_id}')
+    kb.button(text='✅ Подтвердить отказ', callback_data=f'{DeliveryCB.REF_ORDER_2.value}:{order_id}')
     kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_MAIN_ORDER.value}:{order_id}')
     return kb.adjust(1).as_markup()
 

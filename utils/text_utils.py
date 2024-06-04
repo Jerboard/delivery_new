@@ -67,7 +67,7 @@ def get_admin_order_text(order: db.OrderRow) -> str:
             f'Доставка: {order.clmn_t}\n'
             f'Биток: {order.b}\n'
             f'Предоплата: {prepay}\n\n'
-            f'Курьеру к оплате: ({cost}) + {order.clmn_t}\n'
+            f'Курьеру к оплате: {cost} + {order.clmn_t}\n'
             f'Итого: {cost + order.clmn_t}\n\n'
             f'Примечания: {order.ab}\n')
 
@@ -116,3 +116,20 @@ def get_statistic_text(statistic: list[tuple]) -> str:
             text += f'{status.capitalize()}: {row[1]}\n'
             total += row[1]
     return f'Всего заказов: {total}\n{text}'.strip()
+
+
+# отчёт в группу при отказе от заказа
+def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
+    cost = get_order_cost(order)
+    return (
+        f'Курьер: {order.f}\n'
+        f'Номер курьера: {order.phone}\n\n'
+        f'Оператор: {order.k}\n'
+        f'Клиент: {order.m}\n'
+        f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
+        f'Доставка: {order.w}\n'
+        f'Адрес: {order.x}\n'
+        f'Цена: {cost} + {order.clmn_t}\n '
+        f'Курьеру к оплате: {cost + order.clmn_t}\n'
+        f'Примечания: {note}\n'
+    )

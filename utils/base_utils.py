@@ -35,9 +35,9 @@ async def get_dlv_name_dict() -> dict[str: int]:
 
 
 # выдаёт словарь для курьеров имя: id
-async def get_work_orders_list() -> list[int]:
-    orders = await db.get_work_orders()
-    return [order.id for order in orders]
+# async def get_work_orders_list() -> list[int]:
+#     orders = await db.get_work_orders()
+#     return [order.id for order in orders]
 
 
 # считает стоимость

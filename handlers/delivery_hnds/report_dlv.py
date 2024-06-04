@@ -109,11 +109,11 @@ async def report_dvl_3(cb: CallbackQuery):
 async def report_dvl_4(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
 
-    await bot.send_message(Config.work_chats['group_report'], cb.message.text)
+    await bot.send_message(dt.work_chats[f'report_{user_info.company}'], cb.message.text)
     await cb.message.edit_text(f'{cb.message.text}\n\n✅ Отчёт отправлен')
-    active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
+    # active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
 
-    except_list = [row.id for row in active_orders]
-    await db.delete_work_order(user_id=cb.from_user.id, except_list=except_list)
+    # except_list = [row.id for row in active_orders]
+    # await db.delete_work_order(user_id=cb.from_user.id, except_list=except_list)
 
     await db.save_user_action (user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.SEND_REPORT.value)
