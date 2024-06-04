@@ -91,7 +91,10 @@ async def save_expenses(
 
     else:
         last_row = await db.get_last_updated_report(last_row=True)
-        row_num = last_row.row_num + 1 if last_row.m == today_str else last_row.row_num + 2
+        if not last_row:
+            row_num = 5
+        else:
+            row_num = last_row.row_num + 1 if last_row.m == today_str else last_row.row_num + 2
 
         await db.add_report_row (
             l=[comment],
