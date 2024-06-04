@@ -75,25 +75,11 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
         data = await state.get_data ()
         await state.clear ()
         await save_expenses (msg.from_user.id, data)
-        # if msg.caption:
-        #     await state.update_data (data={'comment': msg.caption})
-        #     data = await state.get_data()
-        #     await state.clear()
-        #     await save_expenses(msg.from_user.id, data)
-        #
-        # else:
-        #     await state.set_state(DeliveryStatus.EXPENSES_5)
-        #     await msg.answer('Теперь отправьте комментарий', reply_markup=kb.get_close_kb())
-
     else:
         await state.update_data (data={'comment': msg.text})
         data = await state.get_data()
-        # if data ['column'] in ['b', 'g', 'k']:
         await state.clear()
         await save_expenses (msg.from_user.id, data)
-
-        # else:
-        #     await msg.answer('Отправьте фото', reply_markup=kb.get_close_kb())
 
 
 # сохраняем зп
@@ -104,42 +90,10 @@ async def expenses_dvl_5(cb: CallbackQuery, state: FSMContext):
     data = await state.get_data ()
     # await cb.message.edit_reply_markup(reply_markup=None)
     ex_info = expensis_dlv [data ['ex_id']]
-    # await state.update_data (data={'comment': {} {letters[letter]}})
     data['comment'] = f'{ex_info["text"]} {letters[letter]}'
     await state.clear ()
     await save_expenses (cb.from_user.id, data)
     await cb.message.delete ()
-
-
-# сохраняет коммент
-# @dp.message(StateFilter(DeliveryStatus.EXPENSES_5))
-# async def expenses_dvl_5(msg: Message, state: FSMContext):
-#     # data = await state.get_data ()
-#     await state.update_data (data={'comment': msg.text})
-#     data = await state.get_data()
-#     await state.clear()
-#
-#     await save_expenses (msg.from_user.id, data)
-
-    # user_info = await db.get_user_info(user_id=msg.from_user.id)
-    # today = datetime.now(Config.tz).strftime(Config.time_form)
-    # text = f'Курьер: {user_info.name}\n' \
-    #        f'Время: {today}\n' \
-    #        f'Сумма: {data.get("sum")} ₽\n' \
-    #        f'Комментарий: {msg.text}'
-    #
-    # if data.get('photo'):
-    #     await bot.send_photo(Config.work_chats["group_expenses"], photo=data['photo'], caption=text)
-    # else:
-    #     await bot.send_message(Config.work_chats["group_expenses"], text=text)
-    # await msg.answer('✅ Ваша трата учтена')
-    # # журнал действий
-    # await db.save_user_action (
-    #     user_id=msg.from_user.id,
-    #     dlv_name=user_info.name,
-    #     action=UserActions.ADD_EXPENSES.value,
-    #     comment=text
-    # )
 
 
 # посмотреть траты за сегодня

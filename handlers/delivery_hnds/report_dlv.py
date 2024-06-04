@@ -29,7 +29,7 @@ async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    user_info = await db.get_user_info (user_id=6600572025)
+    # user_info = await db.get_user_info (user_id=6600572025)
     if date_str == 'today':
         date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
         # dlv_orders = await db.get_work_orders(cb.from_user.id)
