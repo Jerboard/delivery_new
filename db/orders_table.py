@@ -280,12 +280,21 @@ async def update_multi_orders(
         date_str: str = None,
         type_update: str = TypeOrderUpdate.EDIT.value
 ) -> None:
-    query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list)).values(
-        updated=False,
-        time_update=datetime.now(Config.tz),
-        type_update=type_update,
-        e=date_str
-    )
+    if type_update == TypeOrderUpdate.UP_DATE.value:
+        query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list)).values(
+            updated=False,
+            time_update=datetime.now(Config.tz),
+            type_update=type_update,
+            e=date_str,
+        )
+    elif type_update == TypeOrderUpdate.NOT_COME.value:
+        query = OrderTable.update ().where (OrderTable.c.g == OrderStatus.NOT_COME.value).values (
+            updated=False,
+            time_update=datetime.now (Config.tz),
+            type_update=type_update,
+            g=OrderStatus.ACTIVE.value,
+            letter=''
+        )
 
     async with begin_connection() as conn:
         await conn.execute(query)
