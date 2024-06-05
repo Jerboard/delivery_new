@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardRemove
 from datetime import datetime
 
 import db
-from init import bot
+from init import bot, log_error
 from config import Config
 import keyboards as kb
 from utils import text_utils as txt
@@ -57,25 +57,17 @@ async def save_expenses(
         user_id: int,
         data: dict
 ):
+    log_error(f'Трата дата {user_id}\n{data}')
+
     user_info = await db.get_user_info (user_id)
 
     today_str = date_str()
     exp_today = await db.get_report_dlv(user_info.name, today_str)
-    # print(data)
+
     ex_info = expensis_dlv [data ['ex_id']]
     comment = data["comment"] if data.get('comment') else ex_info ["text"]
-    # print (comment)
     comment = f'{data ["exp_sum"]} - {comment}'
-    # print(comment)
-    # if data.get('comment'):
-    #     comment = f'{data["exp_sum"]} - {data["comment"]}'
-    # else:
-    #     ex_info = expensis_dlv[data['ex_id']]
-    #     comment = f'{data ["exp_sum"]} - {ex_info ["text"]}'
-
     if exp_today:
-        # comment_list: list = exp_today.l
-        # comment_list.append(comment)
         await db.update_expenses_dlv(
             entry_id=exp_today.id,
             l=comment,

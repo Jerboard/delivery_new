@@ -230,11 +230,10 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
         if data['action'] == OrderAction.COST.value:
             await state.update_data(data={'discount': int(msg.text)})
         else:
-            await state.update_data(data={'cost': msg.text, 'discount': int(msg.text)})
+            await state.update_data(data={'cost_dlv': int(msg.text)})
 
         await state.set_state(DeliveryStatus.EDIT_ORDER_CLOSE_2)
-        # await cb.message.edit_text (text, reply_markup=kb.get_back_close_order_kb (order_id))
-        # await msg.answer('Причина изменения стоимости')
+
         sent = await msg.answer('Причина изменения стоимости')
         messages: list = data.get('messages', [])
         messages.append(msg.message_id)
@@ -257,7 +256,6 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
 
     old_note = order_info.ab or ''
     note = f'{old_note}\n{order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'.strip()
-    print(data)
     if data ['action'] == OrderAction.COST.value:
         await db.update_row_google (
             order_id=data ['order_id'],
@@ -270,7 +268,7 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
         await db.update_row_google (
             order_id=data ['order_id'],
             type_update=data ['action'],
-            cost_delivery=data ['discount'],
+            cost_delivery=data ['cost_dlv'],
             note=note
         )
         user_action = UserActions.ADD_DISCOUNT_DLV.value
