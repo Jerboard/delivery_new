@@ -12,7 +12,8 @@ from config import Config
 from utils import local_data_utils as dt
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data, order_actions
-from enums import DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate
+from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
+                   TypeOrderButton)
 
 
 # кнопка взять заказ
@@ -149,7 +150,7 @@ async def dlv_order_4(cb: CallbackQuery):
 
     await db.update_row_google (
         order_id=order_id,
-        comment=lit,
+        letter=lit,
         status=OrderStatus.SUC.value if order_info.g == OrderStatus.ACTIVE.value else OrderStatus.SUC_TAKE.value,
         type_update=TypeOrderUpdate.STATE.value
     )
@@ -172,32 +173,6 @@ async def dlv_order_4(cb: CallbackQuery):
         dlv_name=order_info.f,
         action=action,
         comment=order_id_str)
-
-
-# отмена заказа
-# @dp.callback_query (lambda cb: cb.data.startswith (DeliveryCB.ORDER_5.value))
-# async def dlv_order_5(cb: CallbackQuery):
-#     _, order_id_str = cb.data.split (':')
-#     order_id = int (order_id_str)
-
-    # order_info = await db.get_order (order_id)
-    # await db.update_row_google (
-    #     order_id=order_id,
-    #     status=OrderStatus.REF.value,
-    #     type_update=TypeOrderUpdate.STATE.value
-    # )
-    # await cb.message.edit_text(
-    #     text=f'{cb.message.text} ✖️Отказ',
-    #     entities=cb.message.entities,
-    #     parse_mode=None
-    # )
-    #
-    # # журнал действий
-    # await db.save_user_action(
-    #     user_id=cb.from_user.id,
-    #     dlv_name=order_info.f,
-    #     action=UserActions.REFUSE_ORDER.value,
-    #     comment=order_id_str)
 
 
 # Закрытие заказа с изменениями. Запрос суммы изменений
@@ -334,6 +309,51 @@ async def trans_order(cb: CallbackQuery, state: FSMContext):
         dlv_name=user.name,
         action=UserActions.TRANSFER_ORDER.value,
         comment=f'Получатель: {recip.name}')
+
+
+# подтверждения забрать заказ у другого курьера
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.PICKUP_ORDER_1.value))
+async def pickup_order_1(cb: CallbackQuery, state: FSMContext):
+    _, order_id_str, action = cb.data.split(':')
+    order_id = int(order_id_str)
+
+    if action == 'back':
+        order_info = await db.get_order(order_id=order_id)
+        await cb.message.edit_reply_markup(reply_markup=kb.get_free_order_kb(
+            order_id=order_id,
+            type_order=TypeOrderButton.PICKUP.value,
+            dlv_name=order_info.f
+        ))
+    else:
+        await cb.message.edit_reply_markup(reply_markup=kb.get_pickup_order_kb(order_id))
+
+
+# подтверждения забрать заказ у другого курьера
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.PICKUP_ORDER_2.value))
+async def pickup_order_2(cb: CallbackQuery, state: FSMContext):
+    _, order_id_str = cb.data.split (':')
+    order_id = int (order_id_str)
+
+    order_info = await db.get_order (order_id=order_id)
+    user_info = await db.get_user_info(user_id=cb.from_user.id)
+
+    await db.update_row_google (
+        order_id=order_id,
+        dlv_name=user_info.name,
+        type_update=TypeOrderUpdate.PICKUP.value
+    )
+    # order_text = get_order_text (order_info)
+    text = f'{user_info.name} забрал заказ:\n\n{order_info.w} {order_info.x}'.replace('None', '')
+    await bot.send_message (
+        # chat_id=order_info.user_id,
+        chat_id=524275902,
+        text=text,
+        reply_markup=kb.get_dlv_main_order_kb (
+            order_id=order_info.id,
+            order_status=order_info.g
+        ))
+    await cb.message.edit_reply_markup (reply_markup=kb.get_dlv_main_order_kb (order_id, order_info.g))
+
 
 
 # кнопка вернуть старую кб к заказу

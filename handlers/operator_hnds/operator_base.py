@@ -13,7 +13,7 @@ from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
 from data.base_data import company, order_status_data
-from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions
+from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions, TypeOrderButton
 
 
 # кнопка взять заказ
@@ -87,7 +87,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
             sent = await bot.send_message (
                 chat_id=dlv.user_id,
                 text=cb.message.text,
-                reply_markup=kb.get_free_order_kb(order_id=order_id, is_take=True)
+                reply_markup=kb.get_free_order_kb(order_id=order_id, type_order=TypeOrderButton.TAKE.value)
             )
             sent_list.append ({'user_id': sent.chat.id, 'message_id': sent.message_id})
             await asyncio.sleep (0.05)

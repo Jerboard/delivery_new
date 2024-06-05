@@ -83,9 +83,12 @@ if DEBUG:
     }
 else:
     work_chats = {
-        CompanyDLV.MASTER.value: -1001838764189,
-        CompanyDLV.PUTILIN.value: -1001864910335,
-        CompanyDLV.MASTER_SPB.value: -1001653186290,
+        f'ex_{CompanyDLV.MASTER.value}': -1001838764189,
+        f'ex_{CompanyDLV.PUTILIN.value}': -1001864910335,
+        f'ex_{CompanyDLV.MASTER_SPB.value}': -1001653186290,
+        # CompanyDLV.MASTER.value: -1001838764189,
+        # CompanyDLV.PUTILIN.value: -1001864910335,
+        # CompanyDLV.MASTER_SPB.value: -1001653186290,
         'group_expenses': -1001903349475,
         'group_report': -1001863016934,
         f'refuse_{CompanyDLV.MASTER.value}': -1001997852647,

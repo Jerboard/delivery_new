@@ -18,21 +18,6 @@ class Config:
         bot_name = 'MatrixDeliveryBot'
         host = getenv('HOST')
         report_sheet_num = 6
-        # work_chats = {
-        #     CompanyDLV.MASTER.value: -1001669708234,
-        #     CompanyDLV.PUTILIN.value: -1001669708234,
-        #     CompanyDLV.MASTER_SPB.value: -1001669708234,
-        #     'group_expenses': -1001669708234,
-        #     'group_report': -1001669708234,
-        #     f'refuse_{CompanyDLV.MASTER.value}': -1001669708234,
-        #     f'refuse_{CompanyDLV.PUTILIN.value}': -1001669708234,
-        #     f'refuse_{CompanyDLV.MASTER_SPB.value}': -1001669708234,
-        #     f'refuse_{CompanyDLV.POST.value}': -1001669708234,
-        #     f'report_{CompanyDLV.MASTER.value}': -1001669708234,
-        #     f'report_{CompanyDLV.PUTILIN.value}': -1001669708234,
-        #     f'report_{CompanyDLV.MASTER_SPB.value}': -1001669708234,
-        #     f'report_{CompanyDLV.POST.value}': -1001669708234,
-        # }
 
     else:
         token = getenv ("TOKEN")
@@ -40,21 +25,6 @@ class Config:
         bot_name = 'MatrixDeliveryBot'
         host = getenv ('HOST')
         report_sheet_num = 8
-        # work_chats = {
-        #     CompanyDLV.MASTER.value: -1001838764189,
-        #     CompanyDLV.PUTILIN.value: -1001864910335,
-        #     CompanyDLV.MASTER_SPB.value: -1001653186290,
-        #     'group_expenses': -1001903349475,
-        #     'group_report': -1001863016934,
-        #     f'refuse_{CompanyDLV.MASTER.value}': -1001997852647,
-        #     f'refuse_{CompanyDLV.PUTILIN.value}': -1002141489538,
-        #     f'refuse_{CompanyDLV.MASTER_SPB.value}': -1002097241384,
-        #     f'refuse_{CompanyDLV.POST.value}': -1002117858384,
-        #     f'report_{CompanyDLV.MASTER.value}': -1001863016934,
-        #     f'report_{CompanyDLV.PUTILIN.value}': -1001887194825,
-        #     f'report_{CompanyDLV.MASTER_SPB.value}': -1001971855032,
-        #     f'report_{CompanyDLV.POST.value}': -1002062614241,
-        # }
 
     tz = timezone('Europe/Moscow')
     day_form = '%d.%m'

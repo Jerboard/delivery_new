@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 import db
 from data.base_data import expensis_dlv, letters
-from enums import DeliveryCB, BaseCB, OrderAction, OrderStatus
+from enums import DeliveryCB, BaseCB, OrderAction, OrderStatus, TypeOrderButton
 
 
 # отправить контакт
@@ -25,12 +25,15 @@ def main_dvl_kb() -> InlineKeyboardMarkup:
 
 
 # клава для курьера свободный заказ
-def get_free_order_kb(order_id: int, is_take: bool = False) -> InlineKeyboardMarkup:
+def get_free_order_kb(order_id: int, type_order: str, dlv_name: str = None) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    if is_take:
+    if type_order == TypeOrderButton.BASE.value:
         kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.TAKE_ORDER_2.value}:{order_id}')
-    else:
+    elif type_order == TypeOrderButton.TAKE.value:
         kb.button (text='📦 Взять в работу', callback_data=f'{DeliveryCB.ORDER_1.value}:{order_id}')
+    else:
+        kb.button (text=f'⭕️ Забрать у курьера {dlv_name} ⭕️',
+                   callback_data=f'{DeliveryCB.PICKUP_ORDER_1.value}:{order_id}:conf')
     return kb.adjust (1).as_markup ()
 
 
@@ -85,6 +88,15 @@ def get_done_order_letters_kb(order_id: int) -> InlineKeyboardMarkup:
     return kb.adjust(1).as_markup()
 
 
+# кнопка подтвердить Отказа от заказа
+def get_pickup_order_kb(order_id: int) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='✅ Забрать', callback_data=f'{DeliveryCB.PICKUP_ORDER_2.value}:{order_id}')
+    # kb.button(text='✅ Подтвердить', callback_data=f'{DeliveryCB.PICKUP_ORDER_2.value}:{order_id}')
+    kb.button(text='❌ Отмена', callback_data=f'{DeliveryCB.PICKUP_ORDER_1.value}:{order_id}:back')
+    return kb.adjust(1).as_markup()
+
+
 # выбрать букву при отправке зп
 def get_expensis_let_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
@@ -114,13 +126,8 @@ def get_transfer_order_kb(users: tuple[db.UserRow], order_id) -> InlineKeyboardM
 
 
 # клавиатура трат курьера
-# def expenses_dvl_kb(is_report=0, cb_1=0, cb_2=0) -> InlineKeyboardMarkup:
 def expenses_dvl_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    # if is_report == 0:
-    #     kb.button(text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
-    # else:
-    #     kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.REPORT_1.value}:{cb_1}:{cb_2}')
 
     kb.button (text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
     for k, v in expensis_dlv.items():

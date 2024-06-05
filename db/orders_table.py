@@ -51,6 +51,7 @@ class OrderRow(tp.Protocol):
     row_num: int
     user_id: int
     phone: str
+    company: str
 
 
 OrderTable: sa.Table = sa.Table(
@@ -243,7 +244,7 @@ async def update_row_google(
         type_update: str = None,
         discount: int = None,
         cost_delivery: int = None,
-        comment: str = None,
+        letter: str = None,
 ):
     query = (OrderTable.update().where(OrderTable.c.id == order_id).
              values(updated=update_row,
@@ -263,8 +264,8 @@ async def update_row_google(
         query = query.values(y=discount)
     if cost_delivery:
         query = query.values(clmn_t=cost_delivery)
-    if comment:
-        query = query.values(d=comment)
+    if letter:
+        query = query.values(d=letter) if letter != 'del' else query.values(d='')
     if all_row:
         query = query.values(b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
@@ -346,6 +347,7 @@ async def get_orders(
         OrderTable.c.id,
         UserTable.c.user_id,
         UserTable.c.phone,
+        UserTable.c.company,
     ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if get_active:

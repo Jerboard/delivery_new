@@ -64,6 +64,7 @@ class TypeOrderUpdate(str, Enum):
     NOT_COME = 'not_come'
     UP_DATE = 'up_date'
     TRANS = 'trans'
+    PICKUP = 'pickup'
 
 
 class SearchType(str, Enum):
@@ -89,3 +90,9 @@ class Letter (str, Enum):
     D = 'Д'
     V = 'В'
     A = 'А'
+
+
+class TypeOrderButton (str, Enum):
+    BASE = 'base'
+    TAKE = 'take'
+    PICKUP = 'pickup'

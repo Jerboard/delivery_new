@@ -155,6 +155,7 @@ async def back_free(cb: CallbackQuery):
         dlv_name='-',
         status=OrderStatus.NEW.value,
         take_date=' ',
+        letter='del',
         type_update=TypeOrderUpdate.STATE.value
     )
 

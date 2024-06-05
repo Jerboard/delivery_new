@@ -7,7 +7,7 @@ from config import Config
 from google_api import update_google_row
 from utils import local_data_utils as dt
 from utils.base_utils import get_today_date_str
-from enums import DataKey
+from enums import TypeOrderButton
 
 
 # Запускает плпнировцики
@@ -24,7 +24,7 @@ async def resent_take_order(order_id: int, text: str, sent_list: list[dict]):
             await bot.send_message (
                 chat_id=dlv['user_id'],
                 text=text,
-                reply_markup=kb.get_free_order_kb (order_id=order_id, is_take=True))
+                reply_markup=kb.get_free_order_kb (order_id=order_id, type_order=TypeOrderButton.TAKE.value))
         except Exception as ex:
             log_error (f'Заказ не отправлен курьеру повторно {dlv["user_id"]}', with_traceback=False)
             log_error (ex)
