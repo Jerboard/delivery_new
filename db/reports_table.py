@@ -5,6 +5,7 @@ import sqlalchemy.dialects.postgresql as sa_postgresql
 
 from .base import METADATA, begin_connection
 from config import Config
+from init import log_error
 
 
 class ReportRow(t.Protocol):
@@ -160,8 +161,9 @@ async def update_expenses_dlv(
         updated: bool = False,
         row_num: int = 0
 ) -> None:
-    print(b, c, d, e, f, g, h, i, k, l)
-    print(m, n)
+    log_error(f'ТРАТА\nentry_id: {entry_id}, b: {b}, c: {c}, d: {d}, e: {e}, f: {f}, g: {g}, '
+              f'h: {h}, i: {i}, k: {k}, l: {l}, m: {m}, row_num: {row_num}', with_traceback=False)
+
     query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (
         in_google=updated,
         time_update=datetime.now (Config.tz).replace (microsecond=0)

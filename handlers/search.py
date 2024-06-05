@@ -14,7 +14,10 @@ from enums import UserRole, SearchType, OrderStatus
 # поиск заказов
 @dp.message(StateFilter(default_state))
 async def search(msg: Message):
-    if msg.chat.type != ChatType.PRIVATE and msg.content_type != ContentType.TEXT:
+    if msg.chat.type != ChatType.PRIVATE:
+        return
+
+    if msg.content_type != ContentType.TEXT:
         return
 
     if len(msg.text) < 5:
