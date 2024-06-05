@@ -66,7 +66,10 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
     for row in cb.message.text.split ('\n'):
         row_split = row.split(':')
         if len(row_split) == 2:
-            data_dict[row_split[0]] = row_split[1].strip() or None
+            v = row_split[1].strip() or None
+            if v.isdigit():
+                v = int(v)
+            data_dict[row_split[0]] = v
 
     await db.add_row (
         row_num=last_row + 1,
@@ -74,11 +77,11 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         h=data_dict.get('Исполнитель'),
         i=data_dict.get('Выдан'),
         j=data_dict.get('Принят'),
-        k=data_dict.get('Оператор'),
+        k=str(data_dict.get('Оператор', '')),
         l=data_dict.get('Партнер'),
         m=data_dict.get('ФИО'),
-        n=data_dict.get('Номер'),
-        o=data_dict.get('Доп.номер'),
+        n=str(data_dict.get('Номер', '')),
+        o=str(data_dict.get('Доп.номер', '')),
         p=data_dict.get('Бланк'),
         q=data_dict.get('Цена', 0),
         r=data_dict.get('Наценка', 0),
