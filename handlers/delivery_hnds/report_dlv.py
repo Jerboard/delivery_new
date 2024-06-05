@@ -9,7 +9,7 @@ from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
 from data import base_data as dt
-from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter
+from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter, active_status_list
 
 
 # отчёт по дням
@@ -60,12 +60,12 @@ async def report_dvl_2(cb: CallbackQuery):
         elif order.g == OrderStatus.REF.value:
             refuse_text += row_text
 
-        elif order.g == OrderStatus.ACTIVE.value:
+        elif order.g == OrderStatus.NOT_COME.value:
+            not_come += row_text
+
+        elif order.g in active_status_list:
             active_text += row_text
 
-        elif order.g == OrderStatus.NOT_COME.value:
-            not_come = f'{not_come}{row_text}'
-            not_come += row_text
 
     # print(dlv_report)
     if dlv_report:
@@ -94,7 +94,7 @@ async def report_dvl_2(cb: CallbackQuery):
 
     await cb.message.answer(text, reply_markup=kb.get_send_day_report_kb())
 
-    await db.save_user_action(user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.VIEW_REPORT.value)
+    # await db.save_user_action(user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.VIEW_REPORT.value)
 
 
 # подтверждение отчёта

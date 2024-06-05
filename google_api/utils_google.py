@@ -10,7 +10,7 @@ from config import Config
 from init import bot
 # import utils.json_utils as js
 from utils.local_data_utils import get_table_id
-from enums import OrderStatus
+from enums import OrderStatus, active_status_list
 
 
 # (a - 0, b - 1, c - 2, d - 3, e - 4, f - 5, g - 6, h - 7, i - 8, j - 9, k - 10,
@@ -52,7 +52,7 @@ async def check_work_order_on_update(
     #     return
     # if order_id in work_orders:
     #     await db.update_work_order (user_id=order_user_id, order_id=order_id)
-    # elif order_status in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+    # elif order_status in active_status_list:
     #     await db.add_work_order (user_id=order_user_id, order_id=order_id)
 
 
@@ -92,7 +92,7 @@ def choice_color(status: str):
     # print(status)
     if status in [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]:
         color = {"red": 0.39, "green": 0.93, "blue": 0.54}
-    elif status in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+    elif status in active_status_list:
         color = {"red": 1.0, "green": 1.0, "blue": 0.0}
     elif status in [OrderStatus.REF.value, OrderStatus.REF_TAKE.value]:
         color = {"red": 1.0, "green": 0.0, "blue": 0.0}

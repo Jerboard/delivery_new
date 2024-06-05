@@ -8,7 +8,7 @@ import db
 import keyboards as kb
 from init import dp, log_error
 from utils import text_utils as txt
-from enums import UserRole, SearchType, OrderStatus, TypeOrderButton
+from enums import UserRole, SearchType, OrderStatus, TypeOrderButton, active_status_list
 
 
 # поиск заказов
@@ -44,10 +44,11 @@ async def search(msg: Message):
     if user_info.role == UserRole.DLV.value:
         counter = 0
         for order in orders:
-            print(order)
+            # print(order)
             try:
                 text = txt.get_order_text(order)
-                if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+                # if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+                if order.g in active_status_list:
                     # мой заказ на руказ
                     if order.user_id == user_info.user_id:
                         counter += 1
@@ -84,7 +85,7 @@ async def search(msg: Message):
 
                 keyboard = None
                 if user_info.role == UserRole.OWN.value:
-                    if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+                    if order.g in active_status_list:
                         keyboard = kb.get_busy_order_own_kb (order_id=order.id)
 
                     elif order.g == OrderStatus.NEW.value:

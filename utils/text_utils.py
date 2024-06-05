@@ -20,24 +20,20 @@ def clearing_text(text: str) -> str:
 
 # текст заказа по строке
 def get_order_text(order: db.OrderRow) -> str:
-    prepay = order.u + order.v
-
-    if order.q == 0:  # and prepay != 0:
-        cost = 0
-    else:
-        # (q + r + s - y) + t
-        cost = order.q + order.r + order.s - order.y
-
-    text = f'Заказ от: {order.j} \n' \
-           f'Оператор: {order.k}\n' \
-           f'Клиент: {order.m}\n' \
-           f'Номер: <code>{order.n}</code>    <code>{order.o}</code>      \n' \
-           f'Доставка: {order.w}\n' \
-           f'Адрес: {order.x}\n' \
-           f'Цена: {cost} + {order.clmn_t}\n' \
-           f'Курьеру к оплате: {cost + order.clmn_t}\n' \
-           f'Примечания: {order.ab} '
-
+    cost = get_order_cost(order)
+    bottom_text = '✖️ Клиент не явился' if order.g == OrderStatus.NOT_COME.value else ''
+    text = (
+        f'Заказ от: {order.j} \n'
+        f'Оператор: {order.k}\n'
+        f'Клиент: {order.m}\n'
+        f'Номер: <code>{order.n}</code> <code>{order.o}</code>\n'
+        f'Доставка: {order.w}\n'
+        f'Адрес: {order.x}\n'
+        f'Цена: {cost} + {order.clmn_t}\n'
+        f'Курьеру к оплате: {cost + order.clmn_t}\n'
+        f'Примечания: {order.ab}\n\n'
+        f'{bottom_text}'
+    )
     return text.replace('None', '').strip()
 
 

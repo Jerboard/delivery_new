@@ -21,6 +21,9 @@ class OrderStatus(str, Enum):
     SEND = 'send'
 
 
+active_status_list = [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value, OrderStatus.NOT_COME.value]
+
+
 class OrderAction(str, Enum):
     SUC = 'success'
     NOT_COME = 'not_come'

@@ -104,25 +104,22 @@ async def dlv_order_2(cb: CallbackQuery):
 # Подтвердить доставку либо отмену заказа
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_2.value))
 async def dlv_order_2(cb: CallbackQuery):
-    _, action, order_id_str = cb.data.split(':')
+    _, order_id_str = cb.data.split(':')
     order_id = int(order_id_str)
 
-    if action == OrderAction.SUC.value:
-        await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(
-            order_id=order_id,
-            order_status=action
-        ))
+    # if action == OrderAction.SUC.value:
+    await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(order_id=order_id))
 
-    elif action == OrderAction.NOT_COME.value:
-        await db.update_row_google(
-            order_id=order_id,
-            note=order_status_data.get(OrderStatus.NOT_COME.value)
-        )
-        await cb.message.edit_text(
-            text=f'{cb.message.text}\n\n✖️ Клиент не явился',
-            entities=cb.message.entities,
-            parse_mode=None
-        )
+    # elif action == OrderAction.NOT_COME.value:
+    #     await db.update_row_google(
+    #         order_id=order_id,
+    #         note=order_status_data.get(OrderStatus.NOT_COME.value)
+    #     )
+    #     await cb.message.edit_text(
+    #         text=f'{cb.message.text}\n\n✖️ Клиент не явился',
+    #         entities=cb.message.entities,
+    #         parse_mode=None
+    #     )
 
     # else:
         # await cb.answer('Нажмите кнопку "Подтвердить отказ", после этого заказ будет закрыт', show_alert=True)
@@ -133,21 +130,33 @@ async def dlv_order_2(cb: CallbackQuery):
 # закрытие заказа буквы
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_7.value))
 async def dlv_order_7(cb: CallbackQuery):
-    _, order_id_str = cb.data.split (':')
+    _, order_id_str, action = cb.data.split (':')
     order_id = int (order_id_str)
 
-    await cb.message.edit_reply_markup(reply_markup=kb.get_done_order_letters_kb(order_id=order_id))
+    await cb.message.edit_reply_markup(
+        reply_markup=kb.get_done_order_letters_kb(order_id=order_id, order_action=action)
+    )
 
 
 # закрытие заказа
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.ORDER_4.value))
 async def dlv_order_4(cb: CallbackQuery):
-    print(cb.data)
-    _, order_id_str, lit = cb.data.split (':')
+    _, order_id_str, order_action, lit = cb.data.split (':')
     order_id = int (order_id_str)
 
-    order_info = await db.get_order (order_id)
+    if order_action == OrderAction.NOT_COME.value:
+        await db.update_row_google (
+            order_id=order_id,
+            letter=lit,
+            status=OrderStatus.NOT_COME.value,
+            type_update=TypeOrderUpdate.STATE.value
+        )
+        order_info = await db.get_order (order_id)
+        text = get_order_text(order_info)
+        await cb.message.edit_text (text=text)
+        return
 
+    order_info = await db.get_order (order_id)
     await db.update_row_google (
         order_id=order_id,
         letter=lit,
@@ -230,7 +239,8 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
     order_info = await db.get_order(order_id=data['order_id'])
 
     old_note = order_info.ab or ''
-    note = f'{old_note}\n{order_actions.get(data["action"])} ({data ["discount"]}) {msg.text}'.strip()
+    amount = data.get('discount') or data.get('cost_dlv')
+    note = f'{old_note}\n{order_actions.get(data["action"])} ({amount}) {msg.text}'.strip()
     if data ['action'] == OrderAction.COST.value:
         await db.update_row_google (
             order_id=data ['order_id'],
@@ -251,7 +261,7 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
     order_info = await db.get_order(data['order_id'])
     text = get_order_text(order_info)
     action = OrderAction.SUC_TAKE.value if order_info.g == OrderStatus.ACTIVE_TAKE.value else OrderAction.SUC.value
-    await msg.answer(text, reply_markup=kb.get_close_order_option_kb(data['order_id'], order_status=action))
+    await msg.answer(text, reply_markup=kb.get_close_order_option_kb(data['order_id']))
 
     # журнал действий
     await db.save_user_action(
@@ -381,7 +391,4 @@ async def back_close_order(cb: CallbackQuery, state: FSMContext):
         await bot.delete_message(chat_id=cb.message.chat.id, message_id=message)
 
     text = get_order_text (order_info)
-    await cb.message.edit_text(text=text, reply_markup=kb.get_close_order_option_kb(
-        order_id=order_id,
-        order_status=order_info.g
-    ))
+    await cb.message.edit_text(text=text, reply_markup=kb.get_close_order_option_kb(order_id=order_id))

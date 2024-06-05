@@ -41,27 +41,26 @@ def get_free_order_kb(order_id: int, type_order: str, dlv_name: str = None) -> I
 def get_dlv_main_order_kb(order_id: int, order_status: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     if order_status == OrderStatus.ACTIVE.value:
-        kb.button(text='✅ Доставлен', callback_data=f'{DeliveryCB.ORDER_2.value}:{OrderAction.SUC.value}:{order_id}')
+        kb.button(text='✅ Доставлен', callback_data=f'{DeliveryCB.ORDER_2.value}:{order_id}')
     else:
-        kb.button(text='✅ Забрал', callback_data=f'{DeliveryCB.ORDER_7.value}:{OrderAction.SUC_TAKE.value}:{order_id}')
+        kb.button(text='✅ Забрал', callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}:{OrderAction.SUC_TAKE.value}')
 
     kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.REF_ORDER_1.value}:{order_id}')
 
     # if order_status == OrderStatus.ACTIVE.value:
     kb.button(
         text='✖️ Клиент не явился',
-        callback_data=f'{DeliveryCB.ORDER_2.value}:{OrderStatus.NOT_COME.value}:{order_id}')
+        callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}:{OrderAction.NOT_COME.value}')
     kb.button(text='↩️ Передать другому курьеру', callback_data=f'{DeliveryCB.ORDER_3.value}:{order_id}')
     return kb.adjust(1).as_markup()
 
 
 # основная клавиатура закрытия заказа
-def get_close_order_option_kb(order_id: int, order_status: str) -> InlineKeyboardMarkup:
+def get_close_order_option_kb(order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(
         text='✅ Закрыть заказ',
-        # callback_data=f'{DeliveryCB.ORDER_7.value}:{order_status}:{order_id}')
-        callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}')
+        callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}:{OrderAction.SUC.value}')
     kb.button(
         text='🖍 Изменить стоимость',
         callback_data=f'{DeliveryCB.ORDER_6.value}:{OrderAction.COST.value}:{order_id}')
@@ -80,10 +79,10 @@ def get_back_close_order_kb(order_id: int) -> InlineKeyboardMarkup:
 
 
 # выбрать букву при закрытии заказа
-def get_done_order_letters_kb(order_id: int) -> InlineKeyboardMarkup:
+def get_done_order_letters_kb(order_id: int, order_action: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for k, v in letters.items ():
-        kb.button (text=v, callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:{k}')
+        kb.button (text=v, callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:{order_action}:{k}')
     kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_CLOSE_ORDER.value}:{order_id}')
     return kb.adjust(1).as_markup()
 

@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from config import Config
 from .base import METADATA, begin_connection, ENGINE
 from db.users import UserTable
-from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate
+from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate, active_status_list
 
 
 class OrderRow(tp.Protocol):
@@ -280,9 +280,7 @@ async def update_multi_orders(
         date_str: str = None,
         type_update: str = TypeOrderUpdate.EDIT.value
 ) -> None:
-    query = OrderTable.update().where(
-        sa.or_ (OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
-    ).values(
+    query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list)).values(
         updated=False,
         time_update=datetime.now(Config.tz),
         type_update=type_update,
@@ -351,9 +349,10 @@ async def get_orders(
     ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if get_active:
-        query = query.where(
-            sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
-        )
+        # query = query.where(
+        #     sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
+        # )
+        query = query.where (OrderTable.c.g.in_ (active_status_list))
     elif get_new:
         query = query.where(sa.and_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.i.isnot(None)))
     elif get_wait_update:
