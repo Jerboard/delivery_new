@@ -50,7 +50,7 @@ async def take_order(msg: Message, state: FSMContext):
         text=msg.text,
         chat_id=msg.chat.id,
         message_id=data ['msg_id'],
-        reply_markup=kb.get_take_order_kb(True)
+        reply_markup=kb.get_take_order_kb(UserRole.OWN.value)
     )
 
 
@@ -62,31 +62,63 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
 
     last_row = await db.get_max_row_num ()
     data_text = cb.message.text.split ('\n')
-    await db.add_row(
+    data_dict = {}
+    for row in cb.message.text.split ('\n'):
+        row_split = row.split(':')
+        if len(row_split) == 2:
+            data_dict[row_split[0]] = row_split[1].strip() or None
+
+    await db.add_row (
         row_num=last_row + 1,
         g=OrderStatus.NEW.value,
-        h=data_text[0].replace('Исполнитель:', '').strip(),
-        i=data_text[1].replace('Выдан:', '').strip(),
-        j=data_text[2].replace('Принят:', '').strip(),
-        k=data_text[3].replace('Оператор:', '').strip(),
-        l=data_text[4].replace('Партнер:', '').strip(),
-        m=data_text[5].replace('ФИО:', '').strip(),
-        n=re.sub (r'\D+', '', data_text[6]),
-        o=re.sub (r'\D+', '', data_text[7]),
-        p=data_text[8].replace('Бланк:', '').strip(),
-        q=int(re.sub (r'\D+', '', data_text[9])),
-        r=int(re.sub (r'\D+', '', data_text[10])),
-        s=int(re.sub (r'\D+', '', data_text[11])),
-        b=data_text[12].replace('Биток:', '').strip(),
-        t=int(re.sub (r'\D+', '', data_text[13])),
-        u=int(re.sub (r'\D+', '', data_text[14])),
-        v=int(re.sub (r'\D+', '', data_text[15])),
-        w=data_text[16].replace('Метро:', '').strip(),
-        x=data_text[17].replace('Адрес:', '').strip(),
-        z=data_text[18].replace('Цена бланка:', '').strip(),
-        ab=data_text[19].replace('Примечание:', '').strip(),
+        h=data_dict.get('Исполнитель'),
+        i=data_dict.get('Выдан'),
+        j=data_dict.get('Принят'),
+        k=data_dict.get('Оператор'),
+        l=data_dict.get('Партнер'),
+        m=data_dict.get('ФИО'),
+        n=data_dict.get('Номер'),
+        o=data_dict.get('Доп.номер'),
+        p=data_dict.get('Бланк'),
+        q=data_dict.get('Цена', 0),
+        r=data_dict.get('Наценка', 0),
+        s=data_dict.get('Доп', 0),
+        b=data_dict.get('Биток'),
+        t=data_dict.get('Доставка', 0),
+        u=data_dict.get('Кошелек', 0),
+        v=data_dict.get('Карта', 0),
+        w=data_dict.get('Метро'),
+        x=data_dict.get('Адрес'),
+        z=data_dict.get('Цена бланка'),
+        ab=data_dict.get('Примечание'),
         type_update=TypeOrderUpdate.ADD.value
     )
+
+    # await db.add_row(
+    #     row_num=last_row + 1,
+    #     g=OrderStatus.NEW.value,
+    #     h=data_text[0].replace('Исполнитель:', '').strip(),
+    #     i=data_text[1].replace('Выдан:', '').strip(),
+    #     j=data_text[2].replace('Принят:', '').strip(),
+    #     k=data_text[3].replace('Оператор:', '').strip(),
+    #     l=data_text[4].replace('Партнер:', '').strip(),
+    #     m=data_text[5].replace('ФИО:', '').strip(),
+    #     n=re.sub (r'\D+', '', data_text[6]),
+    #     o=re.sub (r'\D+', '', data_text[7]),
+    #     p=data_text[8].replace('Бланк:', '').strip(),
+    #     q=int(re.sub (r'\D+', '', data_text[9])),
+    #     r=int(re.sub (r'\D+', '', data_text[10])),
+    #     s=int(re.sub (r'\D+', '', data_text[11])),
+    #     b=data_text[12].replace('Биток:', '').strip(),
+    #     t=int(re.sub (r'\D+', '', data_text[13])),
+    #     u=int(re.sub (r'\D+', '', data_text[14])),
+    #     v=int(re.sub (r'\D+', '', data_text[15])),
+    #     w=data_text[16].replace('Метро:', '').strip(),
+    #     x=data_text[17].replace('Адрес:', '').strip(),
+    #     z=data_text[18].replace('Цена бланка:', '').strip(),
+    #     ab=data_text[19].replace('Примечание:', '').strip(),
+    #     type_update=TypeOrderUpdate.ADD.value
+    # )
 
     text = f'✅Заявка добавлена.\n\n{cb.message.text}'
     await sent_wait.edit_text(text)

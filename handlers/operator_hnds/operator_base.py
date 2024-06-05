@@ -13,7 +13,7 @@ from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
 from data.base_data import company, order_status_data
-from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions
+from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions, UserRole
 
 
 # кнопка взять заказ
@@ -35,7 +35,7 @@ async def take_order_1(cb: CallbackQuery, state: FSMContext):
            f'Примечание: </code>'
 
     await state.set_state (OperatorStatus.TAKE_ORDER)
-    sent = await cb.message.answer (text, reply_markup=kb.get_take_order_kb())
+    sent = await cb.message.answer (text, reply_markup=kb.get_close_kb())
     await state.update_data (data={'msg_id': sent.message_id, 'comp_id': comp_id})
 
 
@@ -47,7 +47,7 @@ async def take_order(msg: Message, state: FSMContext):
         text=msg.text,
         chat_id=msg.chat.id,
         message_id=data ['msg_id'],
-        reply_markup=kb.get_take_order_kb(True)
+        reply_markup=kb.get_take_order_kb(role=UserRole.OPR.value)
     )
 
 

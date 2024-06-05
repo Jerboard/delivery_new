@@ -2,7 +2,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 
 import db
 from data.base_data import company
-from enums import BaseCB, OperatorCB, OrderStatus, TypeOrderUpdate
+from enums import BaseCB, OperatorCB, UserRole, OwnerCB
 
 
 # курьерская для забора
@@ -15,9 +15,11 @@ def take_order_company_kb() -> InlineKeyboardMarkup:
 
 
 # курьерская для забора
-def get_take_order_kb(with_confirm: bool = False) -> InlineKeyboardMarkup:
+def get_take_order_kb(role: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button(text='❌ Отмена', callback_data=BaseCB.CLOSE.value)
-    if with_confirm:
+    if role == UserRole.OPR.value:
         kb.button(text='✅ Подтвердить', callback_data=OperatorCB.TAKE_ORDER_2.value)
+    elif role == UserRole.OWN.value:
+        kb.button(text='✅ Подтвердить', callback_data=OwnerCB.ADD_ORDER.value)
     return kb.as_markup()

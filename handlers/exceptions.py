@@ -12,6 +12,6 @@ async def errors_handler(ex: ErrorEvent):
     await db.save_error(user_id, msg)
 
     if user_id:
-        await bot.send_message('‼️ Что-то сломалось! Сообщите разработчикам, чтоб мы могли это исправить\n\n'
+        await bot.send_message(user_id, '‼️ Что-то сломалось! Сообщите разработчикам, чтоб мы могли это исправить\n\n'
                                'В сообщении расскажите о ваших последних действиях')
 
