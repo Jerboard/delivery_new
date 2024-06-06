@@ -9,25 +9,30 @@ import keyboards as kb
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str as date_str
 from data.base_data import expensis_dlv, work_chats
-from enums import UserActions, UserRole
+from enums import UserActions, UserRole, OrderStatus
 
 
 # старт курьера
 async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
     orders = await db.get_orders(user_id=user_id, get_active=True)
     # orders = await db.get_orders(user_id=6600572025, get_active=True,)
-    # orders = await db.get_work_orders(user_id, only_active=True)
-    # orders = await db.get_work_orders(6600572025, only_active=True)
 
-    orders_text = ''
+    active_text = ''
+    send_text = ''
     counter = 0
     for order in orders:
         counter += 1
-        orders_text += txt.get_short_order_row(order, for_=UserRole.DLV.value)
+        if order.g == OrderStatus.SEND.value:
+            send_text += txt.get_short_order_row(order, for_=UserRole.DLV.value)
+        else:
+            active_text += txt.get_short_order_row(order, for_=UserRole.DLV.value)
 
-    text = f'{dlv_name}\n\n' \
-           f'Заказы:\n' \
-           f'{orders_text}'
+    if send_text:
+        send_text = f'Отправленные:\n{send_text}'
+    text = (f'{dlv_name}\n\n' 
+            f'Заказы:\n' 
+            f'{active_text}\n'
+            f'{send_text}')[:2000]
 
     if counter == 0:
         text = 'У вас нет активных заказов'

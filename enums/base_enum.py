@@ -21,7 +21,11 @@ class OrderStatus(str, Enum):
     SEND = 'send'
 
 
-active_status_list = [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value, OrderStatus.NOT_COME.value]
+active_status_list = [
+    OrderStatus.ACTIVE.value,
+    OrderStatus.ACTIVE_TAKE.value,
+    OrderStatus.NOT_COME.value,
+    OrderStatus.SEND.value]
 done_status_list = [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]
 
 
@@ -43,6 +47,7 @@ class DataKey(str, Enum):
 class UserActions(str, Enum):
     TAKE_ORDER = 'Взял заказ'
     TAKE_ORDER_TAKE = 'Взял заказ (забор)'
+    SEND_POST_ORDER = 'Отправил заказ (почта)'
     REFUSE_ORDER = 'Отказался от заказа'
     SUCCESS_ORDER = 'Заказ выполнен'
     REFUSE_TAKE_ORDER = 'Отказался от забора'

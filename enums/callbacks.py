@@ -51,11 +51,14 @@ class DeliveryCB(str, Enum):
     EXPENSES_5 = 'dlv_expenses_5'
     EXPENSES_VIEW = 'dlv_expenses_view'
     BACK_MAIN = 'dlv_back_main_menu'
-    BACK_MAIN_ORDER = 'dlv_back_main_order'
+    BACK_MAIN_ORDER = 'dlv_back_order_main'
     BACK_CLOSE_ORDER = 'dlv_back_close_order'
     TRANS_ORDER = 'dlv_trans_order'
     PICKUP_ORDER_1 = 'dlv_pickup_order_1'
     PICKUP_ORDER_2 = 'dlv_pickup_order_2'
+    POST_1 = 'dlv_post_order_1'
+    POST_2 = 'dlv_post_order_2'
+    POST_3 = 'dlv_post_order_3'
 
 
 class OperatorCB(str, Enum):

@@ -95,6 +95,8 @@ def choice_color(status: str):
         color = {"red": 1.0, "green": 1.0, "blue": 0.0}
     elif status in [OrderStatus.REF.value, OrderStatus.REF_TAKE.value]:
         color = {"red": 1.0, "green": 0.0, "blue": 0.0}
+    elif status == OrderStatus.SEND.value:
+        color = {"red": 0.99, "green": 0.78, "blue": 0.02}
     else:
         color = {"red": 1.0, "green": 1.0, "blue": 1.0}
     return color

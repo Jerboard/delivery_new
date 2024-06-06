@@ -287,7 +287,7 @@ async def update_multi_orders(
         type_update: str = TypeOrderUpdate.EDIT.value
 ) -> None:
     if type_update == TypeOrderUpdate.UP_DATE.value:
-        query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list)).values(
+        query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list[:-1])).values(
             updated=True,
             time_update=datetime.now(Config.tz),
             type_update=type_update,

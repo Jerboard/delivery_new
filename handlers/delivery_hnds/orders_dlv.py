@@ -10,10 +10,11 @@ import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
+from utils.base_utils import get_today_date_str
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data, order_actions
 from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
-                   TypeOrderButton, KeyWords)
+                   TypeOrderButton, KeyWords, CompanyDLV)
 
 
 # кнопка взять заказ
@@ -23,19 +24,17 @@ async def dlv_order_1(cb: CallbackQuery):
     order_id = int (order_id_str)
 
     user_info = await db.get_user_info(cb.from_user.id)
-    take_date = datetime.now(Config.tz).date().strftime(Config.day_form)
 
-    # await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
     # добавить смену курьерской
     await db.update_row_google(
         order_id=order_id,
         dlv_name=user_info.name,
         status=OrderStatus.ACTIVE.value,
-        take_date=take_date,
+        take_date=get_today_date_str(),
         type_update=TypeOrderUpdate.STATE.value
     )
     await cb.message.edit_text(
-        text=f'{cb.message.text}\n\n✅Принят',
+        text=f'{cb.message.text}\n\n✅ Принят',
         entities=cb.message.entities,
         parse_mode=None
     )
@@ -106,25 +105,7 @@ async def dlv_order_2(cb: CallbackQuery):
 async def dlv_order_2(cb: CallbackQuery):
     _, order_id_str = cb.data.split(':')
     order_id = int(order_id_str)
-
-    # if action == OrderAction.SUC.value:
     await cb.message.edit_reply_markup(reply_markup=kb.get_close_order_option_kb(order_id=order_id))
-
-    # elif action == OrderAction.NOT_COME.value:
-    #     await db.update_row_google(
-    #         order_id=order_id,
-    #         note=order_status_data.get(OrderStatus.NOT_COME.value)
-    #     )
-    #     await cb.message.edit_text(
-    #         text=f'{cb.message.text}\n\n✖️ Клиент не явился',
-    #         entities=cb.message.entities,
-    #         parse_mode=None
-    #     )
-
-    # else:
-        # await cb.answer('Нажмите кнопку "Подтвердить отказ", после этого заказ будет закрыт', show_alert=True)
-        # await cb.message.edit_reply_markup(
-        #     reply_markup=kb.get_close_order_kb(new_status_order=OrderStatus.REF.value, order_id=order_id))
 
 
 # закрытие заказа буквы
@@ -156,14 +137,20 @@ async def dlv_order_4(cb: CallbackQuery):
         return
 
     order_info = await db.get_order (order_id)
+
+    if order_info.g in [OrderStatus.ACTIVE.value, OrderStatus.SEND.value]:
+        order_status = OrderStatus.SUC.value
+    else:
+        order_status = OrderStatus.SUC_TAKE.value
+
     await db.update_row_google (
         order_id=order_id,
         letter=lit,
-        status=OrderStatus.SUC.value if order_info.g == OrderStatus.ACTIVE.value else OrderStatus.SUC_TAKE.value,
+        status=order_status,
         type_update=TypeOrderUpdate.STATE.value
     )
     await cb.message.edit_text(
-        text=f'{cb.message.text}\n\n✅Выполнен',
+        text=f'{cb.message.text}\n\n✅ Выполнен',
         entities=cb.message.entities,
         parse_mode=None
     )

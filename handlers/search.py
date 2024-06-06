@@ -6,9 +6,66 @@ from aiogram.enums.content_type import ContentType
 
 import db
 import keyboards as kb
+from init import bot
 from init import dp, log_error
 from utils import text_utils as txt
-from enums import UserRole, SearchType, OrderStatus, TypeOrderButton, active_status_list
+from enums import UserRole, SearchType, OrderStatus, TypeOrderButton, active_status_list, CompanyDLV
+
+
+# обработка заказа для курьера
+async def processing_glv(order: db.OrderRow, user_info: db.UserRow):
+    counter = 0
+    try:
+        text = txt.get_order_text (order)
+        if order.g in active_status_list:
+            # мой заказ на руказ
+            if order.user_id == user_info.user_id:
+                counter += 1
+
+                keyboard = kb.get_dlv_main_order_kb (order_id=order.id, order_status=order.g)
+                if user_info.company == CompanyDLV.POST.value:
+                    keyboard = kb.get_post_order_kb (order_id=order.id, order_status=order.g)
+
+                await bot.send_message(chat_id=user_info.user_id, text=text, reply_markup=keyboard)
+            # забрать заказ у курьера
+            elif order.f != user_info.name:
+                counter += 1
+                await bot.send_message (
+                    chat_id=user_info.user_id,
+                    text=text, reply_markup=kb.get_free_order_kb (
+                        order_id=order.id,
+                        type_order=TypeOrderButton.PICKUP.value,
+                        dlv_name=order.f
+                    ))
+        elif order.g == OrderStatus.NEW.value:
+            counter += 1
+            # type_order = TypeOrderButton.POST.value \
+            #     if user_info.company == CompanyDLV.POST.value else TypeOrderButton.BASE.value
+            await bot.send_message (
+                chat_id=user_info.user_id,
+                text=text,
+                reply_markup=kb.get_free_order_kb (order_id=order.id, type_order=TypeOrderButton.BASE.value))
+    except Exception as ex:
+        log_error (ex)
+    finally:
+        return counter
+
+
+# обработка заказа для админа
+async def processing_admin(order: db.OrderRow, user_info: db.UserRow):
+    text = txt.get_admin_order_text (order)
+    keyboard = None
+    if user_info.role == UserRole.OWN.value:
+        if order.g in active_status_list:
+            keyboard = kb.get_busy_order_own_kb (order_id=order.id)
+
+        elif order.g == OrderStatus.NEW.value:
+            keyboard = kb.get_free_order_own_kb (order_id=order.id)
+
+        else:
+            keyboard = kb.get_close_order_own_kb (order_id=order.id, dlv_name=order.f, user_id=order.user_id)
+
+    await bot.send_message (chat_id=user_info.user_id, text=text, reply_markup=keyboard)
 
 
 # поиск заказов
@@ -44,36 +101,7 @@ async def search(msg: Message):
     if user_info.role == UserRole.DLV.value:
         counter = 0
         for order in orders:
-            print(order)
-            try:
-                text = txt.get_order_text(order)
-                # if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
-                if order.g in active_status_list:
-                    # мой заказ на руказ
-                    if order.user_id == user_info.user_id:
-                        counter += 1
-                        await msg.answer(text, reply_markup=kb.get_dlv_main_order_kb(
-                            order_id=order.id,
-                            order_status=order.g
-                        ))
-                    # забрать заказ у курьера
-                    # elif order.company == user_info.company and order.f != user_info.name:
-                    elif order.f != user_info.name:
-                        counter += 1
-                        await msg.answer (text, reply_markup=kb.get_free_order_kb (
-                            order_id=order.id,
-                            type_order=TypeOrderButton.PICKUP.value,
-                            dlv_name=order.f
-                        ))
-
-                elif order.g == OrderStatus.NEW.value:
-                    counter += 1
-                    await msg.answer(text, reply_markup=kb.get_free_order_kb(
-                        order_id=order.id,
-                        type_order=TypeOrderButton.BASE.value
-                    ))
-            except Exception as ex:
-                log_error(ex)
+            counter += await processing_glv(order, user_info)
 
         if counter == 0:
             await msg.answer('❌ По вашему запросу ничего не найдено')
@@ -81,23 +109,7 @@ async def search(msg: Message):
     elif user_info.role in [UserRole.OPR.value, UserRole.OWN.value]:
         if len(orders) <= 3:
             for order in orders:
-                text = txt.get_admin_order_text(order)
-
-                keyboard = None
-                if user_info.role == UserRole.OWN.value:
-                    if order.g in active_status_list:
-                        keyboard = kb.get_busy_order_own_kb (order_id=order.id)
-
-                    elif order.g == OrderStatus.NEW.value:
-                        keyboard = kb.get_free_order_own_kb(order_id=order.id)
-
-                    else:
-                        keyboard = kb.get_close_order_own_kb(
-                            order_id=order.id,
-                            dlv_name=order.f,
-                            user_id=order.user_id
-                        )
-                await msg.answer(text, reply_markup=keyboard)
+                await processing_admin(order, user_info)
 
         elif len(orders) > 30:
             await msg.answer(f'❗️По вашему запросу найдено {len(orders)}. Задайте более чёткие критерии поиска')
