@@ -9,10 +9,10 @@ from db.action_journal import save_user_action
 from enums import OrderStatus
 
 
-class OrderGroupRow(t.Protocol):
-    user_id: int
-    name: str
-    count_orders: str
+# class OrderGroupRow(t.Protocol):
+#     user_id: int
+#     name: str
+#     count_orders: str
 
 
 WorkTable: sa.Table = sa.Table(
@@ -139,18 +139,18 @@ async def delete_work_order(order_id: int = None, user_id: int = None, except_li
 
 
 # возвращает курьеров и количество их заказов
-async def get_users_group() -> tuple[OrderGroupRow]:
-    query = (
-        sa.select (
-            WorkTable.c.user_id,
-            OrderTable.c.f.label('name'),
-            sa.func.count ().label ('count_orders')
-        )
-        .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
-        group_by (WorkTable.c.user_id, OrderTable.c.f)
-    ).where(sa.or_(OrderTable.c.g == OrderStatus.ACTIVE.value, OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value))
-
-    async with begin_connection() as conn:
-        result = await conn.execute(query)
-
-    return result.all()
+# async def get_users_group() -> tuple[OrderGroupRow]:
+#     query = (
+#         sa.select (
+#             WorkTable.c.user_id,
+#             OrderTable.c.f.label('name'),
+#             sa.func.count ().label ('count_orders')
+#         )
+#         .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
+#         group_by (WorkTable.c.user_id, OrderTable.c.f)
+#     ).where(sa.or_(OrderTable.c.g == OrderStatus.ACTIVE.value, OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value))
+#
+#     async with begin_connection() as conn:
+#         result = await conn.execute(query)
+#
+#     return result.all()

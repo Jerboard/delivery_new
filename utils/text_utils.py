@@ -103,14 +103,15 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
     return text.replace('None', 'н/д')
 
 
-def get_statistic_text(statistic: list[tuple]) -> str:
+def get_statistic_text(statistic: tuple[db.OrderGroupRow]) -> str:
     text = ''
     total = 0
-    for row in statistic:
-        status = dt.order_status_data.get(row[0]) if row[0] != OrderStatus.NEW.value else 'Без курьера'
+    for order in statistic:
+        # status = dt.order_status_data.get(row[0]) if row[0] != OrderStatus.NEW.value else 'Без курьера'
+        status = dt.order_status_data.get(order.status) if order.status != OrderStatus.NEW.value else 'Без курьера'
         if status:
-            text += f'{status.capitalize()}: {row[1]}\n'
-            total += row[1]
+            text += f'{status.capitalize()}: {order.orders_count}\n'
+            total += order.orders_count
     return f'Всего заказов: {total}\n{text}'.strip()
 
 

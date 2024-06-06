@@ -1,5 +1,5 @@
 from datetime import datetime, date
-import typing as tp
+import typing as t
 
 import sqlalchemy as sa
 
@@ -9,7 +9,7 @@ from db.users import UserTable
 from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate, active_status_list
 
 
-class OrderRow(tp.Protocol):
+class OrderRow(t.Protocol):
     id: int
     b: str
     c: str
@@ -52,6 +52,12 @@ class OrderRow(tp.Protocol):
     user_id: int
     phone: str
     company: str
+
+
+class OrderGroupRow(t.Protocol):
+    status: str
+    name: str
+    orders_count: str
 
 
 OrderTable: sa.Table = sa.Table(
@@ -389,7 +395,7 @@ async def get_orders(
 
 
 # возвращает одну строку таблицы
-async def get_order(order_id: int = 0, for_update: bool = False) -> tp.Union[OrderRow, None]:
+async def get_order(order_id: int = 0, for_update: bool = False) -> t.Union[OrderRow, None]:
     query = sa.select (
         OrderTable.c.id,
         OrderTable.c.b,
@@ -462,35 +468,22 @@ async def delete_orders():
         await conn.execute(query)
 
 
-# поиск заказов
-# async def search_orders(search_query: str, search_on: str, comp: str = None) -> tuple[OrderRow]:
-#     query = OrderTable.select()
-#
-#     if search_on == SearchType.PHONE:
-#         query = query.where(sa.or_(OrderTable.c.n.like(f'%{search_query}%'), OrderTable.c.o.like(f'%{search_query}%')))
-#     elif search_on == SearchType.NAME:
-#         query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
-#     elif search_on == SearchType.METRO:
-#         query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
-#
-#     # if comp:
-#     #     query = query.where(OrderTable.c.ac == comp)
-#
-#     async with begin_connection() as conn:
-#         result = await conn.execute(query)
-#     return result.all()
-
-
 # статистика заказов
-async def get_orders_statistic(dlv_name: str = None, on_date: str = None):
+async def get_orders_statistic(dlv_name: str = None, on_date: str = None, active: bool = False) -> tuple[OrderGroupRow]:
     query = (OrderTable.select().
-             with_only_columns(OrderTable.c.g, sa.func.count().label('status_count')).
-             group_by(OrderTable.c.g))
+             with_only_columns(
+        OrderTable.c.g.label('order_status'),
+        OrderTable.c.f.label('name'),
+        sa.func.count().label('orders_count')
+    ).
+             group_by(OrderTable.c.g, OrderTable.c.f))
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
+    if active:
+        query = query.where(OrderTable.c.g.in_(active_status_list))
 
     async with begin_connection() as conn:
         result = await conn.execute(query)

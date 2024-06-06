@@ -82,8 +82,8 @@ def get_orders_users_own_kb(users: tuple[db.OrderGroupRow]) -> InlineKeyboardMar
     kb.button (text='🔙 Назад', callback_data=OwnerCB.BACK.value)
     for user in users:
         kb.button (
-            text=f'{user.name} ({user.count_orders})',
-            callback_data=f'{OwnerCB.VIEW_ORDERS_2.value}:{user.user_id}')
+            text=f'{user.name} ({user.orders_count})',
+            callback_data=f'{OwnerCB.VIEW_ORDERS_2.value}:{user.name}')
 
     return kb.adjust (1, 2).as_markup ()
 
