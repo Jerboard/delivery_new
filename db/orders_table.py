@@ -288,7 +288,7 @@ async def update_multi_orders(
 ) -> None:
     if type_update == TypeOrderUpdate.UP_DATE.value:
         query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list)).values(
-            updated=False,
+            updated=True,
             time_update=datetime.now(Config.tz),
             type_update=type_update,
             e=date_str,
@@ -469,20 +469,32 @@ async def delete_orders():
 
 
 # статистика заказов
-async def get_orders_statistic(dlv_name: str = None, on_date: str = None, active: bool = False) -> tuple[OrderGroupRow]:
-    query = (OrderTable.select().
-             with_only_columns(
-        OrderTable.c.g.label('status'),
-        OrderTable.c.f.label('name'),
-        sa.func.count().label('orders_count')
-    ).
-             group_by(OrderTable.c.g, OrderTable.c.f))
+async def get_orders_statistic(
+        dlv_name: str = None,
+        on_date: str = None,
+        only_active: bool = False,
+        own_text: bool = False
+) -> tuple[OrderGroupRow]:
+    if own_text:
+        query = (OrderTable.select ().
+                 with_only_columns (
+            OrderTable.c.g.label ('status'),
+            sa.func.count ().label ('orders_count')).group_by (OrderTable.c.g).order_by(
+            sa.desc(sa.func.count ())
+        ))
+    else:
+        query = (OrderTable.select().
+                 with_only_columns(
+            OrderTable.c.g.label('status'),
+            OrderTable.c.f.label('name'),
+            sa.func.count().label('orders_count')
+        ).group_by(OrderTable.c.g, OrderTable.c.f))
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
-    if active:
+    if only_active:
         query = query.where(OrderTable.c.g.in_(active_status_list))
 
     async with begin_connection() as conn:

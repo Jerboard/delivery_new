@@ -128,7 +128,7 @@ def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
         f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
         f'Доставка: {order.w}\n'
         f'Адрес: {order.x}\n'
-        f'Цена: {cost} + {order.clmn_t}\n '
+        f'Цена: {cost} + {order.clmn_t}\n'
         f'Курьеру к оплате: {cost + order.clmn_t}\n'
         f'Примечания: {note}\n'
-    )
+    ).replace('None', 'н/д')

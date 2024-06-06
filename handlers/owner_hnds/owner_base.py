@@ -9,7 +9,7 @@ from enums import OwnerCB
 
 
 async def owner_start(user_id: int, msg_id: int = None):
-    statistic = await db.get_orders_statistic ()
+    statistic = await db.get_orders_statistic (own_text=True)
     statistic_text = txt.get_statistic_text (statistic)
     text = f'Заказы\n\n{statistic_text}'
 

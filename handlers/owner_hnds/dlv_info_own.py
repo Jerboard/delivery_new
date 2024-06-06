@@ -17,7 +17,7 @@ from enums import OwnerCB, ShortText, OwnerStatus, UserActions, OrderAction, Typ
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.VIEW_ORDERS_1.value))
 async def view_orders_1(cb: CallbackQuery):
     # users = await db.get_users_group()
-    users = await db.get_orders_statistic (active=True)
+    users = await db.get_orders_statistic (only_active=True)
     await cb.message.edit_reply_markup (reply_markup=kb.get_orders_users_own_kb (users))
 
 
