@@ -472,7 +472,7 @@ async def delete_orders():
 async def get_orders_statistic(dlv_name: str = None, on_date: str = None, active: bool = False) -> tuple[OrderGroupRow]:
     query = (OrderTable.select().
              with_only_columns(
-        OrderTable.c.g.label('order_status'),
+        OrderTable.c.g.label('status'),
         OrderTable.c.f.label('name'),
         sa.func.count().label('orders_count')
     ).
