@@ -148,7 +148,7 @@ async def trans_order_2(cb: CallbackQuery):
     user_info = await db.get_user_info (user_id=user_id)
     take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
 
-    await db.add_work_order (user_id=user_info.user_id, order_id=order_id)
+    # await db.add_work_order (user_id=user_info.user_id, order_id=order_id)
     await db.update_row_google (
         order_id=order_id,
         dlv_name=user_info.name,
@@ -184,12 +184,13 @@ async def back_free(cb: CallbackQuery):
     _, order_id_str = cb.data.split(':')
     order_id = int(order_id_str)
 
-    await db.delete_work_order (order_id=order_id)
+    # await db.delete_work_order (order_id=order_id)
     await db.update_row_google (
         order_id=order_id,
         dlv_name='-',
         status=OrderStatus.NEW.value,
         take_date=' ',
+        letter='del',
         type_update=TypeOrderUpdate.STATE.value
     )
 

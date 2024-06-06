@@ -7,7 +7,7 @@ import db
 import google_api.utils_google as ug
 from config import Config
 from init import bot, log_error
-from utils.base_utils import get_dlv_name_dict, get_work_orders_list
+# from utils.base_utils import get_dlv_name_dict, get_work_orders_list
 from data.base_data import order_status_data, company
 from enums import TypeOrderUpdate, UserRole, OrderStatus
 
@@ -27,8 +27,8 @@ async def save_new_order_table(table_id: str) -> str:
     rewrite_list = []
     exc_list = []
 
-    dlv_name_dict = await get_dlv_name_dict()
-    work_orders = await get_work_orders_list ()
+    # dlv_name_dict = await get_dlv_name_dict()
+    # work_orders = await get_work_orders_list ()
 
     new_row_num = 4
     for row in new_orders [4:]:
@@ -78,13 +78,13 @@ async def save_new_order_table(table_id: str) -> str:
                     type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
-                await ug.check_work_order_on_update(
-                    dlv_name_dict=dlv_name_dict,
-                    work_orders=work_orders,
-                    order_id=entry_id,
-                    order_status=order_status,
-                    order_user_name=order_user_name
-                )
+                # await ug.check_work_order_on_update(
+                #     dlv_name_dict=dlv_name_dict,
+                #     work_orders=work_orders,
+                #     order_id=entry_id,
+                #     order_status=order_status,
+                #     order_user_name=order_user_name
+                # )
             except Exception as ex:
                 row[0] = new_row_num
                 rewrite_list.append(row)
@@ -134,13 +134,13 @@ async def save_new_order_table(table_id: str) -> str:
                 type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
-            await ug.check_work_order_on_update (
-                dlv_name_dict=dlv_name_dict,
-                work_orders=work_orders,
-                order_id=entry_id,
-                order_status=order_status,
-                order_user_name=order_user_name
-            )
+            # await ug.check_work_order_on_update (
+            #     dlv_name_dict=dlv_name_dict,
+            #     work_orders=work_orders,
+            #     order_id=entry_id,
+            #     order_status=order_status,
+            #     order_user_name=order_user_name
+            # )
         except Exception as ex:
             exc_list.append (row)
             log_error (ex)
@@ -202,8 +202,8 @@ async def update_google_table(user_id: int) -> None:
     ug.clear_new_order_table(sh, len(new_orders))
     exception_list = []
 
-    dlv_name_dict = await get_dlv_name_dict ()
-    work_orders = await get_work_orders_list()
+    # dlv_name_dict = await get_dlv_name_dict ()
+    # work_orders = await get_work_orders_list()
 
     # i = 0
     for row in new_orders[1:]:
@@ -251,13 +251,13 @@ async def update_google_table(user_id: int) -> None:
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
                     )
-                    await ug.check_work_order_on_update (
-                        dlv_name_dict=dlv_name_dict,
-                        work_orders=work_orders,
-                        order_id=order_id,
-                        order_status=order_status,
-                        order_user_name=order_user_name
-                    )
+                    # await ug.check_work_order_on_update (
+                    #     dlv_name_dict=dlv_name_dict,
+                    #     work_orders=work_orders,
+                    #     order_id=order_id,
+                    #     order_status=order_status,
+                    #     order_user_name=order_user_name
+                    # )
                 except Exception as ex:
                     exception_list.append(row[:24])
                     log_error (ex)
@@ -304,13 +304,13 @@ async def update_google_table(user_id: int) -> None:
                         type_update=TypeOrderUpdate.ADD.value,
                     )
                     new_row += 1
-                    await ug.check_work_order_on_update (
-                        dlv_name_dict=dlv_name_dict,
-                        work_orders=work_orders,
-                        order_id=order_id,
-                        order_status=order_status,
-                        order_user_name=order_user_name
-                    )
+                    # await ug.check_work_order_on_update (
+                    #     dlv_name_dict=dlv_name_dict,
+                    #     work_orders=work_orders,
+                    #     order_id=order_id,
+                    #     order_status=order_status,
+                    #     order_user_name=order_user_name
+                    # )
                 except Exception as ex:
                     exception_list.append (row)
                     log_error(ex)
@@ -330,13 +330,13 @@ async def update_google_table(user_id: int) -> None:
 # добавляет одно последнее изменение в таблицу
 async def update_google_row() -> None:
     order = await db.get_order(for_update=True)
-    print(order)
+    # print(order)
 
     if order:
         sh = ug.get_google_connect()
         # изменяет статус заказа
         try:
-            print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
+            # print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
             cell = f'A{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [
@@ -360,11 +360,12 @@ async def update_google_row() -> None:
                 color = ug.choice_color(order.g)
                 cell_form = f'E{order.row_num}:G{order.row_num}'
                 sh.sheet1.format(cell_form, {"backgroundColor": color})
+                if order.ab:
+                    sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
 
             # изменяет стоимость заказа
             elif order.type_update == TypeOrderUpdate.EDIT_COST.value:
                 color = {"red": 1.0, "green": 0.0, "blue": 0.0}
-                # sh.sheet1.update(f'Y{order.row_num}', [[order.y]])
                 sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
                 sh.sheet1.format(f'AB{order.row_num}', {"backgroundColor": color})
 

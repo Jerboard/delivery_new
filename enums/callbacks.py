@@ -36,6 +36,8 @@ class DeliveryCB(str, Enum):
     ORDER_5 = 'dlv_order_5'
     ORDER_6 = 'dlv_order_6'
     ORDER_7 = 'dlv_order_7'
+    REF_ORDER_1 = 'dlv_ref_order_1'
+    REF_ORDER_2 = 'dlv_ref_order_2'
     TAKE_ORDER_2 = 'dlv_take_order_2'
     EDIT_NAME = 'dlv_edit_name'
     REPORT_1 = 'dlv_report_1'
@@ -52,6 +54,8 @@ class DeliveryCB(str, Enum):
     BACK_MAIN_ORDER = 'dlv_back_main_order'
     BACK_CLOSE_ORDER = 'dlv_back_close_order'
     TRANS_ORDER = 'dlv_trans_order'
+    PICKUP_ORDER_1 = 'dlv_pickup_order_1'
+    PICKUP_ORDER_2 = 'dlv_pickup_order_2'
 
 
 class OperatorCB(str, Enum):

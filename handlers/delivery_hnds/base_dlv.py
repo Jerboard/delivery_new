@@ -8,7 +8,7 @@ from config import Config
 import keyboards as kb
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str as date_str
-from data.base_data import expensis_dlv
+from data.base_data import expensis_dlv, work_chats
 from enums import UserActions, UserRole
 
 
@@ -57,7 +57,7 @@ async def save_expenses(
         user_id: int,
         data: dict
 ):
-    log_error(f'Трата дата {user_id}\n{data}')
+    log_error(f'Трата дата {user_id}\n{data}', with_traceback=False)
 
     user_info = await db.get_user_info (user_id)
 
@@ -114,9 +114,9 @@ async def save_expenses(
             f'Комментарий: {comment}')
 
     if data.get('photo_id'):
-        await bot.send_photo (Config.work_chats['group_expenses'], photo=data['photo_id'], caption=text)
+        await bot.send_photo (work_chats[f'ex_{user_info.company}'], photo=data['photo_id'], caption=text)
     else:
-        await bot.send_message (Config.work_chats['group_expenses'], text)
+        await bot.send_message (work_chats[f'ex_{user_info.company}'], text)
 
     await bot.send_message (user_id, '✅Ваша трата учтена')
     await db.save_user_action(user_id, user_info.name, UserActions.ADD_EXPENSES.value, text)

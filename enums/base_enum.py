@@ -21,6 +21,10 @@ class OrderStatus(str, Enum):
     SEND = 'send'
 
 
+active_status_list = [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value, OrderStatus.NOT_COME.value]
+done_status_list = [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]
+
+
 class OrderAction(str, Enum):
     SUC = 'success'
     NOT_COME = 'not_come'
@@ -64,6 +68,7 @@ class TypeOrderUpdate(str, Enum):
     NOT_COME = 'not_come'
     UP_DATE = 'up_date'
     TRANS = 'trans'
+    PICKUP = 'pickup'
 
 
 class SearchType(str, Enum):
@@ -89,3 +94,13 @@ class Letter (str, Enum):
     D = 'Д'
     V = 'В'
     A = 'А'
+
+
+class TypeOrderButton (str, Enum):
+    BASE = 'base'
+    TAKE = 'take'
+    PICKUP = 'pickup'
+
+
+class KeyWords(str, Enum):
+    NOT_COME = 'не явился'

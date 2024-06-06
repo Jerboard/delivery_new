@@ -8,7 +8,7 @@ import db
 import keyboards as kb
 from init import dp, log_error
 from utils import text_utils as txt
-from enums import UserRole, SearchType, OrderStatus
+from enums import UserRole, SearchType, OrderStatus, TypeOrderButton, active_status_list
 
 
 # поиск заказов
@@ -44,20 +44,34 @@ async def search(msg: Message):
     if user_info.role == UserRole.DLV.value:
         counter = 0
         for order in orders:
-            # print(order)
+            print(order)
             try:
                 text = txt.get_order_text(order)
-                if order.user_id == user_info.user_id and order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
-                    counter += 1
-                    await msg.answer(text, reply_markup=kb.get_dlv_main_order_kb(
-                        order_id=order.id,
-                        order_status=order.g
-                    ))
+                # if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+                if order.g in active_status_list:
+                    # мой заказ на руказ
+                    if order.user_id == user_info.user_id:
+                        counter += 1
+                        await msg.answer(text, reply_markup=kb.get_dlv_main_order_kb(
+                            order_id=order.id,
+                            order_status=order.g
+                        ))
+                    # забрать заказ у курьера
+                    # elif order.company == user_info.company and order.f != user_info.name:
+                    elif order.f != user_info.name:
+                        counter += 1
+                        await msg.answer (text, reply_markup=kb.get_free_order_kb (
+                            order_id=order.id,
+                            type_order=TypeOrderButton.PICKUP.value,
+                            dlv_name=order.f
+                        ))
 
-                # elif order.g in [OrderStatus.NEW.value, OrderStatus.TAKE.value]:
                 elif order.g == OrderStatus.NEW.value:
                     counter += 1
-                    await msg.answer(text, reply_markup=kb.get_free_order_kb(order_id=order.id))
+                    await msg.answer(text, reply_markup=kb.get_free_order_kb(
+                        order_id=order.id,
+                        type_order=TypeOrderButton.BASE.value
+                    ))
             except Exception as ex:
                 log_error(ex)
 
@@ -71,7 +85,7 @@ async def search(msg: Message):
 
                 keyboard = None
                 if user_info.role == UserRole.OWN.value:
-                    if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:
+                    if order.g in active_status_list:
                         keyboard = kb.get_busy_order_own_kb (order_id=order.id)
 
                     elif order.g == OrderStatus.NEW.value:

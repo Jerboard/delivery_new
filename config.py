@@ -18,13 +18,6 @@ class Config:
         bot_name = 'MatrixDeliveryBot'
         host = getenv('HOST')
         report_sheet_num = 6
-        work_chats = {
-            CompanyDLV.MASTER.value: -1001669708234,
-            CompanyDLV.PUTILIN.value: -1001669708234,
-            CompanyDLV.MASTER_SPB.value: -1001669708234,
-            'group_expenses': -1001669708234,
-            'group_report': -1001669708234
-        }
 
     else:
         token = getenv ("TOKEN")
@@ -32,13 +25,6 @@ class Config:
         bot_name = 'MatrixDeliveryBot'
         host = getenv ('HOST')
         report_sheet_num = 8
-        work_chats = {
-            CompanyDLV.MASTER.value: -1001838764189,
-            CompanyDLV.PUTILIN.value: -1001864910335,
-            CompanyDLV.MASTER_SPB.value: -1001653186290,
-            'group_expenses': -1001903349475,
-            'group_report': -1001863016934
-        }
 
     tz = timezone('Europe/Moscow')
     day_form = '%d.%m'

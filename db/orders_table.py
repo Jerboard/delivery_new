@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from config import Config
 from .base import METADATA, begin_connection, ENGINE
 from db.users import UserTable
-from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate
+from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate, active_status_list
 
 
 class OrderRow(tp.Protocol):
@@ -51,6 +51,7 @@ class OrderRow(tp.Protocol):
     row_num: int
     user_id: int
     phone: str
+    company: str
 
 
 OrderTable: sa.Table = sa.Table(
@@ -243,7 +244,7 @@ async def update_row_google(
         type_update: str = None,
         discount: int = None,
         cost_delivery: int = None,
-        comment: str = None,
+        letter: str = None,
 ):
     query = (OrderTable.update().where(OrderTable.c.id == order_id).
              values(updated=update_row,
@@ -263,8 +264,8 @@ async def update_row_google(
         query = query.values(y=discount)
     if cost_delivery:
         query = query.values(clmn_t=cost_delivery)
-    if comment:
-        query = query.values(d=comment)
+    if letter:
+        query = query.values(d=letter) if letter != 'del' else query.values(d='')
     if all_row:
         query = query.values(b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
@@ -279,14 +280,22 @@ async def update_multi_orders(
         date_str: str = None,
         type_update: str = TypeOrderUpdate.EDIT.value
 ) -> None:
-    query = OrderTable.update().where(
-        sa.or_ (OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
-    ).values(
-        updated=False,
-        time_update=datetime.now(Config.tz),
-        type_update=type_update,
-        e=date_str
-    )
+    if type_update == TypeOrderUpdate.UP_DATE.value:
+        query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list)).values(
+            updated=False,
+            time_update=datetime.now(Config.tz),
+            type_update=type_update,
+            e=date_str,
+            d=None
+        )
+    elif type_update == TypeOrderUpdate.NOT_COME.value:
+        query = OrderTable.update ().where (OrderTable.c.g == OrderStatus.NOT_COME.value).values (
+            updated=False,
+            time_update=datetime.now (Config.tz),
+            type_update=type_update,
+            g=OrderStatus.ACTIVE.value,
+            letter=''
+        )
 
     async with begin_connection() as conn:
         await conn.execute(query)
@@ -346,12 +355,14 @@ async def get_orders(
         OrderTable.c.id,
         UserTable.c.user_id,
         UserTable.c.phone,
+        UserTable.c.company,
     ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if get_active:
-        query = query.where(
-            sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
-        )
+        # query = query.where(
+        #     sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
+        # )
+        query = query.where (OrderTable.c.g.in_ (active_status_list))
     elif get_new:
         query = query.where(sa.and_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.i.isnot(None)))
     elif get_wait_update:

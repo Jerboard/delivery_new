@@ -3,7 +3,7 @@ import re
 import db
 from utils.base_utils import get_order_cost
 from data import base_data as dt
-from enums import OrderStatus, UserRole, ShortText
+from enums import OrderStatus, UserRole, ShortText, KeyWords
 
 
 # убирает пустые строки
@@ -20,24 +20,20 @@ def clearing_text(text: str) -> str:
 
 # текст заказа по строке
 def get_order_text(order: db.OrderRow) -> str:
-    prepay = order.u + order.v
-
-    if order.q == 0:  # and prepay != 0:
-        cost = 0
-    else:
-        # (q + r + s - y) + t
-        cost = order.q + order.r + order.s - order.y
-
-    text = f'Заказ от: {order.j} \n' \
-           f'Оператор: {order.k}\n' \
-           f'Клиент: {order.m}\n' \
-           f'Номер: <code>{order.n}</code>    <code>{order.o}</code>      \n' \
-           f'Доставка: {order.w}\n' \
-           f'Адрес: {order.x}\n' \
-           f'Цена: {cost} + {order.clmn_t}\n' \
-           f'Курьеру к оплате: {cost + order.clmn_t}\n' \
-           f'Примечания: {order.ab} '
-
+    cost = get_order_cost(order)
+    bottom_text = '✖️ Клиент не явился' if order.d == KeyWords.NOT_COME.value else ''
+    text = (
+        f'Заказ от: {order.j} \n'
+        f'Оператор: {order.k}\n'
+        f'Клиент: {order.m}\n'
+        f'Номер: <code>{order.n}</code> <code>{order.o}</code>\n'
+        f'Доставка: {order.w}\n'
+        f'Адрес: {order.x}\n'
+        f'Цена: {cost} + {order.clmn_t}\n'
+        f'Курьеру к оплате: {cost + order.clmn_t}\n'
+        f'Примечания: {order.ab}\n\n'
+        f'{bottom_text}'
+    )
     return text.replace('None', '').strip()
 
 
@@ -67,7 +63,7 @@ def get_admin_order_text(order: db.OrderRow) -> str:
             f'Доставка: {order.clmn_t}\n'
             f'Биток: {order.b}\n'
             f'Предоплата: {prepay}\n\n'
-            f'Курьеру к оплате: ({cost}) + {order.clmn_t}\n'
+            f'Курьеру к оплате: {cost} + {order.clmn_t}\n'
             f'Итого: {cost + order.clmn_t}\n\n'
             f'Примечания: {order.ab}\n')
 
@@ -96,8 +92,8 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
                 f' {cost} + {order.clmn_t} | {order.w} | {order.x}')
 
     elif for_ == ShortText.REPORT.value:
-        comment = f'({order.ab})' if order.ab is not None else ''
-        comment_d = f'({order.d})' if order.d is not None else ''
+        comment = f'({order.ab})' if order.ab else ''
+        comment_d = f'({order.d})' if order.d else ''
         text = f'{comment_d} {dt.order_status_data.get (order.g)} {order.n} {cost} + {order.clmn_t} {order.w} {comment}\n'
 
     else:
@@ -116,3 +112,20 @@ def get_statistic_text(statistic: list[tuple]) -> str:
             text += f'{status.capitalize()}: {row[1]}\n'
             total += row[1]
     return f'Всего заказов: {total}\n{text}'.strip()
+
+
+# отчёт в группу при отказе от заказа
+def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
+    cost = get_order_cost(order)
+    return (
+        f'Курьер: {order.f}\n'
+        f'Номер курьера: {order.phone}\n\n'
+        f'Оператор: {order.k}\n'
+        f'Клиент: {order.m}\n'
+        f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
+        f'Доставка: {order.w}\n'
+        f'Адрес: {order.x}\n'
+        f'Цена: {cost} + {order.clmn_t}\n '
+        f'Курьеру к оплате: {cost + order.clmn_t}\n'
+        f'Примечания: {note}\n'
+    )

@@ -9,13 +9,15 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from utils import text_utils as txt
+from utils.base_utils import get_today_date_str
 from enums import OwnerCB, ShortText, OwnerStatus, UserActions, OrderAction, TypeOrderUpdate
 
 
 # показывает список курьеров и количество заказов на руках
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.VIEW_ORDERS_1.value))
 async def view_orders_1(cb: CallbackQuery):
-    users = await db.get_users_group()
+    # users = await db.get_users_group()
+    users = await db.get_orders_statistic (on_date=get_today_date_str ())
     await cb.message.edit_reply_markup (reply_markup=kb.get_orders_users_own_kb (users))
 
 
@@ -25,7 +27,8 @@ async def view_orders_2(cb: CallbackQuery):
     _, user_id_str = cb.data.split (':')
     user_id = int(user_id_str)
 
-    orders = await db.get_work_orders (user_id=user_id, only_active=True)
+    # orders = await db.get_work_orders (user_id=user_id, only_active=True)
+    orders = await db.get_orders (user_id=user_id, get_active=True)
 
     await cb.message.answer (f'{orders[0].f}:')
 

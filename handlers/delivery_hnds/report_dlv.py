@@ -9,7 +9,8 @@ from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
 from data import base_data as dt
-from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter
+from enums import (DeliveryCB, OrderStatus, UserActions, ShortText, Letter, active_status_list, done_status_list,
+                   KeyWords)
 
 
 # отчёт по дням
@@ -45,10 +46,10 @@ async def report_dvl_2(cb: CallbackQuery):
     salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0, }
 
     for order in dlv_orders:
-        print(order)
+        # print(order)
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
-        if order.g == OrderStatus.SUC.value:
+        if order.g in done_status_list:
             cost = get_order_cost(order, with_t=True)
             cost_prod += cost
             suc_text += row_text
@@ -60,12 +61,12 @@ async def report_dvl_2(cb: CallbackQuery):
         elif order.g == OrderStatus.REF.value:
             refuse_text += row_text
 
-        elif order.g == OrderStatus.ACTIVE.value:
+        elif order.d == KeyWords.NOT_COME.value:
+            not_come += row_text
+
+        elif order.g in active_status_list:
             active_text += row_text
 
-        elif order.g == OrderStatus.NOT_COME.value:
-            not_come = f'{not_come}{row_text}'
-            not_come += row_text
 
     # print(dlv_report)
     if dlv_report:
@@ -94,7 +95,7 @@ async def report_dvl_2(cb: CallbackQuery):
 
     await cb.message.answer(text, reply_markup=kb.get_send_day_report_kb())
 
-    await db.save_user_action(user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.VIEW_REPORT.value)
+    # await db.save_user_action(user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.VIEW_REPORT.value)
 
 
 # подтверждение отчёта
@@ -111,11 +112,11 @@ async def report_dvl_3(cb: CallbackQuery):
 async def report_dvl_4(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
 
-    await bot.send_message(Config.work_chats['group_report'], cb.message.text)
+    await bot.send_message(dt.work_chats[f'report_{user_info.company}'], cb.message.text)
     await cb.message.edit_text(f'{cb.message.text}\n\n✅ Отчёт отправлен')
-    active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
+    # active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
 
-    except_list = [row.id for row in active_orders]
-    await db.delete_work_order(user_id=cb.from_user.id, except_list=except_list)
+    # except_list = [row.id for row in active_orders]
+    # await db.delete_work_order(user_id=cb.from_user.id, except_list=except_list)
 
     await db.save_user_action (user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.SEND_REPORT.value)

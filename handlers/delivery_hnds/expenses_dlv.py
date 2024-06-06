@@ -3,7 +3,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 from aiogram.enums.content_type import ContentType
 
-from datetime import datetime
 from asyncio import sleep
 
 import db
@@ -12,6 +11,7 @@ from config import Config
 from init import dp, bot
 from .base_dlv import save_expenses
 from data.base_data import expensis_dlv, letters
+from utils.base_utils import get_today_date_str
 from enums import DeliveryCB, DeliveryStatus, UserActions
 
 
@@ -94,7 +94,7 @@ async def expenses_dvl_5(cb: CallbackQuery, state: FSMContext):
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.EXPENSES_VIEW.value))
 async def expenses_dvl_view(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
-    expenses = await db.get_report_dlv(dlv_name=user_info.name)
+    expenses = await db.get_report_dlv(dlv_name=user_info.name, exp_date=get_today_date_str())
     if not expenses:
         text = 'Нет трат'
     else:
