@@ -22,7 +22,7 @@ async def main() -> None:
     if not DEBUG:
         # await create_trigger()
         await start_scheduler()
-    await start_scheduler ()
+    # await start_scheduler ()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
 

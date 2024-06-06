@@ -17,18 +17,18 @@ from enums import OwnerCB, ShortText, OwnerStatus, UserActions, OrderAction, Typ
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.VIEW_ORDERS_1.value))
 async def view_orders_1(cb: CallbackQuery):
     # users = await db.get_users_group()
-    users = await db.get_orders_statistic (on_date=get_today_date_str ())
+    users = await db.get_orders_statistic (active=True)
     await cb.message.edit_reply_markup (reply_markup=kb.get_orders_users_own_kb (users))
 
 
 # показывает заказы курьера
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.VIEW_ORDERS_2.value))
 async def view_orders_2(cb: CallbackQuery):
-    _, user_id_str = cb.data.split (':')
-    user_id = int(user_id_str)
+    _, dlv_name = cb.data.split (':')
+    # user_id = int(user_id_str)
 
     # orders = await db.get_work_orders (user_id=user_id, only_active=True)
-    orders = await db.get_orders (user_id=user_id, get_active=True)
+    orders = await db.get_orders (dlv_name=dlv_name, get_active=True)
 
     await cb.message.answer (f'{orders[0].f}:')
 
