@@ -293,7 +293,8 @@ async def trans_order(cb: CallbackQuery, state: FSMContext):
     await db.update_row_google (
         order_id=order_id,
         dlv_name=recip.name,
-        type_update=TypeOrderUpdate.TRANS.value
+        type_update=TypeOrderUpdate.TRANS.value,
+        letter='del'
     )
     # await db.update_work_order(order_id=order_id, user_id=recip.user_id)
     order_info = await db.get_order(order_id=order_id)

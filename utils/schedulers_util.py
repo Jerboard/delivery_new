@@ -14,7 +14,7 @@ from enums import TypeOrderButton, TypeOrderUpdate
 async def start_scheduler():
     scheduler.add_job(update_google_row, 'interval', seconds=3)
     scheduler.add_job(check_take_orders, 'interval', minutes=5)
-    scheduler.add_job(check_take_orders, 'cron', hour=0)
+    # scheduler.add_job(check_take_orders, 'cron', hour=0)
     scheduler.start()
 
 
