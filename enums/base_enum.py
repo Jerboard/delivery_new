@@ -22,6 +22,7 @@ class OrderStatus(str, Enum):
 
 
 active_status_list = [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value, OrderStatus.NOT_COME.value]
+done_status_list = [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]
 
 
 class OrderAction(str, Enum):
@@ -99,3 +100,7 @@ class TypeOrderButton (str, Enum):
     BASE = 'base'
     TAKE = 'take'
     PICKUP = 'pickup'
+
+
+class KeyWords(str, Enum):
+    NOT_COME = 'не явился'

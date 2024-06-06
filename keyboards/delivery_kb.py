@@ -28,9 +28,9 @@ def main_dvl_kb() -> InlineKeyboardMarkup:
 def get_free_order_kb(order_id: int, type_order: str, dlv_name: str = None) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     if type_order == TypeOrderButton.BASE.value:
-        kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.TAKE_ORDER_2.value}:{order_id}')
+        kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.ORDER_1.value}:{order_id}')
     elif type_order == TypeOrderButton.TAKE.value:
-        kb.button (text='📦 Взять в работу', callback_data=f'{DeliveryCB.ORDER_1.value}:{order_id}')
+        kb.button (text='📦 Взять в работу', callback_data=f'{DeliveryCB.TAKE_ORDER_2.value}:{order_id}')
     else:
         kb.button (text=f'⭕️ Забрать у курьера {dlv_name} ⭕️',
                    callback_data=f'{DeliveryCB.PICKUP_ORDER_1.value}:{order_id}:conf')
@@ -50,7 +50,9 @@ def get_dlv_main_order_kb(order_id: int, order_status: str) -> InlineKeyboardMar
     # if order_status == OrderStatus.ACTIVE.value:
     kb.button(
         text='✖️ Клиент не явился',
-        callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}:{OrderAction.NOT_COME.value}')
+        callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:{OrderAction.NOT_COME.value}:d'
+        # callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}:{OrderAction.NOT_COME.value}'
+    )
     kb.button(text='↩️ Передать другому курьеру', callback_data=f'{DeliveryCB.ORDER_3.value}:{order_id}')
     return kb.adjust(1).as_markup()
 

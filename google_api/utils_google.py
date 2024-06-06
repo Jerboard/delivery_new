@@ -89,7 +89,6 @@ def clear_new_order_table(sh: Spreadsheet, last_row: int):
 
 #  подбирает цвет
 def choice_color(status: str):
-    # print(status)
     if status in [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]:
         color = {"red": 0.39, "green": 0.93, "blue": 0.54}
     elif status in active_status_list:

@@ -286,6 +286,7 @@ async def update_multi_orders(
             time_update=datetime.now(Config.tz),
             type_update=type_update,
             e=date_str,
+            d=None
         )
     elif type_update == TypeOrderUpdate.NOT_COME.value:
         query = OrderTable.update ().where (OrderTable.c.g == OrderStatus.NOT_COME.value).values (

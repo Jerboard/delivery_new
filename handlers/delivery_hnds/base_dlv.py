@@ -57,7 +57,7 @@ async def save_expenses(
         user_id: int,
         data: dict
 ):
-    log_error(f'Трата дата {user_id}\n{data}')
+    log_error(f'Трата дата {user_id}\n{data}', with_traceback=False)
 
     user_info = await db.get_user_info (user_id)
 

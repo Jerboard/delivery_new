@@ -330,13 +330,13 @@ async def update_google_table(user_id: int) -> None:
 # добавляет одно последнее изменение в таблицу
 async def update_google_row() -> None:
     order = await db.get_order(for_update=True)
-    print(order)
+    # print(order)
 
     if order:
         sh = ug.get_google_connect()
         # изменяет статус заказа
         try:
-            print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
+            # print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
             cell = f'A{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [

@@ -9,7 +9,8 @@ from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
 from data import base_data as dt
-from enums import DeliveryCB, OrderStatus, UserActions, ShortText, Letter, active_status_list
+from enums import (DeliveryCB, OrderStatus, UserActions, ShortText, Letter, active_status_list, done_status_list,
+                   KeyWords)
 
 
 # отчёт по дням
@@ -45,10 +46,10 @@ async def report_dvl_2(cb: CallbackQuery):
     salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0, }
 
     for order in dlv_orders:
-        print(order)
+        # print(order)
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
-        if order.g == OrderStatus.SUC.value:
+        if order.g in done_status_list:
             cost = get_order_cost(order, with_t=True)
             cost_prod += cost
             suc_text += row_text
@@ -60,7 +61,7 @@ async def report_dvl_2(cb: CallbackQuery):
         elif order.g == OrderStatus.REF.value:
             refuse_text += row_text
 
-        elif order.g == OrderStatus.NOT_COME.value:
+        elif order.d == KeyWords.NOT_COME.value:
             not_come += row_text
 
         elif order.g in active_status_list:

@@ -3,7 +3,7 @@ import re
 import db
 from utils.base_utils import get_order_cost
 from data import base_data as dt
-from enums import OrderStatus, UserRole, ShortText
+from enums import OrderStatus, UserRole, ShortText, KeyWords
 
 
 # убирает пустые строки
@@ -21,7 +21,7 @@ def clearing_text(text: str) -> str:
 # текст заказа по строке
 def get_order_text(order: db.OrderRow) -> str:
     cost = get_order_cost(order)
-    bottom_text = '✖️ Клиент не явился' if order.g == OrderStatus.NOT_COME.value else ''
+    bottom_text = '✖️ Клиент не явился' if order.d == KeyWords.NOT_COME.value else ''
     text = (
         f'Заказ от: {order.j} \n'
         f'Оператор: {order.k}\n'
@@ -92,8 +92,8 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
                 f' {cost} + {order.clmn_t} | {order.w} | {order.x}')
 
     elif for_ == ShortText.REPORT.value:
-        comment = f'({order.ab})' if order.ab is not None else ''
-        comment_d = f'({order.d})' if order.d is not None else ''
+        comment = f'({order.ab})' if order.ab else ''
+        comment_d = f'({order.d})' if order.d else ''
         text = f'{comment_d} {dt.order_status_data.get (order.g)} {order.n} {cost} + {order.clmn_t} {order.w} {comment}\n'
 
     else:

@@ -51,4 +51,4 @@ async def check_take_orders():
 # обновляет дату у заказов на руках
 async def update_order_date():
     await db.update_multi_orders(date_str=get_today_date_str(), type_update=TypeOrderUpdate.UP_DATE.value)
-    await db.update_multi_orders(type_update=TypeOrderUpdate.NOT_COME.value)
+    # await db.update_multi_orders(type_update=TypeOrderUpdate.NOT_COME.value)

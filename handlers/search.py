@@ -44,7 +44,7 @@ async def search(msg: Message):
     if user_info.role == UserRole.DLV.value:
         counter = 0
         for order in orders:
-            # print(order)
+            print(order)
             try:
                 text = txt.get_order_text(order)
                 # if order.g in [OrderStatus.ACTIVE.value, OrderStatus.ACTIVE_TAKE.value]:

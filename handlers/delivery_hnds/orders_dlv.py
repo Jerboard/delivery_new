@@ -13,7 +13,7 @@ from utils import local_data_utils as dt
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data, order_actions
 from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
-                   TypeOrderButton)
+                   TypeOrderButton, KeyWords)
 
 
 # кнопка взять заказ
@@ -147,8 +147,7 @@ async def dlv_order_4(cb: CallbackQuery):
     if order_action == OrderAction.NOT_COME.value:
         await db.update_row_google (
             order_id=order_id,
-            letter=lit,
-            status=OrderStatus.NOT_COME.value,
+            letter=KeyWords.NOT_COME.value,
             type_update=TypeOrderUpdate.STATE.value
         )
         order_info = await db.get_order (order_id)
