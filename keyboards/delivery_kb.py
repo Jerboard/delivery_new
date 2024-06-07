@@ -31,8 +31,6 @@ def get_free_order_kb(order_id: int, type_order: str, dlv_name: str = None) -> I
         kb.button(text='📦 Взять в работу', callback_data=f'{DeliveryCB.ORDER_1.value}:{order_id}')
     elif type_order == TypeOrderButton.TAKE.value:
         kb.button (text='📦 Взять в работу', callback_data=f'{DeliveryCB.TAKE_ORDER_2.value}:{order_id}')
-    elif type_order == TypeOrderButton.POST.value:
-        kb.button (text='📦 Взять в работу', callback_data=f'{DeliveryCB.POST_1.value}:{order_id}')
     else:
         kb.button (text=f'⭕️ Забрать у курьера {dlv_name} ⭕️',
                    callback_data=f'{DeliveryCB.PICKUP_ORDER_1.value}:{order_id}:conf')
