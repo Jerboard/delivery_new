@@ -31,7 +31,8 @@ async def dlv_order_1(cb: CallbackQuery):
         dlv_name=user_info.name,
         status=OrderStatus.ACTIVE.value,
         take_date=get_today_date_str(),
-        type_update=TypeOrderUpdate.STATE.value
+        type_update=TypeOrderUpdate.STATE.value,
+        company=user_info.company
     )
     await cb.message.edit_text(
         text=f'{cb.message.text}\n\n✅ Принят',
@@ -70,7 +71,8 @@ async def dlv_order_2(cb: CallbackQuery):
             order_id=order_id,
             dlv_name=user_info.name,
             status=OrderStatus.ACTIVE_TAKE.value,
-            take_date=take_date
+            take_date=take_date,
+            company=user_info.company
         )
 
         key = f'{DataKey.ADD_OPR_ORDER.value}-{order_id}'

@@ -28,7 +28,7 @@ async def processing_glv(order: db.OrderRow, user_info: db.UserRow):
 
                 await bot.send_message(chat_id=user_info.user_id, text=text, reply_markup=keyboard)
             # забрать заказ у курьера
-            elif order.f != user_info.name:
+            elif order.f != user_info.name and order.ac == user_info.company:
                 counter += 1
                 await bot.send_message (
                     chat_id=user_info.user_id,
