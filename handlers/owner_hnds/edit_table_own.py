@@ -11,7 +11,7 @@ from init import dp
 from config import Config
 from google_api.utils_google import is_table_exist
 import google_api as ggl
-# from utils.json_utils import save_json_data
+from utils.base_utils import get_today_date_str
 from handlers.owner_hnds.owner_base import owner_start
 from utils.local_data_utils import save_table_id
 from enums import OwnerCB, OwnerStatus
@@ -62,6 +62,9 @@ async def change_tab_2(msg: Message, state: FSMContext):
         await ggl.save_new_report_table(msg.text)
         # сохраняет новую таблицу
         save_table_id(msg.text)
+        # по релизу удалить. обновляет даты
+        await db.update_multi_orders (date_str=get_today_date_str (), test=True)
+
         time_finish = datetime.now() - time_start
         await sent.edit_text(f'✅ Таблица обновлена\nВремя обновления: {time_finish}')
         if error_text:

@@ -15,7 +15,7 @@ class Config:
         token = getenv ("TOKEN_TEST")
         db_url = getenv ('DB_URL')
         # db_url = getenv ('DB_URL_WORK')
-        bot_name = 'MatrixDeliveryBot'
+        bot_name = 'tushchkan_test_3_bot'
         host = getenv('HOST')
         report_sheet_num = 6
 

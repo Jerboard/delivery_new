@@ -287,23 +287,19 @@ async def update_row_google(
 # обновляет несколько заказов
 async def update_multi_orders(
         date_str: str = None,
-        type_update: str = TypeOrderUpdate.EDIT.value
+        type_update: str = TypeOrderUpdate.EDIT.value,
+        test: bool = False
 ) -> None:
-    if type_update == TypeOrderUpdate.UP_DATE.value:
+    # if type_update == TypeOrderUpdate.UP_DATE.value:
+    if test:
+        query = OrderTable.update ().where (OrderTable.c.g.in_ (active_status_list [:-1])).values (e=date_str)
+    else:
         query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list[:-1])).values(
             updated=True,
             time_update=datetime.now(Config.tz),
             type_update=type_update,
             e=date_str,
             d=None
-        )
-    elif type_update == TypeOrderUpdate.NOT_COME.value:
-        query = OrderTable.update ().where (OrderTable.c.g == OrderStatus.NOT_COME.value).values (
-            updated=False,
-            time_update=datetime.now (Config.tz),
-            type_update=type_update,
-            g=OrderStatus.ACTIVE.value,
-            letter=''
         )
 
     async with begin_connection() as conn:
