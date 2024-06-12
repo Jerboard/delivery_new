@@ -8,7 +8,7 @@ import google_api.utils_google as ug
 from config import Config
 from init import bot, log_error
 # from utils.base_utils import get_dlv_name_dict, get_work_orders_list
-from data.base_data import order_status_data, company
+from data.base_data import order_status_data, company, company_revers
 from enums import TypeOrderUpdate, UserRole, OrderStatus
 
 
@@ -66,7 +66,7 @@ async def save_new_order_table(table_id: str) -> str:
                     z=row [25].strip () if row [25] else None,
                     aa=row [26].strip () if row [26] else None,
                     ab=row [27].strip () if row [27] else None,
-                    ac=company.get(row [28]),
+                    ac=company_revers.get(row [28]),
                     ad=row [29].strip () if row [29] else None,
                     ae=row [30].strip () if row [30] else None,
                     af=row [31].strip () if row [31] else None,

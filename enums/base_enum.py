@@ -96,6 +96,21 @@ class CompanyDLV (str, Enum):
     MASTER_SPB = 'master_spb'
 
 
+class CompanyOPR (str, Enum):
+    POST = 'vlada'
+    MASTER = 'vera'
+    PUTILIN = 'nadia'
+    MASTER_SPB = 'boss'
+
+'''
+
+Влада - Цифры (1. 2. 3. 4. 5. и так далее)
+Вера - Буквы Русские (А Б В Г Д …)
+Надежда - Буквы Латинские (F V W Z …)
+Руковолители - остальные ребята, которые из руководящих
+
+'''
+
 class Letter (str, Enum):
     D = 'Д'
     V = 'В'

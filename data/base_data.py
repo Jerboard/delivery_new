@@ -6,7 +6,10 @@ company = {
     CompanyDLV.POST.value: 'Почта / СДЭК',
     CompanyDLV.MASTER.value: 'Мастер',
     CompanyDLV.PUTILIN.value: 'Путилин',
-    CompanyDLV.MASTER_SPB.value: 'Мастер СПБ',
+    CompanyDLV.MASTER_SPB.value: 'Мастер СПБ'
+}
+
+company_revers = {
     'Почта / СДЭК': CompanyDLV.POST.value,
     'Мастер': CompanyDLV.MASTER.value,
     'Путилин': CompanyDLV.PUTILIN.value,
@@ -71,9 +74,9 @@ order_actions = {
 
 if DEBUG:
     work_chats = {
-        f'ex_{CompanyDLV.MASTER.value}': -1001669708234,
-        f'ex_{CompanyDLV.PUTILIN.value}': -1001669708234,
-        f'ex_{CompanyDLV.MASTER_SPB.value}': -1001669708234,
+        f'take_{CompanyDLV.MASTER.value}': -1001669708234,
+        f'take_{CompanyDLV.PUTILIN.value}': -1001669708234,
+        f'take_{CompanyDLV.MASTER_SPB.value}': -1001669708234,
         'group_expenses': -1001669708234,
         'group_report': -1001669708234,
         f'refuse_{CompanyDLV.MASTER.value}': -1001669708234,
@@ -87,12 +90,9 @@ if DEBUG:
     }
 else:
     work_chats = {
-        # f'ex_{CompanyDLV.MASTER.value}': -1001838764189,
-        # f'ex_{CompanyDLV.PUTILIN.value}': -1001864910335,
-        # f'ex_{CompanyDLV.MASTER_SPB.value}': -1001653186290,
-        CompanyDLV.MASTER.value: -1001838764189,
-        CompanyDLV.PUTILIN.value: -1001864910335,
-        CompanyDLV.MASTER_SPB.value: -1001653186290,
+        f'take_{CompanyDLV.MASTER.value}': -1001838764189,
+        f'take_{CompanyDLV.PUTILIN.value}': -1001864910335,
+        f'take_{CompanyDLV.MASTER_SPB.value}': -1001653186290,
         'group_expenses': -1001903349475,
         'group_report': -1001863016934,
         f'refuse_{CompanyDLV.MASTER.value}': -1001997852647,

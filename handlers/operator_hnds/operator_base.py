@@ -5,14 +5,13 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 
-from datetime import datetime
-
 import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
-from data.base_data import company, order_status_data
+from utils.base_utils import get_today_date_str
+from data.base_data import company, order_status_data, work_chats
 from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions, UserRole, TypeOrderButton
 
 
@@ -26,7 +25,7 @@ async def take_order_1(cb: CallbackQuery, state: FSMContext):
            f'Партнер:\n' \
            f'ФИО:\n' \
            f'Номер:\n' \
-           f'Доп.номер::\n' \
+           f'Доп.номер:\n' \
            f'Забрать:\n' \
            f'Цена:\n' \
            f'Доставка:\n' \
@@ -58,24 +57,32 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
     data = await state.get_data ()
     await state.clear ()
 
+    data_dict = {}
+    for row in cb.message.text.split ('\n'):
+        row_split = row.split(':')
+        if len(row_split) == 2:
+            v = row_split[1].strip() or None
+            if v.isdigit():
+                v = int(v)
+            data_dict[row_split[0]] = v
+
     last_row = await db.get_max_row_num ()
-    data_text = cb.message.text.split ('\n')
     order_id = await db.add_row(
         row_num=last_row + 1,
         g=OrderStatus.NEW.value,
         h=order_status_data.get(OrderStatus.TAKE.value),
-        k=data_text[0].replace('Оператор:', '').strip(),
-        l=data_text[1].replace('Партнер:', '').strip(),
-        m=data_text[2].replace('ФИО:', '').strip(),
-        n=re.sub (r'\D+', '', data_text[3]),
-        o=re.sub (r'\D+', '', data_text[4]),
-        p=data_text[5].replace('Забрать:', '').strip(),
-        q=int(re.sub (r'\D+', '0', data_text[6])),
-        t=int(re.sub (r'\D+', '0', data_text[7])),
-        w=data_text[8].replace('Метро:', '').strip(),
-        x=data_text[9].replace('Адрес:', '').strip(),
-        ab=data_text[10].replace('Примечание:', '').strip(),
-        ac=company.get(data ['comp_id'], 'н/д'),
+        k=data_dict.get('Оператор'),
+        l=data_dict.get('Партнер'),
+        m=data_dict.get('ФИО'),
+        n=str (data_dict.get ('Номер', '')),
+        o=str (data_dict.get ('Доп.номер', '')),
+        p=data_dict.get ('Забрать'),
+        q=data_dict.get ('Цена', 0),
+        t=data_dict.get ('Доставка', 0),
+        w=data_dict.get ('Метро'),
+        x=data_dict.get ('Адрес'),
+        ab=data_dict.get ('Примечание'),
+        ac=data ['comp_id'],
         type_update=TypeOrderUpdate.ADD_OPR.value
     )
 
@@ -90,19 +97,17 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
                 reply_markup=kb.get_free_order_kb(order_id=order_id, type_order=TypeOrderButton.TAKE.value)
             )
             sent_list.append ({'user_id': sent.chat.id, 'message_id': sent.message_id})
-            await asyncio.sleep (0.05)
         except Exception as ex:
             log_error(f'Заказ не отправлен курьеру {dlv.name}', with_traceback=False)
             log_error(ex)
 
-    now_str = datetime.now(Config.tz).replace(microsecond=0).strftime(Config.datetime_form)
+    now_str = get_today_date_str()
     key = f'{DataKey.ADD_OPR_ORDER.value}-{order_id}'
     order_data = {
         'opr': cb.from_user.id,
         'order_id': order_id,
         'created_at': now_str,
         'updated_at': now_str,
-        # 'company_id': data ['comp_id'],
         'sent_list': sent_list,
         'text': cb.message.text
     }
@@ -110,7 +115,8 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
     text = f'✅Заявка добавлена.\n\n{cb.message.text}'
     await sent_wait.edit_text(text)
 
-    await bot.send_message (Config.work_chats[data['comp_id']], cb.message.text)
+    # await bot.send_message (f'take_{work_chats [data ["comp_id"]]}', cb.message.text)
+    await bot.send_message (work_chats[f'take_{data ["comp_id"]}'], cb.message.text)
 
     user_info = await db.get_user_info(user_id=cb.from_user.id)
     await db.save_user_action(

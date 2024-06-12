@@ -61,7 +61,6 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
     await state.clear ()
 
     last_row = await db.get_max_row_num ()
-    data_text = cb.message.text.split ('\n')
     data_dict = {}
     for row in cb.message.text.split ('\n'):
         row_split = row.split(':')
@@ -96,32 +95,6 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         ab=data_dict.get('Примечание'),
         type_update=TypeOrderUpdate.ADD.value
     )
-
-    # await db.add_row(
-    #     row_num=last_row + 1,
-    #     g=OrderStatus.NEW.value,
-    #     h=data_text[0].replace('Исполнитель:', '').strip(),
-    #     i=data_text[1].replace('Выдан:', '').strip(),
-    #     j=data_text[2].replace('Принят:', '').strip(),
-    #     k=data_text[3].replace('Оператор:', '').strip(),
-    #     l=data_text[4].replace('Партнер:', '').strip(),
-    #     m=data_text[5].replace('ФИО:', '').strip(),
-    #     n=re.sub (r'\D+', '', data_text[6]),
-    #     o=re.sub (r'\D+', '', data_text[7]),
-    #     p=data_text[8].replace('Бланк:', '').strip(),
-    #     q=int(re.sub (r'\D+', '', data_text[9])),
-    #     r=int(re.sub (r'\D+', '', data_text[10])),
-    #     s=int(re.sub (r'\D+', '', data_text[11])),
-    #     b=data_text[12].replace('Биток:', '').strip(),
-    #     t=int(re.sub (r'\D+', '', data_text[13])),
-    #     u=int(re.sub (r'\D+', '', data_text[14])),
-    #     v=int(re.sub (r'\D+', '', data_text[15])),
-    #     w=data_text[16].replace('Метро:', '').strip(),
-    #     x=data_text[17].replace('Адрес:', '').strip(),
-    #     z=data_text[18].replace('Цена бланка:', '').strip(),
-    #     ab=data_text[19].replace('Примечание:', '').strip(),
-    #     type_update=TypeOrderUpdate.ADD.value
-    # )
 
     text = f'✅Заявка добавлена.\n\n{cb.message.text}'
     await sent_wait.edit_text(text)
