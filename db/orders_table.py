@@ -315,7 +315,8 @@ async def get_orders(
         get_wait_update: bool = False,
         on_date: str = None,
         search_query: str = None,
-        search_on: str = None
+        search_on: str = None,
+        company: str = None,
 ) -> tuple[OrderRow]:
     query = sa.select(
         OrderTable.c.id,
@@ -364,14 +365,14 @@ async def get_orders(
     ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if get_active:
-        # query = query.where(
-        #     sa.or_(OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value, OrderTable.c.g == OrderStatus.ACTIVE.value)
-        # )
         query = query.where (OrderTable.c.g.in_ (active_status_list))
     elif get_new:
         query = query.where(sa.and_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.i.isnot(None)))
     elif get_wait_update:
         query = query.where (OrderTable.c.updated.is_(False))
+
+    if company:
+        query = query.where (OrderTable.c.ac == company)
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
@@ -386,6 +387,8 @@ async def get_orders(
         query = query.where(OrderTable.c.m.like(f'%{search_query}%'))
     elif search_on == SearchType.METRO:
         query = query.where(OrderTable.c.w.like(f'%{search_query}%'))
+    elif search_on == SearchType.POST:
+        query = query.where(OrderTable.c.ab.like(f'%{search_query}%'))
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
@@ -472,7 +475,8 @@ async def get_orders_statistic(
         dlv_name: str = None,
         on_date: str = None,
         only_active: bool = False,
-        own_text: bool = False
+        own_text: bool = False,
+        list_id: list[int] = None
 ) -> tuple[OrderGroupRow]:
     if own_text:
         query = (OrderTable.select ().
@@ -495,6 +499,8 @@ async def get_orders_statistic(
         query = query.where(OrderTable.c.e == on_date)
     if only_active:
         query = query.where(OrderTable.c.g.in_(active_status_list))
+    if list_id:
+        query = query.where(OrderTable.c.id.in_(list_id))
 
     async with begin_connection() as conn:
         result = await conn.execute(query)

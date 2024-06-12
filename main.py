@@ -20,7 +20,6 @@ async def main() -> None:
     await init_models()
     await set_main_menu()
     if not DEBUG:
-        # await create_trigger()
         await start_scheduler()
     # await start_scheduler ()
     await bot.delete_webhook (drop_pending_updates=True)
@@ -29,8 +28,8 @@ async def main() -> None:
 
 if __name__ == "__main__":
     if DEBUG:
-        # logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-        logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
+        logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+        # logging.basicConfig(level=logging.WARNING, stream=sys.stdout)
     else:
         log_error('start_bot', with_traceback=False)
     asyncio.run(main())

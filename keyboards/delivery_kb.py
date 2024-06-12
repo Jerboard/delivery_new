@@ -80,6 +80,13 @@ def get_back_close_order_kb(order_id: int) -> InlineKeyboardMarkup:
     return kb.adjust(1).as_markup()
 
 
+# вернуться в главное меню
+def get_main_dlv_menu_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='🔙 Назад', callback_data=f'{DeliveryCB.BACK_MAIN.value}')
+    return kb.adjust(1).as_markup()
+
+
 # выбрать букву при закрытии заказа
 def get_done_order_letters_kb(order_id: int, order_action: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()

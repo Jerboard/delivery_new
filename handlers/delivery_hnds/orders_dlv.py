@@ -14,7 +14,7 @@ from utils.base_utils import get_today_date_str
 from utils.text_utils import get_order_text
 from data.base_data import order_status_data, order_actions
 from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
-                   TypeOrderButton, KeyWords, CompanyDLV)
+                   TypeOrderButton, KeyWords, CompanyDLV, Action)
 
 
 # кнопка взять заказ
@@ -34,6 +34,9 @@ async def dlv_order_1(cb: CallbackQuery):
         type_update=TypeOrderUpdate.STATE.value,
         company=user_info.company
     )
+    if user_info.company == CompanyDLV.POST:
+        await db.add_post_order(user_id=cb.from_user.id, order_id=order_id)
+
     await cb.message.edit_text(
         text=f'{cb.message.text}\n\n✅ Принят',
         entities=cb.message.entities,

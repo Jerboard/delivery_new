@@ -34,5 +34,6 @@ class Config:
     file_google_path = os.path.join ('data', 'cred.json')
     data_path = 'data'
     # table_file = 'google_table.json'
-    table_file = 'google_table.txt'
+    table_file_filename = 'google_table.txt'
     opr_send_users_filename = 'opr_send_users_msg.json'
+    active_post_orders_filename = 'active_post_orders.json'

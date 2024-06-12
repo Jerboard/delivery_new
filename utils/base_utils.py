@@ -3,7 +3,7 @@ from datetime import datetime
 
 import db
 from config import Config as conf
-from enums import UserRole
+from enums import OrderStatus, CompanyDLV, active_status_list
 
 
 # обрабатывает строку с числом, возвращает число, если строка содержит число, иначе возвращает 0
@@ -29,15 +29,29 @@ def get_today_date_str() -> str:
 
 
 # выдаёт словарь для курьеров имя: id
-async def get_dlv_name_dict() -> dict[str: int]:
-    users = await db.get_users(role=UserRole.DLV.value)
+async def get_post_dlv_name_dict() -> dict[str: int]:
+    users = await db.get_users(company=CompanyDLV.POST.value)
     return {user.name: user.user_id for user in users}
 
 
 # выдаёт словарь для курьеров имя: id
-# async def get_work_orders_list() -> list[int]:
-#     orders = await db.get_work_orders()
-#     return [order.id for order in orders]
+async def get_post_orders_list() -> list[int]:
+    orders = await db.get_post_orders()
+    return [order.id for order in orders]
+
+
+# добавляет активные заказы почтовикам
+async def check_active_post_orders() -> None:
+    orders = await db.get_orders()
+    post_orders: list = await get_post_orders_list ()
+    dlv_dict: dict = await get_post_dlv_name_dict()
+    for order in orders:
+        if order.g == OrderStatus.NEW and order.id in post_orders:
+            await db.delete_post_order(order_id=order.id)
+        elif order.g in active_status_list and order.ac == CompanyDLV.POST:
+            user_id = dlv_dict.get(order.f)
+            if user_id:
+                await db.add_post_order(user_id=user_id, order_id=order.id)
 
 
 # считает стоимость

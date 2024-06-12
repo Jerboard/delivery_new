@@ -11,7 +11,7 @@ from init import dp
 from config import Config
 from google_api.utils_google import is_table_exist
 import google_api as ggl
-from utils.base_utils import get_today_date_str
+from utils.base_utils import get_today_date_str, check_active_post_orders
 from handlers.owner_hnds.owner_base import owner_start
 from utils.local_data_utils import save_table_id
 from enums import OwnerCB, OwnerStatus
@@ -56,6 +56,8 @@ async def change_tab_2(msg: Message, state: FSMContext):
         await db.delete_orders ()
         # обновляет таблицу
         error_text = await ggl.save_new_order_table(msg.text)
+        # обновляет почтовые заказы
+        await check_active_post_orders()
         # очистить таблицу отчётов
         await db.clear_report_table ()
         # обновляет отчёт и траты

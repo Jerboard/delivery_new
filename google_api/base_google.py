@@ -27,9 +27,6 @@ async def save_new_order_table(table_id: str) -> str:
     rewrite_list = []
     exc_list = []
 
-    # dlv_name_dict = await get_dlv_name_dict()
-    # work_orders = await get_work_orders_list ()
-
     new_row_num = 4
     for row in new_orders [4:]:
     # for row in new_orders[5223:5244]:
@@ -69,7 +66,7 @@ async def save_new_order_table(table_id: str) -> str:
                     z=row [25].strip () if row [25] else None,
                     aa=row [26].strip () if row [26] else None,
                     ab=row [27].strip () if row [27] else None,
-                    ac=row [28].strip () if row [28] else None,
+                    ac=company.get(row [28]),
                     ad=row [29].strip () if row [29] else None,
                     ae=row [30].strip () if row [30] else None,
                     af=row [31].strip () if row [31] else None,
@@ -78,13 +75,6 @@ async def save_new_order_table(table_id: str) -> str:
                     type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
-                # await ug.check_work_order_on_update(
-                #     dlv_name_dict=dlv_name_dict,
-                #     work_orders=work_orders,
-                #     order_id=entry_id,
-                #     order_status=order_status,
-                #     order_user_name=order_user_name
-                # )
             except Exception as ex:
                 row[0] = new_row_num
                 rewrite_list.append(row)
@@ -94,7 +84,6 @@ async def save_new_order_table(table_id: str) -> str:
 
     for row in rewrite_list:
         try:
-            order_user_name = row [5].strip () if row [5] else None
             order_status = order_status_data.get (row [6].strip ())
             entry_id = await db.add_row (
                 row_num=row [0],
@@ -134,13 +123,6 @@ async def save_new_order_table(table_id: str) -> str:
                 type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
-            # await ug.check_work_order_on_update (
-            #     dlv_name_dict=dlv_name_dict,
-            #     work_orders=work_orders,
-            #     order_id=entry_id,
-            #     order_status=order_status,
-            #     order_user_name=order_user_name
-            # )
         except Exception as ex:
             exc_list.append (row)
             log_error (ex)
@@ -330,9 +312,9 @@ async def update_google_table(user_id: int) -> None:
 # добавляет одно последнее изменение в таблицу
 async def update_google_row() -> None:
     order = await db.get_order(for_update=True)
-    # print(order)
 
     if order:
+        print (order)
         sh = ug.get_google_connect()
         # изменяет статус заказа
         try:
@@ -358,6 +340,7 @@ async def update_google_row() -> None:
             sh.sheet1.update (cell, new_row_str)
             if order.type_update == TypeOrderUpdate.STATE.value:
                 color = ug.choice_color(order.g)
+                print(f'color: {color}')
                 cell_form = f'E{order.row_num}:G{order.row_num}'
                 sh.sheet1.format(cell_form, {"backgroundColor": color})
                 if order.ab:

@@ -80,6 +80,7 @@ class SearchType(str, Enum):
     PHONE = 'phone'
     NAME = 'name'
     METRO = 'metro'
+    POST = 'post'
 
 
 class ShortText (str, Enum):
@@ -109,3 +110,10 @@ class TypeOrderButton (str, Enum):
 
 class KeyWords(str, Enum):
     NOT_COME = 'не явился'
+    ID = 'ids'
+    REPORT = 'report_date'
+
+
+class Action(str, Enum):
+    ADD = 'add'
+    DEL = 'del'

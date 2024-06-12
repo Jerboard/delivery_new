@@ -18,7 +18,7 @@ async def processing_glv(order: db.OrderRow, user_info: db.UserRow):
     try:
         text = txt.get_order_text (order)
         if order.g in active_status_list:
-            # мой заказ на руказ
+            # мой заказ на руках
             if order.user_id == user_info.user_id:
                 counter += 1
 
@@ -93,6 +93,9 @@ async def search(msg: Message):
     orders = await db.get_orders (search_query=query, search_on=search_on)
     if not orders:
         orders = await db.get_orders (search_query=query, search_on=SearchType.NAME)
+    if not orders:
+        if user_info.role != UserRole.DLV.value or user_info.company == CompanyDLV.POST.value:
+            orders = await db.get_orders (search_query=query, search_on=SearchType.POST)
 
     if not orders:
         await msg.answer ('❌ По вашему запросу ничего не найдено')

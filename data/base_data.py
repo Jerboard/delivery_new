@@ -6,7 +6,11 @@ company = {
     CompanyDLV.POST.value: 'Почта / СДЭК',
     CompanyDLV.MASTER.value: 'Мастер',
     CompanyDLV.PUTILIN.value: 'Путилин',
-    CompanyDLV.MASTER_SPB.value: 'Мастер СПБ'
+    CompanyDLV.MASTER_SPB.value: 'Мастер СПБ',
+    'Почта / СДЭК': CompanyDLV.POST.value,
+    'Мастер': CompanyDLV.MASTER.value,
+    'Путилин': CompanyDLV.PUTILIN.value,
+    'Мастер СПБ': CompanyDLV.MASTER_SPB.value
 }
 
 order_status_data = {

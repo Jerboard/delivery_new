@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
 
 import db
+import keyboards as kb
 from init import dp
 from .base_dlv import get_profile_dlv
 from enums import DeliveryCB, DeliveryStatus
@@ -27,7 +28,7 @@ async def edit_dlv_name(cb: CallbackQuery, state: FSMContext):
 
     await state.set_state(DeliveryStatus.EDIT_NAME)
     await state.update_data(data={'msg_id': cb.message.message_id})
-    await cb.answer(text, show_alert=True)
+    await cb.message.edit_text(text, reply_markup=kb.get_main_dlv_menu_kb())
 
 
 # смена имени курьера сохранение

@@ -3,7 +3,7 @@ import re
 import db
 from utils.base_utils import get_order_cost
 from data import base_data as dt
-from enums import OrderStatus, UserRole, ShortText, KeyWords
+from enums import OrderStatus, UserRole, ShortText, KeyWords, CompanyDLV
 
 
 # убирает пустые строки
@@ -50,7 +50,7 @@ def get_admin_order_text(order: db.OrderRow) -> str:
     status = dt.order_status_data.get(order.g)
     text = (f'#Заказ от {order.j}, исполнитель {order.h}\n'
             f'#Курьерская: {dt.company.get(order.ac)} ({order.f})\n'
-            f'Номер курьера: {order.phone} \n'
+            f'Номер курьера: {order.phone}'
             f'Статус заказа: {order.e} {status}\n\n'
             f'Оператор: {order.k}\n'
             f'ФИО: {order.m}\n'
@@ -72,10 +72,6 @@ def get_admin_order_text(order: db.OrderRow) -> str:
 
 # краткий заказ строка
 def get_short_order_row(order: db.OrderRow, for_: str) -> str:
-    # prepay = order.u + order.v
-    # (q + r + s - y) + t
-    # cost = 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y
-    # cost_qrs = order.q + order.r + order.s - order.y
     cost = get_order_cost(order)
 
     if for_ in [UserRole.OWN.value, UserRole.OPR.value]:
@@ -100,16 +96,14 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
         text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} '
                 f'\n---------------------------\n')
 
-    return text.replace('None', 'н/д')
+    return text.replace('None', '')
 
 
 def get_statistic_text(statistic: tuple[db.OrderGroupRow]) -> str:
     text = ''
     total = 0
     for order in statistic:
-    # for row in statistic:
         # print(order)
-        # status = dt.order_status_data.get(row[0]) if row[0] != OrderStatus.NEW.value else 'Без курьера'
         status = dt.order_status_data.get(order.status) if order.status != OrderStatus.NEW.value else 'Без курьера'
         if status:
             text += f'{status.capitalize()}: {order.orders_count}\n'

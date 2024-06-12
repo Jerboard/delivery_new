@@ -7,10 +7,8 @@ from datetime import datetime
 
 import db
 from config import Config
-from init import bot
-# import utils.json_utils as js
 from utils.local_data_utils import get_table_id
-from enums import OrderStatus, active_status_list
+from enums import OrderStatus, active_status_list, CompanyDLV
 
 
 # (a - 0, b - 1, c - 2, d - 3, e - 4, f - 5, g - 6, h - 7, i - 8, j - 9, k - 10,
@@ -34,26 +32,6 @@ def is_table_exist(tab_id: str) -> bool:
         return True
     except:
         return False
-
-
-async def check_work_order_on_update(
-        dlv_name_dict: dict,
-        work_orders: list[int],
-        order_id: int,
-        order_status: str,
-        order_user_name: str
-) -> None:
-    pass
-    # order_user_id = dlv_name_dict.get (order_user_name)
-    #
-    # if order_status == OrderStatus.NEW.value and order_id in work_orders:
-    #     await db.delete_work_order (order_id=order_id)
-    # if not order_user_id:
-    #     return
-    # if order_id in work_orders:
-    #     await db.update_work_order (user_id=order_user_id, order_id=order_id)
-    # elif order_status in active_status_list:
-    #     await db.add_work_order (user_id=order_user_id, order_id=order_id)
 
 
 async def add_order_in_google_table(sh: Spreadsheet, row_num: int, row: list, order_id: int):
@@ -91,12 +69,12 @@ def clear_new_order_table(sh: Spreadsheet, last_row: int):
 def choice_color(status: str):
     if status in [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]:
         color = {"red": 0.39, "green": 0.93, "blue": 0.54}
+    elif status == OrderStatus.SEND.value:
+        color = {"red": 1, "green": 0.53, "blue": 0}
     elif status in active_status_list:
         color = {"red": 1.0, "green": 1.0, "blue": 0.0}
     elif status in [OrderStatus.REF.value, OrderStatus.REF_TAKE.value]:
         color = {"red": 1.0, "green": 0.0, "blue": 0.0}
-    elif status == OrderStatus.SEND.value:
-        color = {"red": 1, "green": 0.53, "blue": 0}
     else:
         color = {"red": 1.0, "green": 1.0, "blue": 1.0}
     return color

@@ -8,9 +8,10 @@ from init import dp, bot, log_error
 from config import Config
 from utils.base_utils import get_order_cost
 from utils.text_utils import get_short_order_row
+from utils import local_data_utils as ld
 from data import base_data as dt
 from enums import (DeliveryCB, OrderStatus, UserActions, ShortText, Letter, active_status_list, done_status_list,
-                   KeyWords)
+                   KeyWords, CompanyDLV, Action)
 
 
 # отчёт по дням
@@ -33,30 +34,29 @@ async def report_dvl_2(cb: CallbackQuery):
     # user_info = await db.get_user_info (user_id=5766385456)
     if date_str == 'today':
         date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
-        # dlv_orders = await db.get_work_orders(cb.from_user.id)
-        # dlv_orders = await db.get_work_orders(6600572025)
 
-    # else:
-    # dlv_orders = await db.get_orders(dlv_name=user_info.name, on_date=date_str)
-    dlv_orders = await db.get_orders(user_id=user_info.user_id, on_date=date_str)
+    if user_info.company == CompanyDLV.POST:
+        dlv_orders = await db.get_post_orders(user_id=cb.from_user.id)
+
+    else:
+        dlv_orders = await db.get_orders(user_id=user_info.user_id, on_date=date_str)
+
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
-    suc_text, refuse_text, active_text, not_come = '', '', '', ''
+    suc_text, refuse_text, active_text, not_come, send_text = '', '', '', '', ''
     cost_prod, cost_dlv = 0, 0
-    salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0, }
+    salary = {Letter.D.value: 0, Letter.V.value: 0, Letter.A.value: 0}
 
     for order in dlv_orders:
         # print(order)
         row_text = get_short_order_row(order=order, for_=ShortText.REPORT.value)
 
         if order.g in done_status_list:
-            cost = get_order_cost(order, with_t=True)
-            cost_prod += cost
+            cost_prod += get_order_cost(order, with_t=True)
             suc_text += row_text
-            summary = salary.get(order.d, 0)
-            # print(summary)
-            # if summary:
-            salary[order.d] = summary + 1
+            if order.d:
+                summary = salary.get(order.d, 0)
+                salary[order.d] = summary + 1
 
         elif order.g == OrderStatus.REF.value:
             refuse_text += row_text
@@ -65,10 +65,11 @@ async def report_dvl_2(cb: CallbackQuery):
             not_come += row_text
 
         elif order.g in active_status_list:
-            active_text += row_text
+            if order.g == OrderStatus.SEND.value:
+                send_text += row_text
+            else:
+                active_text += row_text
 
-
-    # print(dlv_report)
     if dlv_report:
         # print(dlv_report.b, dlv_report.c, dlv_report.d, dlv_report.e, dlv_report.f, dlv_report.g, dlv_report.h, dlv_report.i, dlv_report.j, dlv_report.k)
         total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
@@ -81,6 +82,9 @@ async def report_dvl_2(cb: CallbackQuery):
         if v:
             salary_str += f'{dt.letters.get(k)} - {v}\n'
 
+    if user_info.company == CompanyDLV.POST:
+        not_come = send_text
+
     total = cost_prod - total_expenses
     expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 
@@ -88,7 +92,10 @@ async def report_dvl_2(cb: CallbackQuery):
     text = (f'{user_info.name}\n\n'
             f'{date_str}\n'
             f'{salary_str}\n'
-            f'{suc_text}{spt}{refuse_text}{spt}{active_text}{spt}{not_come}{spt}'
+            f'{suc_text}{spt}'
+            f'{refuse_text}{spt}'
+            f'{active_text}{spt}'
+            f'{not_come}{spt}'
             f'Касса: {cost_prod}\n\n'
             f'{expenses}\n\n'
             f'Итог: {total}')
@@ -112,11 +119,12 @@ async def report_dvl_3(cb: CallbackQuery):
 async def report_dvl_4(cb: CallbackQuery):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
 
+    if user_info.company == CompanyDLV.POST:
+        orders = await db.get_post_orders(user_id=cb.from_user.id, only_suc=True)
+        suc_orders = [order.id for order in orders]
+        await db.mark_del_orders(suc_orders)
+
     await bot.send_message(dt.work_chats[f'report_{user_info.company}'], cb.message.text)
     await cb.message.edit_text(f'{cb.message.text}\n\n✅ Отчёт отправлен')
-    # active_orders = await db.get_orders (dlv_name=user_info.name, get_active=True)
-
-    # except_list = [row.id for row in active_orders]
-    # await db.delete_work_order(user_id=cb.from_user.id, except_list=except_list)
 
     await db.save_user_action (user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.SEND_REPORT.value)

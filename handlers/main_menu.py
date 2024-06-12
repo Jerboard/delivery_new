@@ -12,7 +12,7 @@ from .delivery_hnds.base_dlv import delivery_start, get_profile_dlv
 from .owner_hnds.orders_own import add_new_order
 from .owner_hnds.owner_base import owner_start
 from data.base_data import company
-from enums import UserRole, DeliveryStatus, BaseCB
+from enums import UserRole, DeliveryStatus, BaseCB, CompanyDLV
 
 
 @dp.message(CommandStart())
@@ -32,7 +32,7 @@ async def com_start(msg: Message, state: FSMContext):
                 company=comp_id
             )
             await state.set_state(DeliveryStatus.REG_NAME)
-            await state.update_data (data={'role': role})
+            await state.update_data (data={'role': role, 'comp_id': comp_id})
             await msg.answer('Введите ваше имя')
             await db.delete_temp_link(veryf_code)
 
@@ -53,7 +53,7 @@ async def com_start(msg: Message, state: FSMContext):
                 await msg.answer (f'Отправьте актуальный номер телефона', reply_markup=kb.get_send_contact_kb ())
 
             else:
-                await delivery_start (user_id=msg.from_user.id, dlv_name=user_info.name)
+                await delivery_start (user_id=msg.from_user.id, user_info=user_info)
 
         elif user_info.role == UserRole.OPR.value:
 
@@ -75,7 +75,7 @@ async def reg_dlv_1(msg: Message, state: FSMContext):
         name=msg.text,
     )
     data = await state.get_data()
-    if data.get('role') == UserRole.DLV.value:
+    if data.get('role') == UserRole.DLV.value and data.get('comp_id') != CompanyDLV.POST.value:
         await state.set_state (DeliveryStatus.REG_PHONE)
         text = f'Отправьте актуальный номер телефона'
         await msg.answer (text, reply_markup=kb.get_send_contact_kb ())

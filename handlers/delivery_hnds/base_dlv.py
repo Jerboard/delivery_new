@@ -8,14 +8,22 @@ from config import Config
 import keyboards as kb
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str as date_str
+from utils.local_data_utils import get_post_order_ld, edit_post_order_ld
 from data.base_data import expensis_dlv, work_chats
-from enums import UserActions, UserRole, OrderStatus
+from enums import UserActions, UserRole, OrderStatus, CompanyDLV, KeyWords, Action
 
 
 # старт курьера
-async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
-    orders = await db.get_orders(user_id=user_id, get_active=True)
-    # orders = await db.get_orders(user_id=6600572025, get_active=True,)
+async def delivery_start(user_id: int, user_info: db.UserRow = None, msg_id: int = None):
+    if not user_info:
+        user_info = await db.get_user_info (user_id)
+
+    if user_info.company == CompanyDLV.POST:
+        orders = await db.get_post_orders(user_id=user_id, only_active=True)
+
+    else:
+        orders = await db.get_orders(user_id=user_id, get_active=True)
+        # orders = await db.get_orders(user_id=6600572025, get_active=True,)
 
     active_text = ''
     send_text = ''
@@ -29,7 +37,8 @@ async def delivery_start(user_id: int, dlv_name: str, msg_id: int = None):
 
     if send_text:
         send_text = f'Отправленные:\n{send_text}'
-    text = (f'{dlv_name}\n\n' 
+
+    text = (f'{user_info.name}\n\n' 
             f'Заказы:\n' 
             f'{active_text}\n'
             f'{send_text}')[:2000]
@@ -47,9 +56,12 @@ async def get_profile_dlv(user_id: int, user_info: db.UserRow = None, msg_id: in
     if not user_info:
         user_info = await db.get_user_info (user_id)
 
-    # statistic = await db.get_statistic_dlv (user_id=user_id)
-    statistic = await db.get_orders_statistic (dlv_name=user_info.name, on_date=date_str())
-    statistic_text = txt.get_statistic_text (statistic)
+    if user_info.company == CompanyDLV.POST:
+        orders = await db.get_statistic_post_dlv(user_id=user_id)
+
+    else:
+        orders = await db.get_orders_statistic (dlv_name=user_info.name, on_date=date_str())
+    statistic_text = txt.get_statistic_text (orders)
     text = f'{user_info.name}\n\n{statistic_text}'
 
     if msg_id:
@@ -62,11 +74,17 @@ async def save_expenses(
         user_id: int,
         data: dict
 ):
-    log_error(f'Трата дата {user_id}\n{data}', with_traceback=False)
+    # log_error(f'Трата дата {user_id}\n{data}', with_traceback=False)
 
     user_info = await db.get_user_info (user_id)
 
-    today_str = date_str()
+    today_str = date_str ()
+    # if user_info.company == CompanyDLV.POST:
+    #     users_orders = get_post_order_ld (user_id=user_info.user_id)
+    #     report_date = users_orders.get (KeyWords.REPORT.value, today_str)
+    #     exp_today = await db.get_report_dlv (user_info.name, report_date)
+    #
+    # else:
     exp_today = await db.get_report_dlv(user_info.name, today_str)
 
     ex_info = expensis_dlv [data ['ex_id']]
@@ -110,6 +128,13 @@ async def save_expenses(
             k=data.get('k', 0),
             row_num=row_num
         )
+        # if user_info.company == CompanyDLV.POST:
+        #     edit_post_order_ld (
+        #         user_id=user_id,
+        #         action=Action.ADD.value,
+        #         key_1=KeyWords.REPORT.value
+        #     )
+
         await db.save_user_action (user_id, user_info.name, UserActions.ADD_EXPENSES.value, str(data))
 
     today = datetime.now (Config.tz).strftime (Config.datetime_form)

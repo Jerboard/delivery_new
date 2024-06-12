@@ -4,30 +4,24 @@ import sqlalchemy as sa
 import sqlalchemy.dialects.postgresql as sa_postgresql
 
 from .base import METADATA, begin_connection
-from db.orders_table import OrderRow, OrderTable
+from db.orders_table import OrderRow, OrderTable, OrderGroupRow
 from db.action_journal import save_user_action
-from enums import OrderStatus
-
-
-# class OrderGroupRow(t.Protocol):
-#     user_id: int
-#     name: str
-#     count_orders: str
+from enums import OrderStatus, active_status_list
 
 
 WorkTable: sa.Table = sa.Table(
-    "work_orders",
+    "post_orders",
     METADATA,
 
     sa.Column('id', sa.Integer, primary_key=True, autoincrement=True),
     sa.Column('user_id', sa.BigInteger),
     sa.Column('order_id', sa.Integer, unique=True),
+    sa.Column('flag_del', sa.Boolean, default=False),
 )
 
 
 # возвращает заказы курьера
-async def get_work_orders(user_id: int = None, only_active: bool = False) -> tuple[OrderRow]:
-    # print(user_id, only_active)
+async def get_post_orders(user_id: int = None, only_active: bool = False, only_suc: bool = False) -> tuple[OrderRow]:
     query = (
         sa.select (
             OrderTable.c.id,
@@ -61,10 +55,12 @@ async def get_work_orders(user_id: int = None, only_active: bool = False) -> tup
     )
     if user_id:
         query = query.where(WorkTable.c.user_id == user_id)
+
     if only_active:
-        query = query.where(
-            sa.or_(OrderTable.c.g == OrderStatus.ACTIVE.value, OrderTable.c.g == OrderStatus.ACTIVE_TAKE.value)
-        )
+        query = query.where(OrderTable.c.g.in_(active_status_list))
+    elif only_suc:
+        query = query.where(OrderTable.c.g == OrderStatus.SUC)
+
     async with begin_connection () as conn:
         result = await conn.execute (query)
 
@@ -72,26 +68,26 @@ async def get_work_orders(user_id: int = None, only_active: bool = False) -> tup
 
 
 # возвращает заказы курьера
-# async def get_statistic_dlv(user_id: int) -> list[tuple]:
-#     query = (
-#         sa.select (
-#             OrderTable.c.g,
-#             sa.func.count ().label ('status_count')
-#         )
-#         .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
-#         where(WorkTable.c.user_id == user_id).
-#         group_by(OrderTable.c.g)
-#     )
-#
-#     async with begin_connection () as conn:
-#         result = await conn.execute (query)
-#
-#     return result.all ()
+async def get_statistic_post_dlv(user_id: int) -> list[OrderGroupRow]:
+    query = (
+        sa.select (
+            OrderTable.c.g.label ('status'),
+            OrderTable.c.f.label ('name'),
+            sa.func.count ().label ('orders_count')
+        )
+        .select_from (WorkTable.join (OrderTable, WorkTable.c.order_id == OrderTable.c.id)).
+        where(WorkTable.c.user_id == user_id).
+        group_by(OrderTable.c.g, OrderTable.c.f)
+    )
+
+    async with begin_connection () as conn:
+        result = await conn.execute (query)
+
+    return result.all ()
 
 
 # добавляет заказ
-async def add_work_order(user_id: int, order_id: int) -> None:
-    # query = WorkTable.insert().values(user_id=user_id, order_id=order_id)
+async def add_post_order(user_id: int, order_id: int) -> None:
     query = (
         sa_postgresql.insert (WorkTable)
         .values (
@@ -109,30 +105,25 @@ async def add_work_order(user_id: int, order_id: int) -> None:
     await save_user_action(
         user_id=user_id,
         dlv_name=str(user_id),
-        action='add work order',
+        action='add post order',
         comment=str(order_id)
     )
 
 
 # добавляет заказ
-async def update_work_order(order_id: int, user_id: int) -> None:
-    query = WorkTable.update().where(WorkTable.c.order_id == order_id).values(user_id=user_id)
+async def mark_del_orders(list_id: list[int]) -> None:
+    query = WorkTable.update().where(WorkTable.c.order_id.in_(list_id)).values(flag_del=True)
     async with begin_connection() as conn:
         await conn.execute(query)
 
 
 # добавляет заказ
-async def delete_work_order(order_id: int = None, user_id: int = None, except_list: list[int] = None) -> None:
+async def delete_post_order(order_id: int = None, flag_del: bool = False) -> None:
     query = WorkTable.delete ()
     if order_id:
         query = query.where(WorkTable.c.order_id == order_id)
-    elif user_id:
-        query = query.where(WorkTable.c.user_id == user_id)
-    # else:
-    #     return
-
-    if except_list:
-        query = query.where(WorkTable.c.order_id.notin_(except_list))
+    elif flag_del:
+        query = query.where(WorkTable.c.flag_del == True)
 
     async with begin_connection() as conn:
         await conn.execute(query)
