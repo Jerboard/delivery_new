@@ -11,7 +11,7 @@ from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
 from utils import text_utils as txt
-from data.base_data import order_status_data, order_actions
+from data.base_data import work_chats, order_actions
 from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
                    TypeOrderButton)
 
@@ -36,8 +36,6 @@ async def post_id(msg: Message, state: FSMContext):
     data = await state.get_data ()
     await state.clear ()
 
-    # user_info = await db.get_user_info(msg.from_user.id)
-
     # добавить смену курьерской
     await db.update_row_google(
         order_id=data['order_id'],
@@ -46,11 +44,13 @@ async def post_id(msg: Message, state: FSMContext):
         note=msg.text
     )
     order_info = await db.get_order(data['order_id'])
-    # text = txt.get_order_text (order_info)
 
     await bot.edit_message_reply_markup (chat_id=msg.chat.id, message_id=data['msg_id'], reply_markup=None)
     await msg.answer('✅ Заказ отправлен')
     # отправить трек оператору
+    text = txt.get_opr_report_text (order_info)
+    # opr_info = await db.get_user_info (name=order_info.k)
+    await bot.send_message(chat_id=work_chats[f'post_{order_info.comp_opr}'], text=text)
     # журнал действий
     await db.save_user_action(
         user_id=msg.from_user.id,

@@ -94,6 +94,8 @@ if DEBUG:
         f'report_{CompanyDLV.PUTILIN.value}': -1001669708234,
         f'report_{CompanyDLV.MASTER_SPB.value}': -1001669708234,
         f'report_{CompanyDLV.POST.value}': -1001669708234,
+        f'post_{CompanyOPR.VLADA.value}': -1001669708234,
+        f'post_{CompanyOPR.VERA.value}': -1001669708234,
     }
 else:
     work_chats = {
@@ -110,4 +112,6 @@ else:
         f'report_{CompanyDLV.PUTILIN.value}': -1001887194825,
         f'report_{CompanyDLV.MASTER_SPB.value}': -1001971855032,
         f'report_{CompanyDLV.POST.value}': -1002062614241,
+        f'post_{CompanyOPR.VLADA.value}': -1002234546766,
+        f'post_{CompanyOPR.VERA.value}': -1002199877687,
     }

@@ -126,3 +126,21 @@ def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
         f'Курьеру к оплате: {cost + order.clmn_t}\n'
         f'Примечания: {note}\n'
     ).replace('None', 'н/д')
+
+
+# отчёты для операторов
+def get_opr_report_text(order: db.OrderRow) -> str:
+    cost = get_order_cost (order)
+    return (
+        f'🟠 {order.g} {order.e}\n'
+        f'Курьер: {order.f} ({order.ac})\n\n'
+        f'Оператор: {order.k}\n'
+        f'ФИО: {order.m}\n'
+        f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
+        f'Цена: {cost}\n'
+        f'Доставка: {order.clmn_t}\n'
+        f'Метро: {order.w}\n'
+        f'Адрес: {order.x}\n'
+        f'Трек номер: {order.ac}\n'
+    ).replace ('None', 'н/д')
+

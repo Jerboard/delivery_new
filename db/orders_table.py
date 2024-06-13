@@ -44,7 +44,6 @@ class OrderRow(t.Protocol):
     af: str
     ag: str
     ah: str
-    comp_opr: str
     updated: bool
     time_update: datetime
     type_update: str
@@ -53,6 +52,7 @@ class OrderRow(t.Protocol):
     user_id: int
     phone: str
     company: str
+    comp_opr: str
 
 
 class OrderGroupRow(t.Protocol):
@@ -365,6 +365,7 @@ async def get_orders(
         OrderTable.c.discount,
         OrderTable.c.row_num,
         OrderTable.c.id,
+        OrderTable.c.comp_opr,
         UserTable.c.user_id,
         UserTable.c.phone,
         UserTable.c.company,
@@ -447,6 +448,7 @@ async def get_order(order_id: int = 0, for_update: bool = False) -> t.Union[Orde
         OrderTable.c.discount,
         OrderTable.c.row_num,
         OrderTable.c.id,
+        OrderTable.c.comp_opr,
         UserTable.c.user_id,
         UserTable.c.phone,
     ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
