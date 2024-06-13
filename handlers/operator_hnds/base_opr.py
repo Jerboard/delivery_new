@@ -18,7 +18,7 @@ async def get_profile_opr(user_id: int, user_info: db.UserRow = None, msg_id: in
     if not user_info:
         user_info = await db.get_user_info (user_id)
 
-    orders = await db.get_orders_statistic (opr_name=user_info.name)
+    orders = await db.get_orders_statistic (opr_name=user_info.name, own_text=True)
     statistic_text = txt.get_statistic_text (orders)
     text = f'{user_info.name}\n\n{statistic_text}'
 
@@ -26,3 +26,28 @@ async def get_profile_opr(user_id: int, user_info: db.UserRow = None, msg_id: in
         await bot.edit_message_text (text, reply_markup=kb.get_main_opr_kb (), chat_id=user_id, message_id=msg_id)
     else:
         await bot.send_message (user_id, text, reply_markup=kb.get_main_opr_kb ())
+
+
+# назад к профилю оператора
+@dp.callback_query(lambda cb: cb.data.startswith(OperatorCB.BACK_MAIN.value))
+async def back_main(cb: CallbackQuery, state: FSMContext):
+    await state.clear()
+    await get_profile_opr(user_id=cb.from_user.id, msg_id=cb.message.message_id)
+
+
+# отправляет инфо о заказе
+async def send_opr_report_msg(order: db.OrderRow, photo_id: str = None):
+    user_info = await db.get_user_info (name=order.k)
+
+    text = txt.get_opr_order_text(order)
+    try:
+        if photo_id:
+            await bot.send_photo(chat_id=user_info.user_id, caption=text, photo=photo_id)
+        else:
+            await bot.send_message(chat_id=user_info.user_id, text=text)
+
+        if order.g == OrderStatus.SEND:
+            await bot.send_message (chat_id=work_chats [f'post_{order.comp_opr}'], text=text)
+
+    except Exception as ex:
+        log_error(ex, with_traceback=True)

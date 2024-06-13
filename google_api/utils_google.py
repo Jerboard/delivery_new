@@ -82,19 +82,19 @@ def choice_color(status: str):
 
 
 # создаёт словарь с актуальными операторами
-async def get_opr_dict() -> dict:
-    operators = await db.get_users(role=UserRole.OPR.value)
-    opr_dict = {}
-    for opr in operators:
-        opr_list = opr_dict.get(opr.company, [])
-        opr_list.append(opr.name)
-        opr_dict[opr.company] = opr_list
+async def get_company_dict(role: str) -> dict:
+    users = await db.get_users(role=role)
+    comp_dict = {}
+    for user in users:
+        opr_list = comp_dict.get(user.company, [])
+        opr_list.append(user.name)
+        comp_dict[user.company] = opr_list
 
-    return opr_dict
+    return comp_dict
 
 
 # проверяет операторскую заказа
-def check_comp_opr(opr: str, opr_dict: dict) -> str:
-    for k, v in opr_dict.items():
-        if opr in v:
+def check_comp_name(name: str, comp_dict: dict) -> str:
+    for k, v in comp_dict.items():
+        if name in v:
             return k

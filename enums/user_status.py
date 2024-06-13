@@ -10,6 +10,7 @@ class DeliveryStatus(str, Enum):
     EXPENSES_3 = 'expenses_dvl_3'
     EXPENSES_4 = 'expenses_dvl_4'
     REFUSE = 'refuse'
+    REFUSE_PART = 'refuse_part'
     POST_ID = 'post_id'
 
 

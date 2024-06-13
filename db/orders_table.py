@@ -6,7 +6,7 @@ import sqlalchemy as sa
 from config import Config
 from .base import METADATA, begin_connection, ENGINE
 from db.users import UserTable
-from enums.base_enum import SearchType, OrderStatus, TypeOrderUpdate, active_status_list
+from enums.base_enum import SearchType, TypeOrderUpdate, active_status_list, done_status_list, ref_status_list
 
 
 class OrderRow(t.Protocol):
@@ -58,6 +58,11 @@ class OrderRow(t.Protocol):
 class OrderGroupRow(t.Protocol):
     status: str
     name: str
+    orders_count: str
+
+
+class OprReportRow(t.Protocol):
+    date: str
     orders_count: str
 
 
@@ -315,8 +320,11 @@ async def update_multi_orders(
 async def get_orders(
         user_id: int = None,
         dlv_name: str = None,
+        opr_name: str = None,
+        order_status: str = None,
         get_active: bool = False,
-        get_new: bool = False,
+        get_done: bool = False,
+        get_ref: bool = False,
         get_wait_update: bool = False,
         on_date: str = None,
         search_query: str = None,
@@ -372,9 +380,13 @@ async def get_orders(
     ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
 
     if get_active:
-        query = query.where (OrderTable.c.g.in_ (active_status_list))
-    elif get_new:
-        query = query.where(sa.and_(OrderTable.c.g == OrderStatus.NEW.value, OrderTable.c.i.isnot(None)))
+        query = query.where (OrderTable.c.g.in_ (active_status_list[:-1]))
+    elif get_done:
+        query = query.where (OrderTable.c.g.in_ (done_status_list))
+    elif get_ref:
+        query = query.where (OrderTable.c.g.in_ (ref_status_list))
+    elif order_status:
+        query = query.where(sa.and_(OrderTable.c.g == order_status))
     elif get_wait_update:
         query = query.where (OrderTable.c.updated.is_(False))
 
@@ -385,8 +397,11 @@ async def get_orders(
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
+    elif opr_name:
+        query = query.where(OrderTable.c.k == opr_name)
     elif user_id:
         query = query.where(UserTable.c.user_id == user_id)
+
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
 
@@ -514,6 +529,35 @@ async def get_orders_statistic(
         query = query.where(OrderTable.c.g.in_(active_status_list))
     if list_id:
         query = query.where(OrderTable.c.id.in_(list_id))
+
+    async with begin_connection() as conn:
+        result = await conn.execute(query)
+    return result.all()
+
+
+# дни для отчёта оператору
+async def get_opr_report_days(
+        opr_name: str,
+        order_status: str = None,
+        get_active: bool = False,
+        get_done: bool = False,
+        get_ref: bool = False,
+) -> tuple[OprReportRow]:
+    query = (OrderTable.select ().with_only_columns (
+        OrderTable.c.e.label ('date'),
+        sa.func.count ().label ('orders_count')
+    ).group_by (OrderTable.c.e).where(
+        OrderTable.c.k == opr_name,
+        OrderTable.c.e != None
+    ))
+    if get_active:
+        query = query.where (OrderTable.c.g.in_ (active_status_list[:-1]))
+    elif get_done:
+        query = query.where (OrderTable.c.g.in_ (done_status_list))
+    elif get_ref:
+        query = query.where (OrderTable.c.g.in_ (ref_status_list))
+    elif order_status:
+        query = query.where (OrderTable.c.g == order_status)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)

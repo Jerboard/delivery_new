@@ -24,9 +24,9 @@ class OrderStatus(str, Enum):
 active_status_list = [
     OrderStatus.ACTIVE.value,
     OrderStatus.ACTIVE_TAKE.value,
-    OrderStatus.NOT_COME.value,
     OrderStatus.SEND.value]
 done_status_list = [OrderStatus.SUC.value, OrderStatus.SUC_TAKE.value]
+ref_status_list = [OrderStatus.REF.value, OrderStatus.REF_TAKE.value, OrderStatus.REMAKE.value]
 
 
 class OrderAction(str, Enum):

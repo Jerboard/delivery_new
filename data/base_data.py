@@ -48,6 +48,19 @@ order_status_data = {
     'отправлен': OrderStatus.SEND.value,
 }
 
+order_mark = {
+    OrderStatus.NEW.value: '⚪️',
+    OrderStatus.SUC.value: '🟢',
+    OrderStatus.ACTIVE.value: '🟡',
+    OrderStatus.ACTIVE_TAKE.value: '🟡',
+    OrderStatus.REF.value: '🔴',
+    OrderStatus.TAKE.value: '🔵',
+    OrderStatus.SUC_TAKE.value: '🟢',
+    OrderStatus.REF_TAKE.value: '🔴',
+    OrderStatus.REMAKE.value: '🔴',
+    OrderStatus.SEND.value: '🟠',
+}
+
 
 expensis_dlv = {
     1: {'emoji': '💵', 'text': 'ЗП', 'column': 'k', 'photo': 0, 'comment': 0},

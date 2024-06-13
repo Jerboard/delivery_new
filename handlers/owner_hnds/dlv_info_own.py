@@ -10,7 +10,7 @@ import keyboards as kb
 from init import dp, bot, log_error
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str
-from enums import OwnerCB, ShortText, OwnerStatus, UserActions, OrderAction, TypeOrderUpdate
+from enums import OwnerCB, ShortText, OwnerStatus, OrderStatus, OrderAction, TypeOrderUpdate
 
 
 # показывает список курьеров и количество заказов на руках
@@ -42,7 +42,7 @@ async def view_orders_2(cb: CallbackQuery):
 async def view_free_orders(cb: CallbackQuery, state: FSMContext):
     _, start_str = cb.data.split(':')
     start = int(start_str)
-    free_orders = await db.get_orders(get_new=True)
+    free_orders = await db.get_orders(order_status=OrderStatus.NEW.value)
     # free_orders = free_orders[:57]
 
     if len(free_orders) < 20:

@@ -10,6 +10,8 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
+from handlers.delivery_hnds.base_dlv import done_order
+from handlers.operator_hnds.base_opr import send_opr_report_msg
 from data.base_data import work_chats
 from utils import local_data_utils as dt
 from utils.text_utils import get_dlv_refuse_text
@@ -77,9 +79,36 @@ async def ref_order_3(msg: Message, state: FSMContext):
             photo=data.get('photo_id'),
             caption=get_dlv_refuse_text(order=order_info, note=msg.text)
         )
+        # отправить фото оператору
+        await send_opr_report_msg (order_info, photo_id=data.get('photo_id'))
+
         # журнал действий
         await db.save_user_action (
             user_id=msg.from_user.id,
             dlv_name=order_info.f,
             action=UserActions.REFUSE_ORDER.value,
             comment=f'ID: {data["order_id"]} ROW: {order_info.row_num}')
+
+
+#  принимает фото частичеого отказа и закрывает заказ
+@dp.message(StateFilter(DeliveryStatus.REFUSE_PART))
+async def ref_order_3(msg: Message, state: FSMContext):
+    if msg.content_type != ContentType.PHOTO:
+        sent = await msg.answer('❗️ Приложите фото отказного заказа')
+        await sleep(3)
+        await sent.delete()
+
+    else:
+        data = await state.get_data()
+        await state.clear()
+
+        user_info = await db.get_user_info (user_id=msg.from_user.id)
+        order_info = await db.get_order (data ['order_id'])
+        await bot.send_photo (
+            chat_id=work_chats [f'refuse_{user_info.company}'],
+            photo=msg.photo[-1].file_id,
+            caption=get_dlv_refuse_text (order=order_info, note=msg.text)
+        )
+
+        await done_order (user_id=msg.from_user.id, order_id=data['order_id'], lit=data['lit'])
+        await bot.edit_message_reply_markup (chat_id=msg.chat.id, message_id=data ['msg_id'], reply_markup=None)

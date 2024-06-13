@@ -16,6 +16,13 @@ from data.base_data import company_dlv, order_status_data, work_chats
 from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions, UserRole, TypeOrderButton
 
 
+# взять заказ выбор курьерской
+@dp.callback_query(lambda cb: cb.data.startswith(OperatorCB.TAKE_ORDER_0.value))
+async def take_order_1(cb: CallbackQuery, state: FSMContext):
+    text = f'Оформить забор\n\nВыберите курьерскую'
+    await cb.message.edit_text(text, reply_markup=kb.take_order_company_kb())
+
+
 # кнопка взять заказ
 @dp.callback_query(lambda cb: cb.data.startswith(OperatorCB.TAKE_ORDER_1.value))
 async def take_order_1(cb: CallbackQuery, state: FSMContext):

@@ -1,6 +1,7 @@
 from aiogram.types import Message
 from aiogram.filters import StateFilter
 from aiogram.fsm.state import default_state
+from aiogram.fsm.context import FSMContext
 from aiogram.enums.chat_type import ChatType
 from aiogram.enums.content_type import ContentType
 
@@ -69,8 +70,10 @@ async def processing_admin(order: db.OrderRow, user_info: db.UserRow):
 
 
 # поиск заказов
-@dp.message(StateFilter(default_state))
-async def search(msg: Message):
+# @dp.message(StateFilter(default_state))
+@dp.message()
+async def search(msg: Message, state: FSMContext):
+    await state.clear ()
     if msg.chat.type != ChatType.PRIVATE:
         return
 

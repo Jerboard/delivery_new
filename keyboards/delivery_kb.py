@@ -41,11 +41,12 @@ def get_free_order_kb(order_id: int, type_order: str, dlv_name: str = None) -> I
 def get_dlv_main_order_kb(order_id: int, order_status: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     if order_status == OrderStatus.ACTIVE.value:
-        kb.button(text='✅ Доставлен', callback_data=f'{DeliveryCB.ORDER_2.value}:{order_id}')
+        kb.button(text='✅ Доставлен', callback_data=f'{DeliveryCB.ORDER_2.value}:{order_id}:{OrderAction.SUC.value}')
     else:
         kb.button(text='✅ Забрал', callback_data=f'{DeliveryCB.ORDER_7.value}:{order_id}:{OrderAction.SUC_TAKE.value}')
 
     kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.REF_ORDER_1.value}:{order_id}')
+    kb.button(text='❌ Частичный отказ', callback_data=f'{DeliveryCB.ORDER_2.value}:{order_id}:{OrderAction.REF.value}')
 
     # if order_status == OrderStatus.ACTIVE.value:
     kb.button(

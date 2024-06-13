@@ -3,7 +3,7 @@ import re
 import db
 from utils.base_utils import get_order_cost
 from data import base_data as dt
-from enums import OrderStatus, UserRole, ShortText, KeyWords, CompanyDLV
+from enums import OrderStatus, UserRole, ShortText, KeyWords, done_status_list, active_status_list, ref_status_list
 
 
 # убирает пустые строки
@@ -129,11 +129,15 @@ def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
 
 
 # отчёты для операторов
-def get_opr_report_text(order: db.OrderRow) -> str:
+def get_opr_order_text(order: db.OrderRow) -> str:
     cost = get_order_cost (order)
+    mark = dt.order_mark.get (order.g, '')
+    status_str = dt.order_status_data.get (order.g, '')
+    comp = dt.company_dlv.get (order.ac, 'н/д')
+    node = f'Трек номер <code>{order.ab}</code>' if order.g == OrderStatus.SEND else f'Примечание: {order.ab}'
     return (
-        f'🟠 {order.g} {order.e}\n'
-        f'Курьер: {order.f} ({order.ac})\n\n'
+        f'{mark} {status_str} {order.e}\n'
+        f'Курьер: {order.f} ({comp})\n\n'
         f'Оператор: {order.k}\n'
         f'ФИО: {order.m}\n'
         f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
@@ -141,6 +145,32 @@ def get_opr_report_text(order: db.OrderRow) -> str:
         f'Доставка: {order.clmn_t}\n'
         f'Метро: {order.w}\n'
         f'Адрес: {order.x}\n'
-        f'Трек номер: {order.ac}\n'
-    ).replace ('None', 'н/д')
+        f'{node}\n'
+    ).replace ('None', 'н/д').strip()
 
+
+def get_opr_report_text(order: db.OrderRow) -> str:
+    cost = get_order_cost (order)
+    mark = dt.order_mark.get(order.g, '')
+    status_str = dt.order_status_data.get(order.g, '')
+    comp = dt.company_dlv.get(order.ac, 'н/д')
+
+    if order.g == OrderStatus.SEND:
+        node = f'Трек номер <code>{order.ab}</code>'
+    elif order.g in ref_status_list:
+        node = f'Примечание: {order.ab}'
+    else:
+        node = ''
+
+    if order.g == OrderStatus.NEW.value:
+        text = (f'принят {order.j} |  оператор {order.k} | ФИО {order.m} | тел {order.n} тел2 {order.o} |  '
+                f'цена {cost} + доставка  {order.clmn_t} |  метро {order.w} | адрес {order.x}')
+
+    else:
+        text = (f'{mark} {status_str} {order.e}\n'
+                f'Курьер: {order.f} ({comp})\n'
+                f'принят {order.j} |  оператор {order.k} | ФИО {order.m} | тел {order.n} тел2 {order.o} |  '
+                f'цена {cost} + доставка  {order.clmn_t} |  метро {order.w} | адрес {order.x}\n\n'
+                f'{node}')
+
+    return text.replace('None', 'н/д').strip()

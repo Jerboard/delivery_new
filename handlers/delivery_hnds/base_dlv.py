@@ -6,11 +6,12 @@ import db
 from init import bot, log_error
 from config import Config
 import keyboards as kb
+from handlers.operator_hnds.base_opr import send_opr_report_msg
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str as date_str
 from utils.local_data_utils import get_post_order_ld, edit_post_order_ld
 from data.base_data import expensis_dlv, work_chats
-from enums import UserActions, UserRole, OrderStatus, CompanyDLV, KeyWords, Action
+from enums import UserActions, UserRole, OrderStatus, CompanyDLV, TypeOrderUpdate, Action
 
 
 # старт курьера
@@ -152,3 +153,36 @@ async def save_expenses(
 
     await bot.send_message (user_id, '✅Ваша трата учтена')
     await db.save_user_action(user_id, user_info.name, UserActions.ADD_EXPENSES.value, text)
+
+
+# закрытие заказа
+async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
+    order_info = await db.get_order (order_id)
+
+    if order_info.g in [OrderStatus.ACTIVE.value, OrderStatus.SEND.value]:
+        order_status = OrderStatus.SUC.value
+    else:
+        order_status = OrderStatus.SUC_TAKE.value
+
+    await db.update_row_google (
+        order_id=order_id,
+        letter=lit,
+        status=order_status,
+        type_update=TypeOrderUpdate.STATE.value
+    )
+    text = txt.get_order_text (order_info)
+    if msg_id:
+        await bot.edit_message_text (chat_id=user_id, message_id=msg_id, text=f'{text}\n\n✅ Выполнен')
+    else:
+        await bot.send_message (chat_id=user_id, text=f'{text}\n\n✅ Выполнен')
+
+    # отправить фото оператору
+    await send_opr_report_msg (order_info)
+    action = UserActions.SUCCESS_ORDER.value
+
+    # журнал действий
+    await db.save_user_action (
+        user_id=user_id,
+        dlv_name=order_info.f,
+        action=action,
+        comment=str(order_id))

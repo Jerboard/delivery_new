@@ -8,6 +8,7 @@ from asyncio import sleep
 import db
 import keyboards as kb
 from init import dp, bot, log_error
+from handlers.operator_hnds.base_opr import send_opr_report_msg
 from config import Config
 from utils import local_data_utils as dt
 from utils import text_utils as txt
@@ -47,10 +48,10 @@ async def post_id(msg: Message, state: FSMContext):
 
     await bot.edit_message_reply_markup (chat_id=msg.chat.id, message_id=data['msg_id'], reply_markup=None)
     await msg.answer('✅ Заказ отправлен')
+
     # отправить трек оператору
-    text = txt.get_opr_report_text (order_info)
-    # opr_info = await db.get_user_info (name=order_info.k)
-    await bot.send_message(chat_id=work_chats[f'post_{order_info.comp_opr}'], text=text)
+    await send_opr_report_msg(order_info)
+
     # журнал действий
     await db.save_user_action(
         user_id=msg.from_user.id,

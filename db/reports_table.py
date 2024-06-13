@@ -62,6 +62,7 @@ ReportTable: sa.Table = sa.Table(
 # посмотреть траты курьера
 async def get_reports_all_dlv(
         dlv_name: str = None,
+        opr_name: str = None,
         get_wait_update: bool = False,
         exception_date: str = None
 ) -> tuple[ReportRow]:
