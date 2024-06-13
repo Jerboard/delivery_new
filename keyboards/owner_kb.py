@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 
 import db
-from data.base_data import company
+from data.base_data import company_dlv, company_opr
 from enums import OwnerCB, UserRole
 
 
@@ -11,7 +11,7 @@ def main_owner_kb() -> InlineKeyboardMarkup:
     kb.button(text='📄 Добавить/Обновить заказы', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:order')
     kb.button(text='📄 Добавить/Обновить отчеты', callback_data=f'{OwnerCB.UPDATE_TABLE.value}:report')
     kb.button(text='🏃 Добавить Курьера', callback_data=f'{OwnerCB.ADD_USER_1.value}:{UserRole.DLV.value}')
-    kb.button(text='🧑‍💻 Добавить Оператора', callback_data=f'{OwnerCB.ADD_USER_2.value}:{UserRole.OPR.value}:0')
+    kb.button(text='🧑‍💻 Добавить Оператора', callback_data=f'{OwnerCB.ADD_USER_1.value}:{UserRole.OPR.value}')
     kb.button(text='🏃‍♂️ Удалить Курьера', callback_data=f'{OwnerCB.DEL_USER_1.value}:{UserRole.DLV.value}')
     kb.button(text='🙅 Удалить Оператора', callback_data=f'{OwnerCB.DEL_USER_1.value}:{UserRole.OPR.value}')
     kb.button(text='🗒 У Курьера', callback_data=f'{OwnerCB.VIEW_ORDERS_1.value}')
@@ -23,11 +23,12 @@ def main_owner_kb() -> InlineKeyboardMarkup:
 
 
 # список курьерских для добавления курьера
-def get_add_dlv_comp_kb() -> InlineKeyboardMarkup:
+def get_add_dlv_comp_kb(role: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
+    comp = company_dlv if role == UserRole.DLV else company_opr
     kb.button(text='🔙 Назад', callback_data=OwnerCB.BACK.value)
-    for k, v in company.items():
-        kb.button(text=v, callback_data=f'{OwnerCB.ADD_USER_2.value}:{UserRole.DLV.value}:{k}')
+    for k, v in comp.items():
+        kb.button(text=v, callback_data=f'{OwnerCB.ADD_USER_2.value}:{role}:{k}')
 
     return kb.adjust(1, 2).as_markup()
 

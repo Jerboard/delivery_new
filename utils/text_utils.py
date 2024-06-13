@@ -49,8 +49,8 @@ def get_admin_order_text(order: db.OrderRow) -> str:
 
     status = dt.order_status_data.get(order.g)
     text = (f'#Заказ от {order.j}, исполнитель {order.h}\n'
-            f'#Курьерская: {dt.company.get(order.ac)} ({order.f})\n'
-            f'Номер курьера: {order.phone}'
+            f'#Курьерская: {dt.company_dlv.get(order.ac)} ({order.f})\n'
+            f'Номер курьера: {order.phone}\n'
             f'Статус заказа: {order.e} {status}\n\n'
             f'Оператор: {order.k}\n'
             f'ФИО: {order.m}\n'

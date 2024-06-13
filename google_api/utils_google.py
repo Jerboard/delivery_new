@@ -1,6 +1,7 @@
 import gspread
 import logging
 import asyncio
+import re
 
 from gspread.spreadsheet import Spreadsheet
 from datetime import datetime
@@ -8,7 +9,7 @@ from datetime import datetime
 import db
 from config import Config
 from utils.local_data_utils import get_table_id
-from enums import OrderStatus, active_status_list, CompanyDLV
+from enums import OrderStatus, active_status_list, CompanyOPR, UserRole
 
 
 # (a - 0, b - 1, c - 2, d - 3, e - 4, f - 5, g - 6, h - 7, i - 8, j - 9, k - 10,
@@ -78,3 +79,22 @@ def choice_color(status: str):
     else:
         color = {"red": 1.0, "green": 1.0, "blue": 1.0}
     return color
+
+
+# создаёт словарь с актуальными операторами
+async def get_opr_dict() -> dict:
+    operators = await db.get_users(role=UserRole.OPR.value)
+    opr_dict = {}
+    for opr in operators:
+        opr_list = opr_dict.get(opr.company, [])
+        opr_list.append(opr.name)
+        opr_dict[opr.company] = opr_list
+
+    return opr_dict
+
+
+# проверяет операторскую заказа
+def check_comp_opr(opr: str, opr_dict: dict) -> str:
+    for k, v in opr_dict.items():
+        if opr in v:
+            return k

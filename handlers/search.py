@@ -9,11 +9,11 @@ import keyboards as kb
 from init import bot
 from init import dp, log_error
 from utils import text_utils as txt
-from enums import UserRole, SearchType, OrderStatus, TypeOrderButton, active_status_list, CompanyDLV
+from enums import UserRole, SearchType, OrderStatus, TypeOrderButton, active_status_list, CompanyDLV, CompanyOPR
 
 
 # обработка заказа для курьера
-async def processing_glv(order: db.OrderRow, user_info: db.UserRow):
+async def processing_dlv(order: db.OrderRow, user_info: db.UserRow):
     counter = 0
     try:
         text = txt.get_order_text (order)
@@ -88,14 +88,16 @@ async def search(msg: Message):
 
     query = msg.text.lower()
     search_on = SearchType.PHONE if query.isdigit() else SearchType.METRO
-    # comp = user_info.company if user_info.role == UserRole.DLV.value else None
+    comp_opr = None
+    if user_info.role == UserRole.OPR.value and user_info.company != CompanyOPR.BOSS.value:
+        comp_opr = user_info.company
 
-    orders = await db.get_orders (search_query=query, search_on=search_on)
+    orders = await db.get_orders (search_query=query, search_on=search_on, company_opr=comp_opr)
     if not orders:
-        orders = await db.get_orders (search_query=query, search_on=SearchType.NAME)
+        orders = await db.get_orders (search_query=query, search_on=SearchType.NAME, company_opr=comp_opr)
     if not orders:
         if user_info.role != UserRole.DLV.value or user_info.company == CompanyDLV.POST.value:
-            orders = await db.get_orders (search_query=query, search_on=SearchType.POST)
+            orders = await db.get_orders (search_query=query, search_on=SearchType.POST, company_opr=comp_opr)
 
     if not orders:
         await msg.answer ('❌ По вашему запросу ничего не найдено')
@@ -104,7 +106,7 @@ async def search(msg: Message):
     if user_info.role == UserRole.DLV.value:
         counter = 0
         for order in orders:
-            counter += await processing_glv(order, user_info)
+            counter += await processing_dlv(order, user_info)
 
         if counter == 0:
             await msg.answer('❌ По вашему запросу ничего не найдено')

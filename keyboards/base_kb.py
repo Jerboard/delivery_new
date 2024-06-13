@@ -1,6 +1,6 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 
-from data.base_data import company
+from data.base_data import company_dlv
 from enums import BaseCB
 
 

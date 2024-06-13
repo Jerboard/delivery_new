@@ -44,6 +44,7 @@ class OrderRow(t.Protocol):
     af: str
     ag: str
     ah: str
+    comp_opr: str
     updated: bool
     time_update: datetime
     type_update: str
@@ -98,6 +99,7 @@ OrderTable: sa.Table = sa.Table(
     sa.Column('af', sa.String(255)),
     sa.Column('ag', sa.String(255)),
     sa.Column('ah', sa.String(255)),
+    sa.Column('comp_opr', sa.String(255)),
     sa.Column('updated', sa.Boolean, default=True),
     sa.Column('time_update', sa.DateTime(timezone=True), default=datetime.now(Config.tz)),
     sa.Column('type_update', sa.String(255)),
@@ -154,6 +156,7 @@ async def add_row(
     af: str = None,
     ag: str = None,
     ah: str = None,
+    comp_opr: str = None,
     type_update: str = None,
     updated: bool = False,
     entry_id: int = None
@@ -193,6 +196,7 @@ async def add_row(
         af=af,
         ag=ag,
         ah=ah,
+        comp_opr=comp_opr,
         type_update=type_update,
         time_update=datetime.now(Config.tz),
         updated=updated
@@ -241,6 +245,7 @@ async def update_row_google(
         af: str = None,
         ag: str = None,
         ah: str = None,
+        comp_opr: str = None,
         update_row: bool = False,
         all_row: bool = False,
         take_date: str = None,
@@ -278,7 +283,7 @@ async def update_row_google(
     if all_row:
         query = query.values(b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, k=k, l=l, m=m, n=n, o=o, p=p,
                              q=q, r=r, s=s, clmn_t=t, u=u, v=v, w=w, x=x, y=y, z=z, aa=aa, ab=ab, ac=ac, ad=ad, ae=ae,
-                             af=af, ag=ag, ah=ah)
+                             af=af, ag=ag, ah=ah, comp_opr=comp_opr)
 
     async with begin_connection() as conn:
         await conn.execute(query)
@@ -316,7 +321,8 @@ async def get_orders(
         on_date: str = None,
         search_query: str = None,
         search_on: str = None,
-        company: str = None,
+        company_dlv: str = None,
+        company_opr: str = None,
 ) -> tuple[OrderRow]:
     query = sa.select(
         OrderTable.c.id,
@@ -371,8 +377,10 @@ async def get_orders(
     elif get_wait_update:
         query = query.where (OrderTable.c.updated.is_(False))
 
-    if company:
-        query = query.where (OrderTable.c.ac == company)
+    if company_dlv:
+        query = query.where (OrderTable.c.ac == company_dlv)
+    elif company_opr:
+        query = query.where (OrderTable.c.comp_opr == company_opr)
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
@@ -473,6 +481,7 @@ async def delete_orders():
 # статистика заказов
 async def get_orders_statistic(
         dlv_name: str = None,
+        opr_name: str = None,
         on_date: str = None,
         only_active: bool = False,
         own_text: bool = False,
@@ -495,6 +504,8 @@ async def get_orders_statistic(
 
     if dlv_name:
         query = query.where(OrderTable.c.f == dlv_name)
+    if opr_name:
+        query = query.where(OrderTable.c.k == opr_name)
     if on_date:
         query = query.where(OrderTable.c.e == on_date)
     if only_active:

@@ -8,10 +8,11 @@ import asyncio
 import db
 import keyboards as kb
 from init import dp
-from .delivery_hnds.base_dlv import delivery_start, get_profile_dlv
-from .owner_hnds.orders_own import add_new_order
-from .owner_hnds.owner_base import owner_start
-from data.base_data import company
+from handlers.delivery_hnds.base_dlv import delivery_start, get_profile_dlv
+from handlers.owner_hnds.orders_own import add_new_order
+from handlers.owner_hnds.owner_base import owner_start
+from handlers.operator_hnds.base_opr import get_profile_opr
+from data.base_data import company_dlv
 from enums import UserRole, DeliveryStatus, BaseCB, CompanyDLV
 
 
@@ -58,7 +59,7 @@ async def com_start(msg: Message, state: FSMContext):
         elif user_info.role == UserRole.OPR.value:
 
             text = f'Для поиска заказов отправьте номер телефона, имя получателя или часть адреса'
-            await msg.answer(text)
+            await msg.answer(text, reply_markup=ReplyKeyboardRemove())
 
         elif user_info.role == UserRole.OWN.value:
             await owner_start(msg.from_user.id)
@@ -116,8 +117,9 @@ async def com_main(msg: Message, state: FSMContext):
         await get_profile_dlv(user_id=msg.from_user.id, user_info=user_info)
 
     elif user_info and user_info.role == UserRole.OPR.value:
-        text = f'Оформить забор\n\nВыберите курьерскую'
-        await msg.answer(text, reply_markup=kb.take_order_company_kb())
+        await get_profile_opr(user_id=msg.from_user.id, user_info=user_info)
+        # text = f'Оформить забор\n\nВыберите курьерскую'
+        # await msg.answer(text, reply_markup=kb.take_order_company_kb())
 
     elif user_info and user_info.role == UserRole.OWN.value:
         await add_new_order(msg.from_user.id, state)

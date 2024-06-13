@@ -26,7 +26,8 @@ async def init_models():
 # создать колонку
 # with begin_connection() as conn:
 #     # Добавляем новую колонку к таблице
-#     conn.execute(sa.text('ALTER TABLE my_table ADD COLUMN new_column VARCHAR'))
+#     conn.execute(sa.text('ALTER TABLE my_table ADD COLUMN comp_opr VARCHAR'))
+
 
 async def create_trigger():
     async with ENGINE.begin() as conn:

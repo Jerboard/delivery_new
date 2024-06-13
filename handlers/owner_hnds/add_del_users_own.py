@@ -17,7 +17,8 @@ from enums import OwnerCB, UserRole, UserActions, OwnerStatus, OrderAction, Type
 # меняет клавиатуру на клаву с курьерскими
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.ADD_USER_1.value))
 async def add_user_1(cb: CallbackQuery, state: FSMContext):
-    await cb.message.edit_reply_markup(reply_markup=kb.get_add_dlv_comp_kb())
+    _, role = cb.data.split (':')
+    await cb.message.edit_reply_markup(reply_markup=kb.get_add_dlv_comp_kb(role))
 
 
 # отправляет ссылку для вступления

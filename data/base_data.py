@@ -1,19 +1,26 @@
 from config import DEBUG
-from enums import OrderStatus, CompanyDLV, OrderAction, Letter
+from enums import OrderStatus, CompanyDLV, CompanyOPR, OrderAction, Letter
 
 
-company = {
+company_dlv = {
     CompanyDLV.POST.value: 'Почта / СДЭК',
     CompanyDLV.MASTER.value: 'Мастер',
     CompanyDLV.PUTILIN.value: 'Путилин',
     CompanyDLV.MASTER_SPB.value: 'Мастер СПБ'
 }
 
-company_revers = {
+company_dlv_revers = {
     'Почта / СДЭК': CompanyDLV.POST.value,
     'Мастер': CompanyDLV.MASTER.value,
     'Путилин': CompanyDLV.PUTILIN.value,
     'Мастер СПБ': CompanyDLV.MASTER_SPB.value
+}
+
+company_opr = {
+    CompanyOPR.VLADA.value: 'Влада',
+    CompanyOPR.VERA.value: 'Вера',
+    CompanyOPR.NADIA.value: 'Надежда',
+    CompanyOPR.BOSS.value: 'Руководитель'
 }
 
 order_status_data = {

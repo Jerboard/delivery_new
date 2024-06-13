@@ -8,7 +8,7 @@ import google_api.utils_google as ug
 from config import Config
 from init import bot, log_error
 # from utils.base_utils import get_dlv_name_dict, get_work_orders_list
-from data.base_data import order_status_data, company, company_revers
+from data.base_data import order_status_data, company_dlv, company_dlv_revers
 from enums import TypeOrderUpdate, UserRole, OrderStatus
 
 
@@ -23,6 +23,7 @@ async def save_new_order_table(table_id: str) -> str:
     sh = ug.get_google_connect (table_id)
 
     new_orders = sh.sheet1.get_all_values ()
+    opr_dict = await ug.get_opr_dict()
 
     rewrite_list = []
     exc_list = []
@@ -36,7 +37,8 @@ async def save_new_order_table(table_id: str) -> str:
                 entry_id = int (row [0])
                 order_user_name = row [5].strip () if row [5] else None
                 order_status = order_status_data.get(row[6].strip())
-                en_id = await db.add_row (
+                comp_opr = ug.check_comp_opr(row [10].strip (), opr_dict=opr_dict)
+                await db.add_row (
                     entry_id=entry_id,
                     row_num=new_row_num,
                     b=row [1].strip () if row [1] else None,
@@ -66,12 +68,13 @@ async def save_new_order_table(table_id: str) -> str:
                     z=row [25].strip () if row [25] else None,
                     aa=row [26].strip () if row [26] else None,
                     ab=row [27].strip () if row [27] else None,
-                    ac=company_revers.get(row [28]),
+                    ac=company_dlv_revers.get(row [28]),
                     ad=row [29].strip () if row [29] else None,
                     ae=row [30].strip () if row [30] else None,
                     af=row [31].strip () if row [31] else None,
                     ag=row [32].strip () if row [32] else None,
                     ah=row [33].strip () if row [33] else None,
+                    comp_opr=comp_opr,
                     type_update=TypeOrderUpdate.ADD.value,
                     updated=True
                 )
@@ -84,8 +87,9 @@ async def save_new_order_table(table_id: str) -> str:
 
     for row in rewrite_list:
         try:
+            comp_opr = ug.check_comp_opr (row [10].strip (), opr_dict=opr_dict)
             order_status = order_status_data.get (row [6].strip ())
-            entry_id = await db.add_row (
+            await db.add_row (
                 row_num=row [0],
                 b=row [1].strip () if row [1] else None,
                 c=row [2].strip () if row [2] else None,
@@ -120,6 +124,7 @@ async def save_new_order_table(table_id: str) -> str:
                 af=row [31].strip () if row [31] else None,
                 ag=row [32].strip () if row [32] else None,
                 ah=row [33].strip () if row [33] else None,
+                comp_opr=comp_opr,
                 type_update=TypeOrderUpdate.ADD.value,
                 updated=False
             )
@@ -181,21 +186,20 @@ async def update_google_table(user_id: int) -> None:
     last_row = await db.get_max_row_num()
     new_row = last_row + 1 if last_row else 5
 
+    opr_dict = await ug.get_opr_dict ()
+
     ug.clear_new_order_table(sh, len(new_orders))
     exception_list = []
 
-    # dlv_name_dict = await get_dlv_name_dict ()
-    # work_orders = await get_work_orders_list()
-
-    # i = 0
     for row in new_orders[1:]:
         if row[13].strip() != '':
-            # i += 1
             if row[0].isdigit():
                 try:
                     order_id = int (row [0])
                     order_user_name = row [5].strip () if row [5] else None
                     order_status = order_status_data.get (row [6].strip ())
+                    comp_opr = ug.check_comp_opr (row [10].strip (), opr_dict=opr_dict)
+
                     await db.update_row_google(
                         order_id=order_id,
                         all_row=True,
@@ -232,14 +236,8 @@ async def update_google_table(user_id: int) -> None:
                         af=row[31].strip() if row[31] else None,
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
+                        comp_opr=comp_opr
                     )
-                    # await ug.check_work_order_on_update (
-                    #     dlv_name_dict=dlv_name_dict,
-                    #     work_orders=work_orders,
-                    #     order_id=order_id,
-                    #     order_status=order_status,
-                    #     order_user_name=order_user_name
-                    # )
                 except Exception as ex:
                     exception_list.append(row[:24])
                     log_error (ex)
@@ -248,7 +246,8 @@ async def update_google_table(user_id: int) -> None:
 
             else:
                 try:
-                    order_id = await db.add_row(
+                    comp_opr = ug.check_comp_opr (row [10].strip (), opr_dict=opr_dict)
+                    await db.add_row(
                         row_num=new_row,
                         b=row[1].strip() if row[1] else None,
                         c=row[2].strip() if row[2] else None,
@@ -284,15 +283,10 @@ async def update_google_table(user_id: int) -> None:
                         ag=row[32].strip() if row[32] else None,
                         ah=row[33].strip() if row[33] else None,
                         type_update=TypeOrderUpdate.ADD.value,
+                        comp_opr=comp_opr
                     )
                     new_row += 1
-                    # await ug.check_work_order_on_update (
-                    #     dlv_name_dict=dlv_name_dict,
-                    #     work_orders=work_orders,
-                    #     order_id=order_id,
-                    #     order_status=order_status,
-                    #     order_user_name=order_user_name
-                    # )
+
                 except Exception as ex:
                     exception_list.append (row)
                     log_error(ex)
@@ -450,12 +444,12 @@ async def add_users_table():
     sh = ug.get_google_connect()
     table = []
     for user in dlv_table:
-        table.append([user.user_id, user.name, user.company, company.get(user.company)])
+        table.append([user.user_id, user.name, user.company, company_dlv.get(user.company)])
 
     sh.get_worksheet(7).update(f'a3:d{len(table) + 3}', table)
 
     table = []
-    for k, v in company.items():
+    for k, v in company_dlv.items():
         table.append([k, v])
 
     sh.get_worksheet(7).update(f'f3:g{len(table) + 3}', table)

@@ -97,10 +97,10 @@ class CompanyDLV (str, Enum):
 
 
 class CompanyOPR (str, Enum):
-    POST = 'vlada'
-    MASTER = 'vera'
-    PUTILIN = 'nadia'
-    MASTER_SPB = 'boss'
+    VLADA = 'vlada'
+    VERA = 'vera'
+    NADIA = 'nadia'
+    BOSS = 'boss'
 
 '''
 

@@ -4,6 +4,7 @@ import re
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
+from datetime import datetime
 
 import db
 import keyboards as kb
@@ -11,7 +12,7 @@ from init import dp, bot, log_error
 from config import Config
 from utils import local_data_utils as dt
 from utils.base_utils import get_today_date_str
-from data.base_data import company, order_status_data, work_chats
+from data.base_data import company_dlv, order_status_data, work_chats
 from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions, UserRole, TypeOrderButton
 
 
@@ -101,7 +102,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
             log_error(f'Заказ не отправлен курьеру {dlv.name}', with_traceback=False)
             log_error(ex)
 
-    now_str = get_today_date_str()
+    now_str = datetime.now(Config.tz).replace(microsecond=0).strftime(Config.datetime_form)
     key = f'{DataKey.ADD_OPR_ORDER.value}-{order_id}'
     order_data = {
         'opr': cb.from_user.id,
@@ -123,5 +124,5 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         user_id=cb.from_user.id,
         dlv_name=user_info.name,
         action=UserActions.ADD_TAKE_ORDER.value,
-        comment=f'Добавлен заказ №{order_id} для {company.get(data["comp_id"], "н/д")}'
+        comment=f'Добавлен заказ №{order_id} для {company_dlv.get(data["comp_id"], "н/д")}'
     )

@@ -64,3 +64,5 @@ class DeliveryCB(str, Enum):
 class OperatorCB(str, Enum):
     TAKE_ORDER_1 = 'opr_take_order_1'
     TAKE_ORDER_2 = 'opr_take_order_2'
+    VIEW_ORDER_1 = 'opr_view_order_1'
+    VIEW_ORDER_2 = 'opr_view_order_2'
