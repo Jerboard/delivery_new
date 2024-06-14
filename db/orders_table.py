@@ -280,7 +280,7 @@ async def update_row_google(
     if discount:
         query = query.values(y=discount)
     if cost_delivery:
-        query = query.values(clmn_t=cost_delivery)
+        query = query.values(clmn_t=cost_delivery) if cost_delivery != 'del' else query.values(clmn_t=0)
     if letter:
         query = query.values(d=letter) if letter != 'del' else query.values(d=None)
     if company:

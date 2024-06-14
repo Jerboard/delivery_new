@@ -35,13 +35,16 @@ async def dlv_order_1(cb: CallbackQuery, state: FSMContext):
         type_update=TypeOrderUpdate.STATE.value,
         company=user_info.company
     )
+    keyboard = None
     if user_info.company == CompanyDLV.POST:
         await db.add_post_order(user_id=cb.from_user.id, order_id=order_id)
+        keyboard = kb.get_post_order_kb(order_id=order_id, order_status=OrderStatus.ACTIVE.value)
 
     await cb.message.edit_text(
         text=f'{cb.message.text}\n\n✅ Принят',
         entities=cb.message.entities,
-        parse_mode=None
+        parse_mode=None,
+        reply_markup=keyboard
     )
 
     # журнал действий
@@ -69,13 +72,13 @@ async def dlv_order_2(cb: CallbackQuery, state: FSMContext):
     else:
         user_info = await db.get_user_info (cb.from_user.id)
 
-        take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
+        # take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
         # await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
         await db.update_row_google (
             order_id=order_id,
             dlv_name=user_info.name,
             status=OrderStatus.ACTIVE_TAKE.value,
-            take_date=take_date,
+            take_date=get_today_date_str(),
             company=user_info.company
         )
 
@@ -272,7 +275,7 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
         await db.update_row_google (
             order_id=data ['order_id'],
             type_update=data ['action'],
-            cost_delivery=data ['cost_dlv'],
+            cost_delivery=data ['cost_dlv'] or 'del',
             note=note
         )
         user_action = UserActions.ADD_DISCOUNT_DLV.value

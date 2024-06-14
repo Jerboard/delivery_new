@@ -186,6 +186,6 @@ def get_post_order_kb(order_id: int, order_status) -> InlineKeyboardMarkup:
             text='✅ Доставлен',
             callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:{OrderAction.SUC.value}:del'
         )
-        kb.button (text='❌ Отказ', callback_data=f'{DeliveryCB.POST_2.value}:{order_id}')
+    kb.button (text='❌ Отказ', callback_data=f'{DeliveryCB.POST_2.value}:{order_id}')
 
     return kb.adjust (1).as_markup ()
