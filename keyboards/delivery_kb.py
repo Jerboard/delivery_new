@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 import db
 from data.base_data import expensis_dlv, letters
-from enums import DeliveryCB, BaseCB, OrderAction, OrderStatus, TypeOrderButton
+from enums import DeliveryCB, BaseCB, OrderAction, OrderStatus, TypeOrderButton, CompanyDLV
 
 
 # отправить контакт
@@ -135,15 +135,19 @@ def get_transfer_order_kb(users: tuple[db.UserRow], order_id) -> InlineKeyboardM
 
 
 # клавиатура трат курьера
-def expenses_dvl_kb() -> InlineKeyboardMarkup:
+def expenses_dvl_kb(comp: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-
+    #  «ЗП» «Почта / СДЭК» «Премия» «Разное» 11, 14, 12
     kb.button (text='🔙 Назад', callback_data=DeliveryCB.BACK_MAIN.value)
     for k, v in expensis_dlv.items():
         if k == 1:
             kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_5.value}:start')
         else:
-            kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{k}')
+            if comp == CompanyDLV.POST:
+                if k in [11, 14, 12]:
+                    kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{k}')
+            else:
+                kb.button(text=f'{v["emoji"]} {v["text"]}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{k}')
         # kb.button(text=f'💸 {name}', callback_data=f'{DeliveryCB.EXPENSES_2.value}:{column}')
 
     return kb.adjust(1, 2).as_markup()
@@ -189,3 +193,12 @@ def get_post_order_kb(order_id: int, order_status) -> InlineKeyboardMarkup:
     kb.button (text='❌ Отказ', callback_data=f'{DeliveryCB.POST_2.value}:{order_id}')
 
     return kb.adjust (1).as_markup ()
+
+
+# отправленные сообщения просмотр
+def get_view_send_orders(orders_date: dict) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder ()
+    for k, v in orders_date.items():
+        kb.button(text=f'{k} ({v})', callback_data=f'{DeliveryCB.SEND_ORDERS.value}:{k}')
+
+    return kb.adjust(3).as_markup()

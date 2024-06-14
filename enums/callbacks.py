@@ -58,7 +58,7 @@ class DeliveryCB(str, Enum):
     PICKUP_ORDER_2 = 'dlv_pickup_order_2'
     POST_1 = 'dlv_post_order_1'
     POST_2 = 'dlv_post_order_2'
-    POST_3 = 'dlv_post_order_3'
+    SEND_ORDERS = 'dlv_view_sent_orders'
 
 
 class OperatorCB(str, Enum):

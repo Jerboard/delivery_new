@@ -386,7 +386,8 @@ async def get_orders(
     elif get_ref:
         query = query.where (OrderTable.c.g.in_ (ref_status_list))
     elif order_status:
-        query = query.where(sa.and_(OrderTable.c.g == order_status))
+        print(f'order_status: {order_status}')
+        query = query.where(OrderTable.c.g == order_status)
     elif get_wait_update:
         query = query.where (OrderTable.c.updated.is_(False))
 

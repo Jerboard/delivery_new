@@ -1,7 +1,9 @@
+from aiogram.types import InlineKeyboardMarkup
 from random import choice
 from datetime import datetime
 
 import db
+from init import bot
 from config import Config as conf
 from enums import OrderStatus, CompanyDLV, active_status_list
 
@@ -63,13 +65,14 @@ def get_order_cost(order: db.OrderRow, with_t: bool = False) -> int:
         return 0 if order.q == 0 and prepay != 0 else order.q + order.r + order.s - order.y
 
 
-# async def start_test_work():
-#     await db.delete_work_order()
-#
-#     users = await db.get_users(role=UserRole.DLV.value)
-#
-#     for user in users:
-#         orders = await db.get_orders(dlv_name=user.name, get_active=True)
-#
-#         for order in orders:
-#             await db.add_work_order(user_id=user.user_id, order_id=order.id)
+async def send_long_msg(chat_id: int, text: str, keyboard: InlineKeyboardMarkup = None):
+    rows = text.split ('\n')
+    text_part = ''
+    row_count = len (rows)
+    for row in rows:
+        text_part += f'{row}\n'
+        row_count -= 1
+        if len (text_part) > 3000 or row_count == 0:
+            reply_markup = keyboard if row_count == 0 else None
+            await bot.send_message(chat_id=chat_id, text=text_part, reply_markup=reply_markup)
+            text_part = ''

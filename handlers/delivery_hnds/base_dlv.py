@@ -1,48 +1,47 @@
-from aiogram.types import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove, CallbackQuery
 
 from datetime import datetime
 
 import db
-from init import bot, log_error
+from init import bot, dp, log_error
 from config import Config
 import keyboards as kb
 from handlers.operator_hnds.base_opr import send_opr_report_msg
 from utils import text_utils as txt
-from utils.base_utils import get_today_date_str as date_str
+from utils.base_utils import get_today_date_str, send_long_msg
 from utils.local_data_utils import get_post_order_ld, edit_post_order_ld
 from data.base_data import expensis_dlv, work_chats
-from enums import UserActions, UserRole, OrderStatus, CompanyDLV, TypeOrderUpdate, Action
+from enums import UserActions, UserRole, OrderStatus, CompanyDLV, TypeOrderUpdate, DeliveryCB
 
 
 # старт курьера
 async def delivery_start(user_id: int, user_info: db.UserRow = None, msg_id: int = None):
     if not user_info:
         user_info = await db.get_user_info (user_id)
+        # user_info = await db.get_user_info (user_id=1970050747)
 
     if user_info.company == CompanyDLV.POST:
         orders = await db.get_post_orders(user_id=user_id, only_active=True)
+        # orders = await db.get_post_orders(user_id=1970050747, only_active=True)
 
     else:
         orders = await db.get_orders(user_id=user_id, get_active=True)
-        # orders = await db.get_orders(user_id=6600572025, get_active=True,)
 
     active_text = ''
-    send_text = ''
+    send_date_dict = {}
     counter = 0
     for order in orders:
         counter += 1
         if order.g == OrderStatus.SEND.value:
-            send_text += txt.get_short_order_row(order, for_=UserRole.DLV.value)
+            order_count = send_date_dict.get(order.e, 0)
+            order_count_new = order_count + 1
+            send_date_dict[order.e] = order_count_new
         else:
             active_text += txt.get_short_order_row(order, for_=UserRole.DLV.value)
 
-    if send_text:
-        send_text = f'Отправленные:\n{send_text}'
-
     text = (f'{user_info.name}\n\n' 
             f'Заказы:\n' 
-            f'{active_text}\n'
-            f'{send_text}')[:2000]
+            f'{active_text}')
 
     if counter == 0:
         text = 'У вас нет активных заказов'
@@ -50,7 +49,10 @@ async def delivery_start(user_id: int, user_info: db.UserRow = None, msg_id: int
     if msg_id:
         await bot.edit_message_text(text, chat_id=user_id, message_id=msg_id)
     else:
-        await bot.send_message (user_id, text, reply_markup=ReplyKeyboardRemove())
+        if user_info.company == CompanyDLV.POST:
+            await bot.send_message (user_id, text, reply_markup=kb.get_view_send_orders(send_date_dict))
+        else:
+            await bot.send_message (user_id, text, reply_markup=ReplyKeyboardRemove())
 
 
 async def get_profile_dlv(user_id: int, user_info: db.UserRow = None, msg_id: int = None):
@@ -61,7 +63,7 @@ async def get_profile_dlv(user_id: int, user_info: db.UserRow = None, msg_id: in
         orders = await db.get_statistic_post_dlv(user_id=user_id)
 
     else:
-        orders = await db.get_orders_statistic (dlv_name=user_info.name, on_date=date_str())
+        orders = await db.get_orders_statistic (dlv_name=user_info.name, on_date=get_today_date_str())
     statistic_text = txt.get_statistic_text (orders)
     text = f'{user_info.name}\n\n{statistic_text}'
 
@@ -79,7 +81,7 @@ async def save_expenses(
 
     user_info = await db.get_user_info (user_id)
 
-    today_str = date_str ()
+    today_str = get_today_date_str ()
     # if user_info.company == CompanyDLV.POST:
     #     users_orders = get_post_order_ld (user_id=user_info.user_id)
     #     report_date = users_orders.get (KeyWords.REPORT.value, today_str)
@@ -186,3 +188,19 @@ async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
         dlv_name=order_info.f,
         action=action,
         comment=str(order_id))
+
+
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.SEND_ORDERS.value))
+async def send_orders_view(cb: CallbackQuery):
+    _, date_str = cb.data.split (':')
+
+    user_info = await db.get_user_info (user_id=cb.from_user.id)
+    # user_info = await db.get_user_info (user_id=1970050747)
+    orders = await db.get_orders (dlv_name=user_info.name, on_date=date_str, order_status=OrderStatus.SEND.value)
+
+    order_text = ''
+    for order in orders:
+        order_text += txt.get_short_order_row (order, for_=UserRole.DLV.value)
+
+    text = f'Отправлены {date_str}:\n\n{order_text}'
+    await send_long_msg(chat_id=cb.from_user.id, text=text)

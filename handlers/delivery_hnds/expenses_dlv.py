@@ -18,7 +18,8 @@ from enums import DeliveryCB, DeliveryStatus, UserActions
 # смена клавиатуры на клавиатуру с тратами
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.EXPENSES_1.value))
 async def expenses_dvl_1(cb: CallbackQuery):
-    await cb.message.edit_reply_markup(reply_markup=kb.expenses_dvl_kb())
+    user_info = await db.get_user_info(user_id=cb.from_user.id)
+    await cb.message.edit_reply_markup(reply_markup=kb.expenses_dvl_kb(user_info.company))
 
 
 # запрос подтверждения траты 1 Просит отправить сумму

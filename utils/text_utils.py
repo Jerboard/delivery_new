@@ -3,7 +3,8 @@ import re
 import db
 from utils.base_utils import get_order_cost
 from data import base_data as dt
-from enums import OrderStatus, UserRole, ShortText, KeyWords, done_status_list, active_status_list, ref_status_list
+from enums import (OrderStatus, UserRole, ShortText, KeyWords, done_status_list, active_status_list, ref_status_list,
+                   CompanyDLV)
 
 
 # убирает пустые строки
@@ -93,7 +94,8 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
         text = f'{comment_d} {dt.order_status_data.get (order.g)} {order.n} {cost} + {order.clmn_t} {order.w} {comment}\n'
 
     else:
-        text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} '
+        node = f'<code>{order.ab}</code>' if order.comp_opr == CompanyDLV.POST else ''
+        text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} {node}'
                 f'\n---------------------------\n')
 
     return text.replace('None', '')

@@ -6,7 +6,7 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
-from utils.base_utils import get_order_cost
+from utils.base_utils import get_order_cost, send_long_msg
 from utils.text_utils import get_short_order_row
 from utils import local_data_utils as ld
 from data import base_data as dt
@@ -24,22 +24,23 @@ async def report_dvl_1(cb: CallbackQuery):
     await cb.message.edit_reply_markup(reply_markup=kb.report_view_days_kb(dlv_reports))
 
 
-# 6600572025 - мияги, 5766385456 - Ян, 5051573626 - Мел
+# 6600572025 - мияги, 5766385456 - Ян, 5051573626 - Мел, 1970050747 - Николь
 # отчёт за день
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_2.value))
 async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=5766385456)
+    # user_info = await db.get_user_info (user_id=1970050747)
     if date_str == 'today':
         date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
 
-    if user_info.company == CompanyDLV.POST:
-        dlv_orders = await db.get_post_orders(user_id=cb.from_user.id)
-
-    else:
-        dlv_orders = await db.get_orders(user_id=user_info.user_id, on_date=date_str)
+    # if user_info.company == CompanyDLV.POST:
+    #     dlv_orders = await db.get_post_orders(user_id=cb.from_user.id)
+    #     # dlv_orders = await db.get_post_orders(user_id=1970050747)
+    #
+    # else:
+    dlv_orders = await db.get_orders(user_id=user_info.user_id, on_date=date_str)
 
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)
 
@@ -100,7 +101,10 @@ async def report_dvl_2(cb: CallbackQuery):
             f'{expenses}\n\n'
             f'Итог: {total}')
 
-    await cb.message.answer(text, reply_markup=kb.get_send_day_report_kb())
+    if len(text) < 4096:
+        await cb.message.answer(text, reply_markup=kb.get_send_day_report_kb())
+    else:
+        await send_long_msg(chat_id=user_info.user_id, text=text, keyboard=kb.get_send_day_report_kb())
 
     # await db.save_user_action(user_id=cb.from_user.id, dlv_name=user_info.name, action=UserActions.VIEW_REPORT.value)
 
