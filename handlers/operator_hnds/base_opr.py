@@ -10,7 +10,7 @@ from config import Config
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str
 from data.base_data import company_dlv, order_status_data, work_chats
-from enums import OperatorCB, OperatorStatus, TypeOrderUpdate, OrderStatus, DataKey, UserActions, UserRole, TypeOrderButton
+from enums import OperatorCB, CompanyOPR, TypeOrderUpdate, OrderStatus
 
 
 # основное меню оператора
@@ -40,16 +40,19 @@ async def send_opr_report_msg(order: db.OrderRow, photo_id: str = None):
     user_info = await db.get_user_info (name=order.k)
 
     text = txt.get_opr_order_text (order)
-    if order.g == OrderStatus.SEND:
-        await bot.send_message (chat_id=work_chats [f'post_{order.comp_opr}'], text=text)
-
     if user_info:
         if photo_id:
             await bot.send_photo(chat_id=user_info.user_id, caption=text, photo=photo_id)
         else:
             await bot.send_message(chat_id=user_info.user_id, text=text)
 
-        # if order.g == OrderStatus.SEND:
-        #     await bot.send_message (chat_id=work_chats [f'post_{order.comp_opr}'], text=text)
+        if order.g == OrderStatus.SEND:
+            await bot.send_message (chat_id=work_chats [f'post_{order.comp_opr}'], text=text)
 
+    else:
+        if order.g == OrderStatus.SEND:
+            if order.k.isdigit ():
+                await bot.send_message (chat_id=work_chats [f'post_{CompanyOPR.VLADA.value}'], text=text)
+            else:
+                await bot.send_message (chat_id=work_chats [f'post_{CompanyOPR.VERA.value}'], text=text)
 
