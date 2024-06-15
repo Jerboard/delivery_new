@@ -90,12 +90,13 @@ def get_orders_users_own_kb(users: tuple[db.OrderGroupRow]) -> InlineKeyboardMar
 
 
 # просмотр свободных заказов
-def get_view_free_order_own_kb(start: int, next_page: bool) -> InlineKeyboardMarkup:
+def get_view_free_order_own_kb(start: int, next_page: bool, order_id: int) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder ()
+    kb.button (text='Назначить', callback_data=f'{OwnerCB.TRANS_ORDER_1.value}:{order_id}')
     start_next = start + 20
     start_back = start - 20
     if start_back >= 0:
         kb.button (text='⬅️️ Назад', callback_data=f'{OwnerCB.VIEW_FREE_ORDERS.value}:{start_back}')
     if next_page:
         kb.button (text='➡️ Вперёд', callback_data=f'{OwnerCB.VIEW_FREE_ORDERS.value}:{start_next}')
-    return kb.as_markup ()
+    return kb.adjust(1, 2).as_markup ()

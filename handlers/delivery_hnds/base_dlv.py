@@ -9,7 +9,6 @@ import keyboards as kb
 from handlers.operator_hnds.base_opr import send_opr_report_msg
 from utils import text_utils as txt
 from utils.base_utils import get_today_date_str, send_long_msg
-from utils.local_data_utils import get_post_order_ld, edit_post_order_ld
 from data.base_data import expensis_dlv, work_chats
 from enums import UserActions, UserRole, OrderStatus, CompanyDLV, TypeOrderUpdate, DeliveryCB
 
@@ -82,18 +81,17 @@ async def save_expenses(
     user_info = await db.get_user_info (user_id)
 
     today_str = get_today_date_str ()
-    # if user_info.company == CompanyDLV.POST:
-    #     users_orders = get_post_order_ld (user_id=user_info.user_id)
-    #     report_date = users_orders.get (KeyWords.REPORT.value, today_str)
-    #     exp_today = await db.get_report_dlv (user_info.name, report_date)
-    #
-    # else:
     exp_today = await db.get_report_dlv(user_info.name, today_str)
 
     ex_info = expensis_dlv [data ['ex_id']]
     comment = data["comment"] if data.get('comment') else ex_info ["text"]
     comment = f'{data ["exp_sum"]} - {comment}'
+    print(f'ex_info: {ex_info}')
+    print(f'exp_today: {exp_today}')
+    print(data)
+    print('---')
     if exp_today:
+        print ('update')
         await db.update_expenses_dlv(
             entry_id=exp_today.id,
             l=comment,
@@ -110,6 +108,7 @@ async def save_expenses(
         await db.save_user_action (user_id, user_info.name, 'Обновил трату', str(exp_today)[:250])
 
     else:
+        print('new')
         last_row = await db.get_last_updated_report(last_row=True)
         if not last_row:
             row_num = 5
@@ -170,7 +169,8 @@ async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
         order_id=order_id,
         letter=lit,
         status=order_status,
-        type_update=TypeOrderUpdate.STATE.value
+        type_update=TypeOrderUpdate.STATE.value,
+        take_date=get_today_date_str()
     )
     text = txt.get_order_text (order_info)
     if msg_id:
@@ -179,6 +179,7 @@ async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
         await bot.send_message (chat_id=user_id, text=f'{text}\n\n✅ Выполнен')
 
     # отправить фото оператору
+    order_info = await db.get_order (order_id)
     await send_opr_report_msg (order_info)
     action = UserActions.SUCCESS_ORDER.value
 

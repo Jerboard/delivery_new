@@ -49,7 +49,7 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
         await cb.message.answer('Страница 1/1')
         for order in free_orders:
             text = txt.get_short_order_row (order, for_=ShortText.FREE.value)
-            await cb.message.answer (text)
+            await cb.message.answer (text, reply_markup=kb.get_free_order_own_kb (order_id=order.id))
 
     else:
         batch_size = 20
@@ -74,9 +74,10 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
         for order in free_orders[start:fin]:
             text = txt.get_short_order_row (order, for_=ShortText.FREE.value)
 
-            keyboard = None
             if counter == batch_size - 1 or counter == len_pg - 1:
-                keyboard = kb.get_view_free_order_own_kb(start=start, next_page=batch_size == len_pg)
+                keyboard = kb.get_view_free_order_own_kb(start=start, next_page=batch_size == len_pg, order_id=order.id)
+            else:
+                keyboard = kb.get_free_order_own_kb (order_id=order.id)
 
             if last_edit_message > counter:
                 await bot.edit_message_text(

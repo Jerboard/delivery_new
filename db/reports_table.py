@@ -64,7 +64,8 @@ async def get_reports_all_dlv(
         dlv_name: str = None,
         opr_name: str = None,
         get_wait_update: bool = False,
-        exception_date: str = None
+        exception_date: str = None,
+        on_date: str = None
 ) -> tuple[ReportRow]:
     query = ReportTable.select()
 
@@ -76,6 +77,9 @@ async def get_reports_all_dlv(
 
     if exception_date:
         query = query.where (ReportTable.c.m != exception_date)
+
+    if on_date:
+        query = query.where (ReportTable.c.m == on_date)
 
     async with begin_connection() as conn:
         result = await conn.execute(query)
@@ -163,7 +167,7 @@ async def update_expenses_dlv(
         row_num: int = 0
 ) -> None:
     log_error(f'ТРАТА\nentry_id: {entry_id}, b: {b}, c: {c}, d: {d}, e: {e}, f: {f}, g: {g}, '
-              f'h: {h}, i: {i}, k: {k}, l: {l}, m: {m}, row_num: {row_num}', with_traceback=False)
+              f'h: {h}, i: {i}, k: {k}, l: {l}, m: {m}, updated: {updated}, row_num: {row_num}', with_traceback=False)
 
     query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (
         in_google=updated,

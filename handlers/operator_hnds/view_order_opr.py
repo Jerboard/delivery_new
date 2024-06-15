@@ -21,12 +21,16 @@ async def take_order_1(cb: CallbackQuery, state: FSMContext):
     user_info = await db.get_user_info(user_id=cb.from_user.id)
     if order_status in active_status_list[:-1]:
         report_days = await db.get_opr_report_days(opr_name=user_info.name, get_active=True)
+        # report_days = await db.get_opr_report_days(opr_name='21', get_active=True)
     elif order_status in done_status_list:
         report_days = await db.get_opr_report_days(opr_name=user_info.name, get_done=True)
+        # report_days = await db.get_opr_report_days(opr_name='21', get_done=True)
     elif order_status in ref_status_list:
         report_days = await db.get_opr_report_days (opr_name=user_info.name, get_ref=True)
+        # report_days = await db.get_opr_report_days (opr_name='21', get_ref=True)
     else:
         report_days = await db.get_opr_report_days(opr_name=user_info.name, order_status=order_status)
+        # report_days = await db.get_opr_report_days(opr_name='21', order_status=order_status)
 
     await cb.message.edit_reply_markup(reply_markup=kb.get_opr_day_report_kb(report_days, order_status))
 
@@ -44,6 +48,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         orders = await db.get_orders (opr_name=user_info.name, on_date=date_str, get_active=True)
     elif order_status in done_status_list:
         orders = await db.get_orders (opr_name=user_info.name, on_date=date_str, get_done=True)
+        # orders = await db.get_orders (opr_name='21', on_date=date_str, get_done=True)
     elif order_status in ref_status_list:
         orders = await db.get_orders (opr_name=user_info.name, on_date=date_str, get_ref=True)
     else:

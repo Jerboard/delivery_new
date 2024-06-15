@@ -25,7 +25,6 @@ def create_local_data_files():
             json.dump (data, file)
 
 
-
 # Сохраняет данные
 def save_opr_msg_data(key: str, new_data: dict):
     data_file_path = os.path.join(Config.data_path, Config.opr_send_users_filename)
@@ -77,41 +76,7 @@ def get_table_id() -> str:
         return file.read ().strip ()
 
 
-# Сохраняет данные заказов почтовиков
-def edit_post_order_ld(user_id: int, action: str, key_1: str, order_id: int = None):
-    key = str (user_id)
-    data_file_path = os.path.join(Config.data_path, Config.active_post_orders_filename)
-
-    with open (data_file_path, 'r') as file:
-        data: dict = json.load (file)
-
-    user_data: dict = data.get(key, {})
-    if action == Action.ADD:
-        if key_1 == KeyWords.ID:
-            ids_list: list = data.get(key_1, [])
-            ids_list.append(order_id)
-            data [key] [key_1] = list (set (user_data))
-
-        else:
-            data[key][key_1] = get_today_date_str()
-
-    elif action == Action.DEL.value:
-        if key_1 == KeyWords.ID:
-            ids_list: list = data.get (key_1, [])
-            ids_list.remove (order_id)
-            data [key] [key_1] = list (set (user_data))
-        else:
-            data[key][key_1] = None
-
-    with open (data_file_path, 'w') as file:
-        json.dump (data, file)
-
-
-# Извлекает данные заказов почтовиков
-def get_post_order_ld(user_id: int) -> dict:
-    key = str(user_id)
-    data_file_path = os.path.join(Config.data_path, Config.active_post_orders_filename)
-    with open (data_file_path, 'r') as file:
-        data: dict = json.load (file)
-
-    return data.get(key, {})
+def add_expenses_log(test: str):
+    path = os.path.join (Config.data_path, Config.expenses_log)
+    with open (path, 'a', encoding='utf-8') as file:
+        file.write (test)

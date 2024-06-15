@@ -13,8 +13,8 @@ DEBUG = bool(int(getenv('DEBUG')))
 class Config:
     if DEBUG:
         token = getenv ("TOKEN_TEST")
-        # db_url = getenv ('DB_URL')
-        db_url = getenv ('DB_URL_WORK')
+        db_url = getenv ('DB_URL')
+        # db_url = getenv ('DB_URL_WORK')
         bot_name = 'tushchkan_test_3_bot'
         host = getenv('HOST')
         report_sheet_num = 6
@@ -36,4 +36,4 @@ class Config:
     # table_file = 'google_table.json'
     table_file_filename = 'google_table.txt'
     opr_send_users_filename = 'opr_send_users_msg.json'
-    active_post_orders_filename = 'active_post_orders.json'
+    expenses_log = 'expenses_log.txt'

@@ -12,7 +12,7 @@ from config import Config
 from handlers.delivery_hnds.base_dlv import done_order
 from utils import local_data_utils as dt
 from utils.base_utils import get_today_date_str
-from utils.text_utils import get_order_text
+from utils import text_utils as txt
 from data.base_data import order_status_data, order_actions
 from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
                    TypeOrderButton, KeyWords, CompanyDLV, Action)
@@ -35,15 +35,16 @@ async def dlv_order_1(cb: CallbackQuery, state: FSMContext):
         type_update=TypeOrderUpdate.STATE.value,
         company=user_info.company
     )
-    keyboard = None
+    order_info = await db.get_order(order_id=order_id)
     if user_info.company == CompanyDLV.POST:
         await db.add_post_order(user_id=cb.from_user.id, order_id=order_id)
         keyboard = kb.get_post_order_kb(order_id=order_id, order_status=OrderStatus.ACTIVE.value)
+    else:
+        keyboard = kb.get_dlv_main_order_kb (order_id=order_id, order_status=order_info.g)
 
+    text = txt.get_order_text (order_info)
     await cb.message.edit_text(
-        text=f'{cb.message.text}\n\n✅ Принят',
-        entities=cb.message.entities,
-        parse_mode=None,
+        text=f'{text}\n\n✅ Принят',
         reply_markup=keyboard
     )
 
@@ -72,8 +73,6 @@ async def dlv_order_2(cb: CallbackQuery, state: FSMContext):
     else:
         user_info = await db.get_user_info (cb.from_user.id)
 
-        # take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
-        # await db.add_work_order(user_id=cb.from_user.id, order_id=order_id)
         await db.update_row_google (
             order_id=order_id,
             dlv_name=user_info.name,
@@ -96,7 +95,8 @@ async def dlv_order_2(cb: CallbackQuery, state: FSMContext):
         await cb.message.edit_text(
             text=f'{cb.message.text}\n\n✅ Принят',
             entities=cb.message.entities,
-            parse_mode=None
+            parse_mode=None,
+            reply_markup=kb.get_dlv_main_order_kb (order_id=order_id, order_status=OrderStatus.ACTIVE_TAKE.value)
         )
         text = f'✅Заказ принят. {user_info.name}\n\n{cb.message.text}'
         await bot.send_message(opr_info.user_id, text)
@@ -146,9 +146,8 @@ async def dlv_order_4(cb: CallbackQuery, state: FSMContext):
             type_update=TypeOrderUpdate.STATE.value
         )
         order_info = await db.get_order (order_id)
-        text = get_order_text(order_info)
+        text = txt.get_order_text(order_info)
         await cb.message.edit_text (text=text)
-        # return
 
     elif current_state == DeliveryStatus.REFUSE_PART:
         await state.update_data(data={
@@ -157,46 +156,9 @@ async def dlv_order_4(cb: CallbackQuery, state: FSMContext):
             'order_id': order_id
         })
         await cb.message.answer('Приложите фото отказного заказа', reply_markup=kb.get_close_kb())
-        # return
 
     else:
         await done_order(user_id=cb.from_user.id, order_id=order_id, lit=lit, msg_id=cb.message.message_id)
-
-
-    # order_info = await db.get_order (order_id)
-    #
-    # if order_info.g in [OrderStatus.ACTIVE.value, OrderStatus.SEND.value]:
-    #     order_status = OrderStatus.SUC.value
-    # else:
-    #     order_status = OrderStatus.SUC_TAKE.value
-    #
-    # await db.update_row_google (
-    #     order_id=order_id,
-    #     letter=lit,
-    #     status=order_status,
-    #     type_update=TypeOrderUpdate.STATE.value
-    # )
-    # await cb.message.edit_text(
-    #     text=f'{cb.message.text}\n\n✅ Выполнен',
-    #     entities=cb.message.entities,
-    #     parse_mode=None
-    # )
-    #
-    # # отправить фото оператору
-    # await send_opr_report_msg (order_info)
-    # action = UserActions.SUCCESS_ORDER.value
-    # # if order_info.g == OrderStatus.ACTIVE_TAKE.value:
-    # #     opr_info = await db.get_user_info (user_id=cb.from_user.id)
-    # #     text = f'✅Заказ получен курьером\n\n{cb.message.text}'
-    # #     await bot.send_message(opr_info.user_id, text)
-    # #     action = UserActions.SUCCESS_TAKE_ORDER.value
-    #
-    # # журнал действий
-    # await db.save_user_action (
-    #     user_id=cb.from_user.id,
-    #     dlv_name=order_info.f,
-    #     action=action,
-    #     comment=order_id_str)
 
 
 # Закрытие заказа с изменениями. Запрос суммы изменений
@@ -281,7 +243,7 @@ async def edit_order_close_2(msg: Message, state: FSMContext):
         user_action = UserActions.ADD_DISCOUNT_DLV.value
 
     order_info = await db.get_order(data['order_id'])
-    text = get_order_text(order_info)
+    text = txt.get_order_text(order_info)
     # action = OrderAction.SUC_TAKE.value if order_info.g == OrderStatus.ACTIVE_TAKE.value else OrderAction.SUC.value
     await msg.answer(text, reply_markup=kb.get_close_order_option_kb(data['order_id']))
 
@@ -321,7 +283,7 @@ async def trans_order(cb: CallbackQuery, state: FSMContext):
     )
     # await db.update_work_order(order_id=order_id, user_id=recip.user_id)
     order_info = await db.get_order(order_id=order_id)
-    order_text = get_order_text(order_info)
+    order_text = txt.get_order_text(order_info)
 
     text = f'{user.name} передал вам заказ:\n\n{order_text}'
     await bot.send_message(
@@ -391,7 +353,7 @@ async def back_main_order(cb: CallbackQuery, state: FSMContext):
     _, order_id_str = cb.data.split (':')
     order_id = int (order_id_str)
     order_info = await db.get_order(order_id=order_id)
-    text = get_order_text (order_info)
+    text = txt.get_order_text (order_info)
     await cb.message.edit_text(text=text, reply_markup=kb.get_dlv_main_order_kb(order_id, order_info.g))
 
 
@@ -408,5 +370,5 @@ async def back_close_order(cb: CallbackQuery, state: FSMContext):
     for message in messages:
         await bot.delete_message(chat_id=cb.message.chat.id, message_id=message)
 
-    text = get_order_text (order_info)
+    text = txt.get_order_text (order_info)
     await cb.message.edit_text(text=text, reply_markup=kb.get_close_order_option_kb(order_id=order_id))
