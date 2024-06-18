@@ -102,7 +102,7 @@ async def search(msg: Message, state: FSMContext):
     if not orders:
         if user_info.role != UserRole.DLV.value or user_info.company == CompanyDLV.POST.value:
             # orders = await db.get_orders (search_query=query, search_on=SearchType.POST, company_opr=comp_opr)
-            orders = await db.get_orders (search_query=query, search_on=SearchType.POST)
+            orders = await db.get_orders (search_query=query.upper(), search_on=SearchType.POST)
 
     if not orders:
         await msg.answer ('❌ По вашему запросу ничего не найдено')

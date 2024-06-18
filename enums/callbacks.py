@@ -39,7 +39,7 @@ class DeliveryCB(str, Enum):
     REF_ORDER_1 = 'dlv_ref_order_1'
     REF_ORDER_2 = 'dlv_ref_order_2'
     TAKE_ORDER_2 = 'dlv_take_order_2'
-    EDIT_NAME = 'dlv_edit_name'
+    EDIT_PROFILE = 'dlv_edit_profile'
     REPORT_1 = 'dlv_report_1'
     REPORT_2 = 'dlv_report_2'
     REPORT_3 = 'dlv_report_3'

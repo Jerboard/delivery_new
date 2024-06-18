@@ -274,10 +274,10 @@ async def update_row_google(
     if status:
         query = query.values(g=status)
     if note:
-        query = query.values(ab=note)
+        query = query.values(ab=note) if note != 'del' else query.values(ab=None)
     if type_update:
         query = query.values(type_update=type_update)
-    if discount:
+    if discount is not None:
         query = query.values(y=discount)
     if cost_delivery:
         query = query.values(clmn_t=cost_delivery) if cost_delivery != 'del' else query.values(clmn_t=0)
@@ -332,7 +332,7 @@ async def get_orders(
         company_dlv: str = None,
         company_opr: str = None,
 ) -> tuple[OrderRow]:
-    query = sa.select(
+    query = (sa.select(
         OrderTable.c.id,
         OrderTable.c.b,
         OrderTable.c.c,
@@ -377,7 +377,8 @@ async def get_orders(
         UserTable.c.user_id,
         UserTable.c.phone,
         UserTable.c.company,
-    ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True))
+    ).select_from (OrderTable.join (UserTable, OrderTable.c.f == UserTable.c.name, isouter=True)).
+             order_by(OrderTable.c.row_num))
 
     if get_active:
         query = query.where (OrderTable.c.g.in_ (active_status_list[:-1]))
@@ -386,7 +387,6 @@ async def get_orders(
     elif get_ref:
         query = query.where (OrderTable.c.g.in_ (ref_status_list))
     elif order_status:
-        print(f'order_status: {order_status}')
         query = query.where(OrderTable.c.g == order_status)
     elif get_wait_update:
         query = query.where (OrderTable.c.updated.is_(False))

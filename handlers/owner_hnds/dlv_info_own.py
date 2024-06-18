@@ -43,7 +43,6 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
     _, start_str = cb.data.split(':')
     start = int(start_str)
     free_orders = await db.get_orders(order_status=OrderStatus.NEW.value)
-    # free_orders = free_orders[:57]
 
     if len(free_orders) < 20:
         await cb.message.answer('Страница 1/1')
@@ -71,6 +70,7 @@ async def view_free_orders(cb: CallbackQuery, state: FSMContext):
         else:
             sent = await cb.message.answer (title_text)
             title_message = sent.message_id
+
         for order in free_orders[start:fin]:
             text = txt.get_short_order_row (order, for_=ShortText.FREE.value)
 

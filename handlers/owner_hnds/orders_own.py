@@ -9,7 +9,7 @@ import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
 from utils import text_utils as txt
-from enums import OwnerCB, UserRole, OrderStatus, OwnerStatus, UserActions, TypeOrderUpdate
+from enums import OwnerCB, UserRole, OrderStatus, OwnerStatus, UserActions, TypeOrderUpdate, CompanyDLV
 
 
 # принимает заказ на забор
@@ -113,7 +113,6 @@ async def trans_order_1(cb: CallbackQuery):
 # передать заказ курьеру. Передаёт заказ
 @dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.TRANS_ORDER_2.value))
 async def trans_order_2(cb: CallbackQuery):
-    # user_id, order_id = map(int, cb.data.split(':')[1:])
     _, user_id_str, order_id_str = cb.data.split(':')
     user_id = int(user_id_str)
     order_id = int(order_id_str)
@@ -121,22 +120,25 @@ async def trans_order_2(cb: CallbackQuery):
     user_info = await db.get_user_info (user_id=user_id)
     take_date = datetime.now (Config.tz).date ().strftime (Config.day_form)
 
-    # await db.add_work_order (user_id=user_info.user_id, order_id=order_id)
     await db.update_row_google (
         order_id=order_id,
         dlv_name=user_info.name,
         status=OrderStatus.ACTIVE.value,
         take_date=take_date,
-        type_update=TypeOrderUpdate.STATE.value
+        type_update=TypeOrderUpdate.STATE.value,
+        discount=0,
+        note='del',
+        letter='del'
     )
 
+    # сообщение курьеру
     order_info = await db.get_order(order_id=order_id)
     dlv_text = txt.get_order_text (order_info)
+    keyboard = kb.get_dlv_main_order_kb(order_id=order_id, order_status=OrderStatus.ACTIVE.value)
+    if user_info.company == CompanyDLV.POST:
+        keyboard = kb.get_post_order_kb(order_id=order_info.id, order_status=order_info.g)
     text = f'❗️ Вам назначен заказ\n\n{dlv_text}'
-    await bot.send_message(chat_id=user_id, text=text, reply_markup=kb.get_dlv_main_order_kb(
-        order_id=order_id,
-        order_status=OrderStatus.ACTIVE.value
-    ))
+    await bot.send_message(chat_id=user_id, text=text, reply_markup=keyboard)
 
     new_text = txt.get_admin_order_text (order_info)
     await cb.message.edit_text(

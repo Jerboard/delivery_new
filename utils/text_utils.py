@@ -105,7 +105,6 @@ def get_statistic_text(statistic: tuple[db.OrderGroupRow]) -> str:
     text = ''
     total = 0
     for order in statistic:
-        # print(order)
         status = dt.order_status_data.get(order.status) if order.status != OrderStatus.NEW.value else 'Без курьера'
         if status:
             text += f'{status.capitalize()}: {order.orders_count}\n'

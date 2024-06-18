@@ -54,6 +54,22 @@ async def delivery_start(user_id: int, user_info: db.UserRow = None, msg_id: int
             await bot.send_message (user_id, text, reply_markup=ReplyKeyboardRemove())
 
 
+@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.SEND_ORDERS.value))
+async def send_orders_view(cb: CallbackQuery):
+    _, date_str = cb.data.split (':')
+
+    user_info = await db.get_user_info (user_id=cb.from_user.id)
+    # user_info = await db.get_user_info (user_id=1970050747)
+    orders = await db.get_orders (dlv_name=user_info.name, on_date=date_str, order_status=OrderStatus.SEND.value)
+
+    order_text = ''
+    for order in orders:
+        order_text += txt.get_short_order_row (order, for_=UserRole.DLV.value)
+
+    text = f'Отправлены {date_str}:\n\n{order_text}'
+    await send_long_msg(chat_id=cb.from_user.id, text=text)
+
+
 async def get_profile_dlv(user_id: int, user_info: db.UserRow = None, msg_id: int = None):
     if not user_info:
         user_info = await db.get_user_info (user_id)
@@ -191,17 +207,17 @@ async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
         comment=str(order_id))
 
 
-@dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.SEND_ORDERS.value))
-async def send_orders_view(cb: CallbackQuery):
-    _, date_str = cb.data.split (':')
-
-    user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=1970050747)
-    orders = await db.get_orders (dlv_name=user_info.name, on_date=date_str, order_status=OrderStatus.SEND.value)
-
-    order_text = ''
-    for order in orders:
-        order_text += txt.get_short_order_row (order, for_=UserRole.DLV.value)
-
-    text = f'Отправлены {date_str}:\n\n{order_text}'
-    await send_long_msg(chat_id=cb.from_user.id, text=text)
+# @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.SEND_ORDERS.value))
+# async def send_orders_view(cb: CallbackQuery):
+#     _, date_str = cb.data.split (':')
+#
+#     user_info = await db.get_user_info (user_id=cb.from_user.id)
+#     # user_info = await db.get_user_info (user_id=1970050747)
+#     orders = await db.get_orders (dlv_name=user_info.name, on_date=date_str, order_status=OrderStatus.SEND.value)
+#
+#     order_text = ''
+#     for order in orders:
+#         order_text += txt.get_short_order_row (order, for_=UserRole.DLV.value)
+#
+#     text = f'Отправлены {date_str}:\n\n{order_text}'
+#     await send_long_msg(chat_id=cb.from_user.id, text=text)

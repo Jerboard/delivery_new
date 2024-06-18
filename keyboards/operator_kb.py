@@ -8,7 +8,8 @@ from enums import BaseCB, OperatorCB, UserRole, OwnerCB, OrderStatus
 # основная клавиатура оператора
 def get_main_opr_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button (text='⚪️ Без статуса', callback_data=f'{OperatorCB.VIEW_ORDER_1.value}:{OrderStatus.NEW.value}')
+    # kb.button (text='⚪️ Без статуса', callback_data=f'{OperatorCB.VIEW_ORDER_1.value}:{OrderStatus.NEW.value}')
+    kb.button (text='⚪️ Без статуса', callback_data=f'{OperatorCB.VIEW_ORDER_2.value}:{OrderStatus.NEW.value}:0')
     kb.button (text='🟢 Доставлен', callback_data=f'{OperatorCB.VIEW_ORDER_1.value}:{OrderStatus.SUC.value}')
     kb.button (text='🟠 Отправлен', callback_data=f'{OperatorCB.VIEW_ORDER_1.value}:{OrderStatus.SEND.value}')
     kb.button (text='🟡 На руках', callback_data=f'{OperatorCB.VIEW_ORDER_1.value}:{OrderStatus.ACTIVE.value}')

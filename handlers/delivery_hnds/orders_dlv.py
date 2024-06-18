@@ -279,7 +279,9 @@ async def trans_order(cb: CallbackQuery, state: FSMContext):
         order_id=order_id,
         dlv_name=recip.name,
         type_update=TypeOrderUpdate.TRANS.value,
-        letter='del'
+        letter='del',
+        discount=0,
+        note='del',
     )
     # await db.update_work_order(order_id=order_id, user_id=recip.user_id)
     order_info = await db.get_order(order_id=order_id)
@@ -335,7 +337,10 @@ async def pickup_order_2(cb: CallbackQuery, state: FSMContext):
     await db.update_row_google (
         order_id=order_id,
         dlv_name=user_info.name,
-        type_update=TypeOrderUpdate.PICKUP.value
+        type_update=TypeOrderUpdate.PICKUP.value,
+        discount=0,
+        note='del',
+        letter='del'
     )
     # order_text = get_order_text (order_info)
     text = f'{user_info.name} забрал заказ:\n\n{order_info.w} {order_info.x}'.replace('None', '')

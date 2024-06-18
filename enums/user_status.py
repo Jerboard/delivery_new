@@ -4,7 +4,7 @@ from enum import Enum
 class DeliveryStatus(str, Enum):
     REG_NAME = 'reg_name'
     REG_PHONE = 'reg_phone'
-    EDIT_NAME = 'edit_name'
+    EDIT_PROFILE = 'edit_profile'
     EDIT_ORDER_CLOSE_1 = 'edit_order_close_1'
     EDIT_ORDER_CLOSE_2 = 'edit_order_close_2'
     EXPENSES_3 = 'expenses_dvl_3'

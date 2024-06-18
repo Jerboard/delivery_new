@@ -16,8 +16,8 @@ def get_send_contact_kb():
 # клавиатура ЛК курьера
 def main_dvl_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='🖊 Сменить имя', callback_data=DeliveryCB.EDIT_NAME.value)
-    kb.button(text='📱 Мой номер телефона', callback_data='in_dev')
+    kb.button(text='🖊 Сменить имя', callback_data=f'{DeliveryCB.EDIT_PROFILE.value}:name')
+    kb.button(text='📱 Сменить номер телефона', callback_data=f'{DeliveryCB.EDIT_PROFILE.value}:phone')
     kb.button(text='📝 Отчёт', callback_data=DeliveryCB.REPORT_1.value)
     kb.button(text='💸 Траты', callback_data=DeliveryCB.EXPENSES_1.value)
     kb.button(text='💵 Траты сегодня', callback_data=DeliveryCB.EXPENSES_VIEW.value)
