@@ -94,7 +94,7 @@ def get_short_order_row(order: db.OrderRow, for_: str) -> str:
         text = f'{comment_d} {dt.order_status_data.get (order.g)} {order.n} {cost} + {order.clmn_t} {order.w} {comment}\n'
 
     else:
-        node = f'<code>{order.ab}</code>' if order.comp_opr == CompanyDLV.POST else ''
+        node = f'<code>{order.ab}</code>' if order.ac == CompanyDLV.POST else ''
         text = (f'<code>{order.n}</code>  <code>{order.o}</code> {cost} + {order.clmn_t} {order.w} {node}'
                 f'\n---------------------------\n')
 
@@ -117,7 +117,7 @@ def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
     cost = get_order_cost(order)
     return (
         f'Курьер: {order.f}\n'
-        f'Номер курьера: {order.phone}\n\n'
+        f'Номер курьера: <code>{order.phone}</code>\n\n'
         f'Оператор: {order.k}\n'
         f'Клиент: {order.m}\n'
         f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
@@ -167,7 +167,7 @@ def get_opr_report_text(order: db.OrderRow) -> str:
 
     return (f'{mark} {status_str} {order.e}\n'
             f'Курьерская: {comp} ({order.f})\n'
-            f'Номер курьера: {order.phone}\n\n'
+            f'Номер курьера: <code>{order.phone}</code>\n\n'
             f'Оператор {order.k}\n'
             f'ФИО {order.m}\n'
             f'Номер {order.n}  {order.o}\n'

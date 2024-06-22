@@ -155,7 +155,6 @@ async def update_expenses_dlv(
         h: int = 0,
         i: int = 0,
         k: int = 0,
-        # l: list[str] = None,
         l: str = None,
         m: str = None,
         n: str = None,

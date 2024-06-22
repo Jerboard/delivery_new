@@ -176,10 +176,10 @@ async def save_expenses(
 async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
     order_info = await db.get_order (order_id)
 
-    if order_info.g in [OrderStatus.ACTIVE.value, OrderStatus.SEND.value]:
-        order_status = OrderStatus.SUC.value
-    else:
-        order_status = OrderStatus.SUC_TAKE.value
+    # if order_info.g in [OrderStatus.ACTIVE.value, OrderStatus.SEND.value]:
+    order_status = OrderStatus.SUC.value
+    # else:
+    #     order_status = OrderStatus.SUC_TAKE.value
 
     await db.update_row_google (
         order_id=order_id,

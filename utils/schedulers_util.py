@@ -15,7 +15,7 @@ async def start_scheduler():
     scheduler.add_job(update_google_row, 'interval', seconds=3)
     scheduler.add_job(check_take_orders, 'interval', minutes=5)
     scheduler.add_job(update_order_date, 'cron', hour=2)
-    scheduler.add_job(ex_log, 'cron', minute=0)
+    scheduler.add_job(ex_log, 'interval', minutes=15)
     scheduler.start()
 
 

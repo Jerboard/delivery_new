@@ -27,7 +27,7 @@ async def edit_dlv_name(cb: CallbackQuery, state: FSMContext):
                f'Введите новое имя\n' \
                f'❗️Ваше имя будет отображаться в таблице администратора'
     else:
-        text = f'Ваше телефон: {user_info.phone}\n' \
+        text = f'Ваш телефон: {user_info.phone}\n' \
                f'Введите новое номер телефона\n' \
                f'❗️Ваше телефон будет отображаться в таблице администратора'
 

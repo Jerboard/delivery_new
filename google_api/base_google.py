@@ -181,7 +181,6 @@ async def save_new_report_table(table_id: str = None) -> None:
 
 # обновляет таблицу по команде
 async def update_google_table(user_id: int) -> None:
-    time_start = datetime.now()
     sh = ug.get_google_connect()
 
     # основные параметры
@@ -305,7 +304,7 @@ async def update_google_table(user_id: int) -> None:
         except Exception as ex:
             log_error(message=f'Ошибка при возвращении ошибок таблицы: {ex}\n\n'
                               f'{exception_list}', with_traceback=False)
-    print (datetime.now () - time_start)
+    # print (datetime.now () - time_start)
 
 
 # добавляет одно последнее изменение в таблицу
@@ -317,10 +316,10 @@ async def update_google_row() -> None:
         # изменяет статус заказа
         try:
             # print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
-            cell = f'A{order.row_num}:Z{order.row_num}'
+            cell = f'B{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [
-                    str(order.id) if order.id else '', str(order.b) if order.b else '',
+                    str(order.b) if order.b else '',
                     str(order.c) if order.c else '', str(order.d) if order.d else '',
                     str(order.e) if order.e else '', str(order.f) if order.f else '-',
                     order_status_data.get (order.g), str(order.h) if order.h else '',
@@ -338,7 +337,6 @@ async def update_google_row() -> None:
             sh.sheet1.update (cell, new_row_str)
             if order.type_update == TypeOrderUpdate.STATE.value:
                 color = ug.choice_color(order.g)
-                print(f'color: {color}')
                 cell_form = f'E{order.row_num}:G{order.row_num}'
                 sh.sheet1.format(cell_form, {"backgroundColor": color})
                 if order.ab:
@@ -417,25 +415,13 @@ async def update_report_table():
                 h=int (re.sub (r'\D+', '', row [7]) or 0),
                 i=int (re.sub (r'\D+', '', row [8]) or 0),
                 k=int (re.sub (r'\D+', '', row [9]) or 0),
-                # entry_id=int(row[0]) if row[0] else counter,
-                # b=int(row[1]) if row[1] else 0,
-                # c=int(row[2]) if row[2] else 0,
-                # d=int(row[3]) if row[3] else 0,
-                # e=int(row[4]) if row[4] else 0,
-                # f=int(row[5]) if row[5] else 0,
-                # g=int(row[6]) if row[6] else 0,
-                # h=int(row[7]) if row[7] else 0,
-                # i=int(row[8]) if row[8] else 0,
-                # k=int(row[9]) if row[9] else 0,
                 l=l_list,
                 m=row[12].strip(),
                 n=row[13].strip(),
                 o=int (re.sub (r'\D+', '', row [14]) or 0),
-                # o=int(row[14]) if row[14] else 0,
                 p=row[15].strip(),
                 q=row[16].strip(),
                 r=int (re.sub (r'\D+', '', row [17]) or 0),
-                # r=int(row[17]) if row[17] else 0,
                 updated=True,
                 row_num=counter
             )

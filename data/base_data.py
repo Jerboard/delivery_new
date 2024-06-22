@@ -9,6 +9,12 @@ company_dlv = {
     CompanyDLV.MASTER_SPB.value: 'Мастер СПБ'
 }
 
+company_dlv_opr_bt = {
+    CompanyDLV.MASTER.value: 'Мастер МСК',
+    CompanyDLV.PUTILIN.value: 'Путилин МСК',
+    CompanyDLV.MASTER_SPB.value: 'Мастер СПБ'
+}
+
 company_dlv_revers = {
     'Почта / СДЭК': CompanyDLV.POST.value,
     'Мастер': CompanyDLV.MASTER.value,
