@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder, InlineKeyboardMarkup
 
 import db
-from data.base_data import company_dlv
+from data.base_data import company_dlv, company_dlv_opr_bt
 from enums import BaseCB, OperatorCB, UserRole, OwnerCB, OrderStatus
 
 
@@ -22,7 +22,7 @@ def get_main_opr_kb() -> InlineKeyboardMarkup:
 def take_order_company_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     kb.button (text='🔙 Назад', callback_data=OperatorCB.BACK_MAIN.value)
-    for comp_id, name in company_dlv.items():
+    for comp_id, name in company_dlv_opr_bt.items():
         kb.button(text=name, callback_data=f'{OperatorCB.TAKE_ORDER_1.value}:{comp_id}')
 
     return kb.adjust(1).as_markup()
