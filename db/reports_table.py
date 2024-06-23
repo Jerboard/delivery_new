@@ -189,6 +189,7 @@ async def update_expenses_dlv(
     if i:
         query = query.values(i=i)
     if k:
+        log_error(f'KKKKKKK {k}', with_traceback=False)
         query = query.values(k=k)
     if l:
         query = query.values(l=sa.func.array_append(ReportTable.c.l, l))
