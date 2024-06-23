@@ -316,10 +316,10 @@ async def update_google_row() -> None:
         # изменяет статус заказа
         try:
             # print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
-            cell = f'B{order.row_num}:Z{order.row_num}'
+            cell = f'A{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [
-                    str(order.b) if order.b else '',
+                    str(order.id) if order.id else '', str(order.b) if order.b else '',
                     str(order.c) if order.c else '', str(order.d) if order.d else '',
                     str(order.e) if order.e else '', str(order.f) if order.f else '-',
                     order_status_data.get (order.g), str(order.h) if order.h else '',
@@ -374,11 +374,11 @@ async def update_google_row() -> None:
         if new_row:
             sh = ug.get_google_connect()
             try:
-                cell = f"A{new_row.row_num}:R{new_row.row_num}"
+                cell = f"B{new_row.row_num}:R{new_row.row_num}"
                 l_str = '\n'.join(new_row.l)
                 new_row_str = [
                     [
-                        str(new_row.id) if new_row.b else '', str(new_row.b) if new_row.b else '',
+                        str(new_row.b) if new_row.b else '',
                         str(new_row.c) if new_row.c else '', str(new_row.d) if new_row.d else '',
                         str(new_row.e) if new_row.e else '', str(new_row.f) if new_row.f else '',
                         str(new_row.g) if new_row.g else '', str(new_row.h) if new_row.h else '',

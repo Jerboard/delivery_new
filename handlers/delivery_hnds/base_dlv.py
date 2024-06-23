@@ -102,10 +102,7 @@ async def save_expenses(
     ex_info = expensis_dlv [data ['ex_id']]
     comment = data["comment"] if data.get('comment') else ex_info ["text"]
     comment = f'{data ["exp_sum"]} - {comment}'
-    print(f'ex_info: {ex_info}')
-    print(f'exp_today: {exp_today}')
-    print(data)
-    print('---')
+
     if exp_today:
         print ('update')
         await db.update_expenses_dlv(
@@ -124,7 +121,6 @@ async def save_expenses(
         await db.save_user_action (user_id, user_info.name, 'Обновил трату', str(exp_today)[:250])
 
     else:
-        print('new')
         last_row = await db.get_last_updated_report(last_row=True)
         if not last_row:
             row_num = 5
