@@ -35,7 +35,7 @@ async def check_take_orders():
     orders = dt.get_opr_msg_data()
 
     if orders:
-        one_hour_ago = datetime.now(Config.tz) - timedelta(hours=1)
+        one_hour_ago = datetime.now(Config.tz) - timedelta(hours=2)
         for key, order in orders.items():
             created = Config.tz.localize(datetime.strptime(order['updated_at'], Config.datetime_form))
             # print(created, one_hour_ago, created < one_hour_ago)
