@@ -70,15 +70,17 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         row_split = row.split(':')
         if len(row_split) == 2:
             v = row_split[1].strip() or None
-            if v.isdigit():
-                v = int(v)
+            if v:
+                v = int(v) if v.isdigit() else v.lower()
             data_dict[row_split[0]] = v
 
     last_row = await db.get_max_row_num ()
     order_id = await db.add_row(
         row_num=last_row + 1,
         g=OrderStatus.NEW.value,
-        h=order_status_data.get(OrderStatus.TAKE.value),
+        # h=order_status_data.get(OrderStatus.TAKE.value),
+        h='забор',
+        j=get_today_date_str(),
         k=data_dict.get('Оператор'),
         l=data_dict.get('Партнер'),
         m=data_dict.get('ФИО'),

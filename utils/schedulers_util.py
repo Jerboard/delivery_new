@@ -63,7 +63,7 @@ async def ex_log():
     text = ''
     for report in reports:
         text += (f'id: {report.id}, b: {report.b}, c: {report.c}, d: {report.d}, e: {report.e}, f: {report.f}, '
-                 f'g: {report.g}, h: {report.h}, i: {report.i}, k: {report.k}, l: {report.l}, m: {report.m}, '
+                 f'g: {report.g}, h: {report.h}, i: {report.i}, k: {report.clmn_k}, l: {report.l}, m: {report.m}, '
                  f'n: {report.n}, in_google: {report.in_google}, row_num: {report.row_num}\n')
 
     text = f'{datetime.now(Config.tz).replace(microsecond=0)}\n{text}\n\n'

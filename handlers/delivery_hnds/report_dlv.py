@@ -30,8 +30,8 @@ async def report_dvl_1(cb: CallbackQuery):
 async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
-    user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=1970050747)
+    # user_info = await db.get_user_info (user_id=cb.from_user.id)
+    user_info = await db.get_user_info (user_id=5051573626)
     if date_str == 'today':
         date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
 
@@ -74,7 +74,7 @@ async def report_dvl_2(cb: CallbackQuery):
     if dlv_report:
         # print(dlv_report.b, dlv_report.c, dlv_report.d, dlv_report.e, dlv_report.f, dlv_report.g, dlv_report.h, dlv_report.i, dlv_report.j, dlv_report.k)
         total_expenses = (dlv_report.b + dlv_report.c + dlv_report.d + dlv_report.e + dlv_report.f + dlv_report.g +
-                          dlv_report.h + dlv_report.i + dlv_report.j + dlv_report.k)
+                          dlv_report.h + dlv_report.i + dlv_report.j + dlv_report.clmn_k)
     else:
         total_expenses = 0
 
@@ -86,6 +86,7 @@ async def report_dvl_2(cb: CallbackQuery):
     if user_info.company == CompanyDLV.POST:
         not_come = send_text
 
+    # print(total_expenses)
     total = cost_prod - total_expenses
     expenses = '\n'.join(dlv_report.l) if dlv_report else ''
 

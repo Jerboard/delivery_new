@@ -84,6 +84,7 @@ async def dlv_order_2(cb: CallbackQuery, state: FSMContext):
         key = f'{DataKey.ADD_OPR_ORDER.value}-{order_id}'
         data_order = dt.get_opr_msg_data(key)
         dt.del_opr_msg_data(key)
+
         for msg in data_order['sent_list']:
             try:
                 await bot.delete_message(chat_id=msg['user_id'], message_id=msg['message_id'])

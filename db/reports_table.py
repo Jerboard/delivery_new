@@ -19,7 +19,7 @@ class ReportRow(t.Protocol):
     h: int
     i: int
     j: int
-    k: int
+    clmn_k: int
     l: list[str]
     m: str
     n: str
@@ -45,7 +45,8 @@ ReportTable: sa.Table = sa.Table(
     sa.Column('h', sa.Integer, default=0),
     sa.Column('i', sa.Integer, default=0),
     sa.Column('j', sa.Integer, default=0),
-    sa.Column('k', sa.Integer, default=0),
+    # sa.Column('k', sa.Integer, default=0),
+    sa.Column('clmn_k', sa.Integer, default=0),
     sa.Column('l', sa.ARRAY(sa.String(255))),
     sa.Column('m', sa.Text),
     sa.Column('n', sa.String(255)),
@@ -133,7 +134,7 @@ async def add_report_row(
         row_num: int = 0
 ) -> None:
     query = ReportTable.insert().values(
-        b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
+        b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, clmn_k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
         row_num=row_num,
         in_google=updated
     )
@@ -190,7 +191,7 @@ async def update_expenses_dlv(
         query = query.values(i=i)
     if k:
         log_error(f'KKKKKKK {k}', with_traceback=False)
-        query = query.values(k=k)
+        query = query.values(clmn_k=k)
     if l:
         query = query.values(l=sa.func.array_append(ReportTable.c.l, l))
     # if close_partner_id:

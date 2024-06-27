@@ -116,7 +116,7 @@ async def save_expenses(
             g=exp_today.g + (data.get('g', 0)),
             h=exp_today.h + (data.get('h', 0)),
             i=exp_today.i + (data.get('i', 0)),
-            k=exp_today.k + (data.get('k', 0)),
+            k=exp_today.clmn_k + (data.get('k', 0)),
         )
         await db.save_user_action (user_id, user_info.name, 'Обновил трату', str(exp_today)[:250])
 

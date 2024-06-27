@@ -383,7 +383,7 @@ async def update_google_row() -> None:
                         str(new_row.e) if new_row.e else '', str(new_row.f) if new_row.f else '',
                         str(new_row.g) if new_row.g else '', str(new_row.h) if new_row.h else '',
                         str(new_row.i) if new_row.i else '', str(new_row.j) if new_row.j else '',
-                        str(new_row.k) if new_row.k else '', l_str,
+                        str(new_row.clmn_k) if new_row.clmn_k else '', l_str,
                         str(new_row.m) if new_row.m else '', str(new_row.n) if new_row.n else '',
                         str(new_row.o) if new_row.o else '', str(new_row.p) if new_row.p else '',
                         str(new_row.q) if new_row.q else '', str(new_row.r) if new_row.r else ''
