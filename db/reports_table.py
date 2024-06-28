@@ -121,6 +121,7 @@ async def add_report_row(
         g: int = 0,
         h: int = 0,
         i: int = 0,
+        j: int = 0,
         k: int = 0,
         l: list [str] = None,
         m: str = None,
@@ -134,7 +135,7 @@ async def add_report_row(
         row_num: int = 0
 ) -> None:
     query = ReportTable.insert().values(
-        b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, clmn_k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
+        b=b, c=c, d=d, e=e, f=f, g=g, h=h, i=i, j=j, clmn_k=k, l=l, m=m, n=n, o=o, p=p, q=q, r=r,
         row_num=row_num,
         in_google=updated
     )
@@ -155,6 +156,7 @@ async def update_expenses_dlv(
         g: int = 0,
         h: int = 0,
         i: int = 0,
+        j: int = 0,
         k: int = 0,
         l: str = None,
         m: str = None,
@@ -166,9 +168,6 @@ async def update_expenses_dlv(
         updated: bool = False,
         row_num: int = 0
 ) -> None:
-    log_error(f'ТРАТА\nentry_id: {entry_id}, b: {b}, c: {c}, d: {d}, e: {e}, f: {f}, g: {g}, '
-              f'h: {h}, i: {i}, k: {k}, l: {l}, m: {m}, updated: {updated}, row_num: {row_num}', with_traceback=False)
-
     query = ReportTable.update ().where (ReportTable.c.id == entry_id).values (
         in_google=updated,
         time_update=datetime.now (Config.tz).replace (microsecond=0)
@@ -189,8 +188,9 @@ async def update_expenses_dlv(
         query = query.values(h=h)
     if i:
         query = query.values(i=i)
+    if j:
+        query = query.values(j=j)
     if k:
-        log_error(f'KKKKKKK {k}', with_traceback=False)
         query = query.values(clmn_k=k)
     if l:
         query = query.values(l=sa.func.array_append(ReportTable.c.l, l))
