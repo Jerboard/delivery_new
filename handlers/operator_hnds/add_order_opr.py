@@ -70,8 +70,12 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         row_split = row.split(':')
         if len(row_split) == 2:
             v = row_split[1].strip() or None
+
             if v:
-                v = int(v) if v.isdigit() else v.lower()
+                if row_split[0] in ['Номер', 'Доп.номер']:
+                    v = v.lower()
+                else:
+                    v = int(v) if v.isdigit() else v.lower()
             data_dict[row_split[0]] = v
 
     last_row = await db.get_max_row_num ()

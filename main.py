@@ -6,7 +6,7 @@ from handlers import dp
 from config import DEBUG
 from init import set_main_menu, bot, log_error
 from db.base import init_models, create_trigger
-from utils.schedulers_util import start_scheduler, update_order_date, ex_log
+from utils.schedulers_util import start_scheduler, update_order_date
 from utils.local_data_utils import create_local_data_files
 
 from google_api.base_google import save_new_order_table

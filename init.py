@@ -38,7 +38,7 @@ ENGINE = create_async_engine(url=Config.db_url)
 async def set_main_menu():
     main_menu_commands = [
         BotCommand(command='/start', description='Главный экран'),
-        BotCommand(command='/main', description='ЛК курьера'),
+        BotCommand(command='/main', description='Личный кабинет'),
     ]
 
     await bot.set_my_commands(main_menu_commands)

@@ -16,7 +16,7 @@ def clearing_text(text: str) -> str:
         elif not row or not re.search ('None', row):
             clear_text = f'{clear_text}\n{row}'
 
-    return clear_text.replace('None', 'н/д').strip()
+    return clear_text.replace('None', '').strip()
 
 
 # текст заказа по строке
@@ -35,7 +35,7 @@ def get_order_text(order: db.OrderRow) -> str:
         f'Примечания: {order.ab}\n\n'
         f'{bottom_text}'
     )
-    return text.replace('None', '').strip()
+    return clearing_text(text)
 
 
 # текст заказа для админов
@@ -115,7 +115,7 @@ def get_statistic_text(statistic: tuple[db.OrderGroupRow]) -> str:
 # отчёт в группу при отказе от заказа
 def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
     cost = get_order_cost(order)
-    return (
+    text = (
         f'Курьер: {order.f}\n'
         f'Номер курьера: <code>{order.phone}</code>\n\n'
         f'Оператор: {order.k}\n'
@@ -126,7 +126,8 @@ def get_dlv_refuse_text(order: db.OrderRow, note: str) -> str:
         f'Цена: {cost} + {order.clmn_t}\n'
         f'Курьеру к оплате: {cost + order.clmn_t}\n'
         f'Примечания: {note}\n'
-    ).replace('None', 'н/д')
+    )
+    return clearing_text(text)
 
 
 # отчёты для операторов
@@ -136,18 +137,19 @@ def get_opr_order_text(order: db.OrderRow) -> str:
     status_str = dt.order_status_data.get (order.g, '')
     comp = dt.company_dlv.get (order.ac, 'н/д')
     node = f'Трек номер <code>{order.ab}</code>' if order.g == OrderStatus.SEND else f'Примечание: {order.ab}'
-    return (
+    text = (
         f'{mark} {status_str} {order.e}\n'
         f'Курьер: {order.f} ({comp})\n\n'
         f'Оператор: {order.k}\n'
         f'ФИО: {order.m}\n'
-        f'Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
+        f'#Номер: <code>{order.n}</code>, <code>{order.o}</code>\n'
         f'Цена: {cost}\n'
         f'Доставка: {order.clmn_t}\n'
         f'Метро: {order.w}\n'
         f'Адрес: {order.x}\n'
         f'{node}\n'
-    ).replace ('None', 'н/д').strip()
+    )
+    return clearing_text(text)
 
 
 def get_opr_report_text(order: db.OrderRow) -> str:
@@ -165,31 +167,17 @@ def get_opr_report_text(order: db.OrderRow) -> str:
     else:
         node = f'Примечание: {order.ab}'
 
-    return (f'{mark} {status_str} {order.e}\n'
+    text = (f'{mark} {status_str} {order.e}\n'
             f'Курьерская: {comp} ({order.f})\n'
             f'Номер курьера: <code>{order.phone}</code>\n\n'
             f'Оператор {order.k}\n'
             f'ФИО {order.m}\n'
-            f'Номер {order.n}  {order.o}\n'
+            f'#Номер {order.n}  {order.o}\n'
             f'Метро {order.w}\n\n'
             f'Курьеру к оплате: {cost} + {order.clmn_t} \n'
             f'Курьеру к оплате: {cost + order.clmn_t} \n\n'
-            f'{node}').replace('None', 'н/д').strip()
-
-    # if order.g == OrderStatus.NEW.value:
-    #     text = (f'принят {order.j} |  оператор {order.k} | ФИО {order.m} | тел {order.n} тел2 {order.o} |  '
-    #             f'цена {cost} + доставка  {order.clmn_t} |  метро {order.w} | адрес {order.x}')
-    #
-    # else:
-
-        # text = (f'{mark} {status_str} {order.e}\n'
-        #         f'Курьерская: {comp} ({order.f})\n'
-        #         f'Номер курьера: {order.phone}\n\n'
-        #         f'принят {order.j} |  оператор {order.k} | ФИО {order.m} | тел {order.n} тел2 {order.o} |  '
-        #         f'цена {cost} + доставка  {order.clmn_t} |  метро {order.w} | адрес {order.x}\n\n'
-        #         f'{node}')
-
-    # return text.replace('None', 'н/д').strip()
+            f'{node}')
+    return clearing_text(text)
 
 '''
 

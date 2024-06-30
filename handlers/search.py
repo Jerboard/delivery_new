@@ -117,7 +117,10 @@ async def search(msg: Message, state: FSMContext):
             await msg.answer('❌ По вашему запросу ничего не найдено')
 
     elif user_info.role in [UserRole.OPR.value, UserRole.OWN.value]:
-        if len(orders) <= 3:
+        order_phone = [order.n for order in orders]
+        one_number = True if len(set(order_phone)) == 1 else False
+
+        if len(orders) <= 3 or one_number:
             for order in orders:
                 await processing_admin(order, user_info)
 

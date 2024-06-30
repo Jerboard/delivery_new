@@ -15,7 +15,6 @@ async def start_scheduler():
     scheduler.add_job(update_google_row, 'interval', seconds=3)
     scheduler.add_job(check_take_orders, 'interval', minutes=5)
     scheduler.add_job(update_order_date, 'cron', hour=2)
-    scheduler.add_job(ex_log, 'interval', minutes=15)
     scheduler.start()
 
 
@@ -54,19 +53,3 @@ async def update_order_date():
     await db.update_multi_orders(date_str=get_today_date_str(), type_update=TypeOrderUpdate.UP_DATE.value)
     await db.delete_post_order(flag_del=True)
     # await db.update_multi_orders(type_update=TypeOrderUpdate.NOT_COME.value)
-
-
-async def ex_log():
-    reports = await db.get_reports_all_dlv(on_date=get_today_date_str())
-    # reports = await db.get_reports_all_dlv(on_date='14.06')
-
-    text = ''
-    for report in reports:
-        text += (f'id: {report.id}, b: {report.b}, c: {report.c}, d: {report.d}, e: {report.e}, f: {report.f}, '
-                 f'g: {report.g}, h: {report.h}, i: {report.i}, k: {report.clmn_k}, l: {report.l}, m: {report.m}, '
-                 f'n: {report.n}, in_google: {report.in_google}, row_num: {report.row_num}\n')
-
-    text = f'{datetime.now(Config.tz).replace(microsecond=0)}\n{text}\n\n'
-
-    dt.add_expenses_log(text)
-

@@ -56,7 +56,7 @@ async def ref_order_3(msg: Message, state: FSMContext):
     elif msg.content_type == ContentType.TEXT:
         data = await state.get_data()
         await state.clear()
-        order_info = await db.get_order (data['order_id'])
+
         await db.update_row_google (
             order_id=data['order_id'],
             status=OrderStatus.REF.value,
@@ -74,6 +74,7 @@ async def ref_order_3(msg: Message, state: FSMContext):
         await msg.answer('✖️ Заказ отменён')
         # отправить в чат отказов
         user_info = await db.get_user_info(user_id=msg.from_user.id)
+        order_info = await db.get_order(data['order_id'])
         await bot.send_photo(
             chat_id=work_chats[f'refuse_{user_info.company}'],
             photo=data.get('photo_id'),

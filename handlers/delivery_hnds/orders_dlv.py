@@ -93,12 +93,16 @@ async def dlv_order_2(cb: CallbackQuery, state: FSMContext):
 
         opr_info = await db.get_user_info(name=order.k)
 
-        await cb.message.edit_text(
-            text=f'{cb.message.text}\n\n✅ Принят',
-            entities=cb.message.entities,
-            parse_mode=None,
-            reply_markup=kb.get_dlv_main_order_kb (order_id=order_id, order_status=OrderStatus.ACTIVE_TAKE.value)
-        )
+        try:
+            await cb.message.edit_text(
+                text=f'{cb.message.text}\n\n✅ Принят',
+                entities=cb.message.entities,
+                parse_mode=None,
+                reply_markup=kb.get_dlv_main_order_kb (order_id=order_id, order_status=OrderStatus.ACTIVE_TAKE.value)
+            )
+        except Exception as ex:
+            log_error(ex)
+
         text = f'✅Заказ принят. {user_info.name}\n\n{cb.message.text}'
         await bot.send_message(opr_info.user_id, text)
         # журнал действий

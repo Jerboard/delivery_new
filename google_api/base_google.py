@@ -149,23 +149,22 @@ async def save_new_report_table(table_id: str = None) -> None:
     sh = ug.get_google_connect (table_id)
     table = sh.get_worksheet (Config.report_sheet_num).get_all_values ()
     counter = 4
-    log_error('Обновляем таблицу отчётов', with_traceback=False)
     for row in table [4:]:
         counter += 1
         try:
             if row [13]:
-                log_error(str(row), with_traceback=False)
-                log_error(str(
-                    (int(re.sub(r'\D+', '', row[1]) or 0),
-                     int(re.sub(r'\D+', '', row[2]) or 0),
-                     int(re.sub(r'\D+', '', row[3]) or 0),
-                     int(re.sub(r'\D+', '', row[4]) or 0),
-                     int(re.sub(r'\D+', '', row[5]) or 0),
-                     int(re.sub(r'\D+', '', row[6]) or 0),
-                     int(re.sub(r'\D+', '', row[7]) or 0),
-                     int(re.sub(r'\D+', '', row[8]) or 0),
-                     int(re.sub(r'\D+', '', row[9]) or 0))
-                ), with_traceback=False)
+                # log_error(str(row), with_traceback=False)
+                # log_error(str(
+                #     (int(re.sub(r'\D+', '', row[1]) or 0),
+                #      int(re.sub(r'\D+', '', row[2]) or 0),
+                #      int(re.sub(r'\D+', '', row[3]) or 0),
+                #      int(re.sub(r'\D+', '', row[4]) or 0),
+                #      int(re.sub(r'\D+', '', row[5]) or 0),
+                #      int(re.sub(r'\D+', '', row[6]) or 0),
+                #      int(re.sub(r'\D+', '', row[7]) or 0),
+                #      int(re.sub(r'\D+', '', row[8]) or 0),
+                #      int(re.sub(r'\D+', '', row[9]) or 0))
+                # ), with_traceback=False)
                 # print(counter, row)
                 l_list = row [11].split ('\n')
                 await db.add_report_row (
