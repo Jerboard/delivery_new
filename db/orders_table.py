@@ -305,7 +305,7 @@ async def update_multi_orders(
         query = OrderTable.update ().where (OrderTable.c.g.in_ (active_status_list [:-1])).values (e=date_str)
     else:
         query = OrderTable.update().where(OrderTable.c.g.in_ (active_status_list[:-1])).values(
-            updated=True,
+            updated=False,
             time_update=datetime.now(Config.tz),
             type_update=type_update,
             e=date_str,

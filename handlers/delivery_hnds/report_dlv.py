@@ -6,7 +6,7 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
-from utils.base_utils import get_order_cost, send_long_msg
+from utils.base_utils import get_order_cost, send_long_msg, get_today_date_str
 from utils.text_utils import get_short_order_row
 from utils import local_data_utils as ld
 from data import base_data as dt
@@ -33,13 +33,9 @@ async def report_dvl_2(cb: CallbackQuery):
     user_info = await db.get_user_info (user_id=cb.from_user.id)
     # user_info = await db.get_user_info (user_id=5051573626)
     if date_str == 'today':
-        date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
+        # date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
+        date_str = get_today_date_str()
 
-    # if user_info.company == CompanyDLV.POST:
-    #     dlv_orders = await db.get_post_orders(user_id=cb.from_user.id)
-    #     # dlv_orders = await db.get_post_orders(user_id=1970050747)
-    #
-    # else:
     dlv_orders = await db.get_orders(user_id=user_info.user_id, on_date=date_str)
 
     dlv_report = await db.get_report_dlv(dlv_name=user_info.name, exp_date=date_str)

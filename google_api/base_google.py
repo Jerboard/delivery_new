@@ -153,19 +153,6 @@ async def save_new_report_table(table_id: str = None) -> None:
         counter += 1
         try:
             if row [13]:
-                # log_error(str(row), with_traceback=False)
-                # log_error(str(
-                #     (int(re.sub(r'\D+', '', row[1]) or 0),
-                #      int(re.sub(r'\D+', '', row[2]) or 0),
-                #      int(re.sub(r'\D+', '', row[3]) or 0),
-                #      int(re.sub(r'\D+', '', row[4]) or 0),
-                #      int(re.sub(r'\D+', '', row[5]) or 0),
-                #      int(re.sub(r'\D+', '', row[6]) or 0),
-                #      int(re.sub(r'\D+', '', row[7]) or 0),
-                #      int(re.sub(r'\D+', '', row[8]) or 0),
-                #      int(re.sub(r'\D+', '', row[9]) or 0))
-                # ), with_traceback=False)
-                # print(counter, row)
                 l_list = row [11].split ('\n')
                 await db.add_report_row (
                     b=int (re.sub (r'\D+', '', row [1]) or 0),
@@ -211,6 +198,7 @@ async def update_google_table(user_id: int) -> None:
         if row[13].strip() != '':
             if row[0].isdigit():
                 try:
+                    print(row)
                     order_id = int (row [0])
                     order_user_name = row [5].strip () if row [5] else None
                     order_status = order_status_data.get (row [6].strip ())
@@ -220,6 +208,7 @@ async def update_google_table(user_id: int) -> None:
                     await db.update_row_google(
                         order_id=order_id,
                         all_row=True,
+                        type_update=TypeOrderUpdate.UPDATE_ROW.value,
                         b=row[1].strip() if row[1] else None,
                         c=row[2].strip() if row[2] else None,
                         d=row[3].strip() if row[3] else None,
@@ -328,7 +317,6 @@ async def update_google_row() -> None:
         sh = ug.get_google_connect()
         # изменяет статус заказа
         try:
-            # print(f'Меняем статус при записи в гугл было {order.g} стало {order_status_data.get (order.g)}')
             cell = f'A{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [
@@ -373,6 +361,9 @@ async def update_google_row() -> None:
                 sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
                 cell = f'J{order.row_num}:Z{order.row_num}'
                 sh.sheet1.format (cell, {"backgroundColor": col})
+
+            elif order.type_update == TypeOrderUpdate.UPDATE_ROW.value:
+                sh.sheet1.update(f'AB{order.row_num}:AC{order.row_num}', [[order.ab, order.ac]])
 
             await db.update_row_google(order_id=order.id, update_row=True)
 

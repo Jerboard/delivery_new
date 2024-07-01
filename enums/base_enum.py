@@ -71,7 +71,7 @@ class TypeOrderUpdate(str, Enum):
     EDIT_COST = 'edit_cost'
     EDIT_COST_DELIVERY = 'edit_cost_dlv'
     NOT_COME = 'not_come'
-    UP_DATE = 'up_date'
+    UPDATE_ROW = 'update'
     TRANS = 'trans'
     PICKUP = 'pickup'
 
