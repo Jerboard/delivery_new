@@ -363,7 +363,7 @@ async def update_google_row() -> None:
                 sh.sheet1.format (cell, {"backgroundColor": col})
 
             elif order.type_update == TypeOrderUpdate.UPDATE_ROW.value:
-                sh.sheet1.update(f'AB{order.row_num}:AC{order.row_num}', [[order.ab, order.ac]])
+                sh.sheet1.update(f'AB{order.row_num}:AC{order.row_num}', [[order.ab, company_dlv.get('order.ac', '')]])
 
             await db.update_row_google(order_id=order.id, update_row=True)
 
