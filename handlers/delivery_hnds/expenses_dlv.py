@@ -74,6 +74,7 @@ async def expenses_dvl_4(msg: Message, state: FSMContext):
         await state.update_data (data={'comment': msg.text})
         data = await state.get_data()
         await state.clear()
+        await state.clear()
         await save_expenses (msg.from_user.id, data)
 
 
