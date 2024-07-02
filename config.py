@@ -17,15 +17,14 @@ class Config:
         db_url = getenv ('DB_URL_WORK')
         bot_name = 'tushchkan_test_3_bot'
         host = getenv('HOST')
-        report_sheet_num = 6
 
     else:
         token = getenv ("TOKEN")
         db_url = getenv ('DB_URL')
         bot_name = 'MatrixDeliveryBot'
         host = getenv ('HOST')
-        report_sheet_num = 8
 
+    report_sheet_num = 6
     tz = timezone('Europe/Moscow')
     day_form = '%d.%m'
     datetime_form = '%d.%m.%Y %H:%M'
