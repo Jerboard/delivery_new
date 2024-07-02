@@ -72,10 +72,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
             v = row_split[1].strip() or None
 
             if v:
-                if row_split[0] in ['Номер', 'Доп.номер']:
-                    v = v.lower()
-                else:
-                    v = int(v) if v.isdigit() else v.lower()
+                v = int(v) if v.isdigit() else v.lower()
             data_dict[row_split[0]] = v
 
     last_row = await db.get_max_row_num ()
@@ -85,7 +82,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         # h=order_status_data.get(OrderStatus.TAKE.value),
         h='забор',
         j=get_today_date_str(),
-        k=data_dict.get('Оператор'),
+        k=str(data_dict.get('Оператор')),
         l=data_dict.get('Партнер'),
         m=data_dict.get('ФИО'),
         n=str (data_dict.get ('Номер', '')),
