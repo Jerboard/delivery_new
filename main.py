@@ -9,7 +9,7 @@ from db.base import init_models, create_trigger
 from utils.schedulers_util import start_scheduler, update_order_date
 from utils.local_data_utils import create_local_data_files
 
-from google_api.base_google import save_new_order_table
+# from google_api.base_google import save_new_order_table
 from utils.local_data_utils import save_table_id, get_table_id
 
 
@@ -23,7 +23,7 @@ async def main() -> None:
         await start_scheduler()
     else:
         pass
-        # await start_scheduler ()
+        await start_scheduler ()
     await bot.delete_webhook (drop_pending_updates=True)
     await dp.start_polling(bot)
 

@@ -40,6 +40,7 @@ async def save_new_order_table(table_id: str) -> str:
                 order_status = order_status_data.get(row[6].strip())
                 comp_opr = ug.check_comp_name(row [10].strip (), comp_dict=opr_dict)
                 comp_dlv = ug.check_comp_name(order_user_name, comp_dict=dlv_dict)
+
                 await db.add_row (
                     entry_id=entry_id,
                     row_num=new_row_num,
@@ -317,6 +318,7 @@ async def update_google_row() -> None:
         sh = ug.get_google_connect()
         # изменяет статус заказа
         try:
+            print(order)
             cell = f'A{order.row_num}:Z{order.row_num}'
             new_row_str = [
                 [
@@ -363,7 +365,7 @@ async def update_google_row() -> None:
                 sh.sheet1.format (cell, {"backgroundColor": col})
 
             elif order.type_update == TypeOrderUpdate.UPDATE_ROW.value:
-                sh.sheet1.update(f'AB{order.row_num}:AC{order.row_num}', [[order.ab, company_dlv.get(order.ac, '')]])
+                sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
 
             await db.update_row_google(order_id=order.id, update_row=True)
 

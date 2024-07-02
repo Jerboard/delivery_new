@@ -5,7 +5,6 @@ import os
 
 from enums import CompanyDLV
 
-
 load_dotenv ()
 DEBUG = bool(int(getenv('DEBUG')))
 
