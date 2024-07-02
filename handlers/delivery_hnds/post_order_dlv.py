@@ -1,20 +1,16 @@
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
+from aiogram.enums.content_type import ContentType
 
-from datetime import datetime
-from asyncio import sleep
+import asyncio
 
 import db
 import keyboards as kb
 from init import dp, bot, log_error
 from handlers.operator_hnds.base_opr import send_opr_report_msg
-from config import Config
-from utils import local_data_utils as dt
-from utils import text_utils as txt
-from data.base_data import work_chats, order_actions
-from enums import (DeliveryCB, OrderStatus, DataKey, UserActions, DeliveryStatus, OrderAction, TypeOrderUpdate,
-                   TypeOrderButton)
+from data.base_data import work_chats
+from enums import DeliveryCB, OrderStatus, CompanyDLV, UserActions, DeliveryStatus, TypeOrderUpdate
 
 
 # запрашивает трек номер
@@ -65,23 +61,58 @@ async def post_id(msg: Message, state: FSMContext):
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.POST_2.value))
 async def post_2(cb: CallbackQuery, state: FSMContext):
     _, order_id_str = cb.data.split (':')
-    order_id = int (order_id_str)
+    # order_id = int (order_id_str)
 
-    user_info = await db.get_user_info (cb.from_user.id)
+    await state.set_state(DeliveryStatus.REFUSE_POST)
+    sent = await cb.message.answer('Укажите причину отказа', reply_markup=kb.get_close_kb())
+    await state.update_data(data={
+        'order_id': int(order_id_str),
+        'msg_id': cb.message.message_id,
+        'del_msg_id': sent.message_id,
+        'text': cb.message.text,
+        'entities': cb.message.entities,
+    })
+
+
+# принимает фото отменяет заказ
+@dp.message(StateFilter(DeliveryStatus.REFUSE_POST))
+async def refuse_post(msg: Message, state: FSMContext):
+    if msg.content_type != ContentType.TEXT:
+        sent = await msg.answer('❗️ Отправьте причину отказа текстом')
+        await asyncio.sleep(3)
+        await sent.delete()
+        return
+
+    await msg.delete()
+    data = await state.get_data()
+    await state.clear()
+
+    user_info = await db.get_user_info (msg.from_user.id)
     await db.update_row_google(
-        order_id=order_id,
+        order_id=data['order_id'],
         status=OrderStatus.REF.value,
-        type_update=TypeOrderUpdate.STATE.value,
+        type_update=TypeOrderUpdate.STATE.value
     )
-    await cb.message.edit_text(
-        text=f'{cb.message.text}\n\n❌ Отказ',
-        entities=cb.message.entities
+    await bot.delete_message(chat_id=msg.chat.id, message_id=data['del_msg_id'])
+    await bot.edit_message_text(
+        chat_id=msg.chat.id,
+        message_id=data['msg_id'],
+        text=f'{data["text"]}\n\n❌ Отказ',
+        entities=data["entities"],
+        parse_mode=None
     )
+    await bot.send_message(
+        chat_id=work_chats[f'refuse_{CompanyDLV.POST.value}'],
+        text=f'{data["text"]}\n\n❌ Отказ\n\n{msg.text}',
+        entities=msg.entities,
+        parse_mode=None
+    )
+
     # журнал действий
     await db.save_user_action(
-        user_id=cb.from_user.id,
+        user_id=msg.from_user.id,
         dlv_name=user_info.name,
         action=UserActions.SEND_POST_ORDER.value,
-        comment=str(order_id)
+        comment=str(data['order_id'])
     )
 

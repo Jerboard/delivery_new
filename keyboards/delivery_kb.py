@@ -16,7 +16,7 @@ def get_send_contact_kb():
 # клавиатура ЛК курьера
 def main_dvl_kb() -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
-    kb.button(text='🖊 Сменить имя', callback_data=f'{DeliveryCB.EDIT_PROFILE.value}:name')
+    # kb.button(text='🖊 Сменить имя', callback_data=f'{DeliveryCB.EDIT_PROFILE.value}:name')
     kb.button(text='📱 Сменить номер телефона', callback_data=f'{DeliveryCB.EDIT_PROFILE.value}:phone')
     kb.button(text='📝 Отчёт', callback_data=DeliveryCB.REPORT_1.value)
     kb.button(text='💸 Траты', callback_data=DeliveryCB.EXPENSES_1.value)
@@ -191,6 +191,8 @@ def get_post_order_kb(order_id: int, order_status) -> InlineKeyboardMarkup:
             callback_data=f'{DeliveryCB.ORDER_4.value}:{order_id}:{OrderAction.SUC.value}:del'
         )
     kb.button (text='❌ Отказ', callback_data=f'{DeliveryCB.POST_2.value}:{order_id}')
+    # kb.button(text='❌ Отказ', callback_data=f'{DeliveryCB.REF_ORDER_1.value}:{order_id}')
+
 
     return kb.adjust (1).as_markup ()
 

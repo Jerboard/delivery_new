@@ -170,7 +170,7 @@ async def save_expenses(
 
 
 # закрытие заказа
-async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
+async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None, node: str = None):
     order_info = await db.get_order (order_id)
 
     # if order_info.g in [OrderStatus.ACTIVE.value, OrderStatus.SEND.value]:
@@ -183,7 +183,8 @@ async def done_order(user_id: int, order_id: int, lit: str, msg_id: int = None):
         letter=lit,
         status=order_status,
         type_update=TypeOrderUpdate.STATE.value,
-        take_date=get_today_date_str()
+        take_date=get_today_date_str(),
+        note=node
     )
     text = txt.get_order_text (order_info)
     if msg_id:

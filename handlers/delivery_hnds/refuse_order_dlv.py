@@ -91,7 +91,7 @@ async def ref_order_3(msg: Message, state: FSMContext):
             comment=f'ID: {data["order_id"]} ROW: {order_info.row_num}')
 
 
-#  принимает фото частичеого отказа и закрывает заказ
+#  принимает фото частичного отказа и закрывает заказ
 @dp.message(StateFilter(DeliveryStatus.REFUSE_PART))
 async def ref_order_3(msg: Message, state: FSMContext):
     if msg.content_type != ContentType.PHOTO:
@@ -105,11 +105,15 @@ async def ref_order_3(msg: Message, state: FSMContext):
 
         user_info = await db.get_user_info (user_id=msg.from_user.id)
         order_info = await db.get_order (data ['order_id'])
+
+        old_note = order_info.ab or ''
+        note = f'{old_note}\nЧастичный отказ'.strip()
+
         await bot.send_photo (
             chat_id=work_chats [f'refuse_{user_info.company}'],
             photo=msg.photo[-1].file_id,
             caption=get_dlv_refuse_text (order=order_info, note=msg.text)
         )
 
-        await done_order (user_id=msg.from_user.id, order_id=data['order_id'], lit=data['lit'])
+        await done_order (user_id=msg.from_user.id, order_id=data['order_id'], lit=data['lit'], node=note)
         await bot.edit_message_reply_markup (chat_id=msg.chat.id, message_id=data ['msg_id'], reply_markup=None)
