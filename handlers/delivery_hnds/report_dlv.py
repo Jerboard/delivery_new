@@ -24,14 +24,14 @@ async def report_dvl_1(cb: CallbackQuery):
     await cb.message.edit_reply_markup(reply_markup=kb.report_view_days_kb(dlv_reports))
 
 
-# 6600572025 - мияги, 5766385456 - Ян, 5051573626 - Мел, 1970050747 - Николь
+# 6600572025 - мияги, 5766385456 - Ян, 5051573626 - Мел, 1970050747 - Николь, 5378481086 - Ярик
 # отчёт за день
 @dp.callback_query(lambda cb: cb.data.startswith(DeliveryCB.REPORT_2.value))
 async def report_dvl_2(cb: CallbackQuery):
     _, date_str = cb.data.split(':')
 
     user_info = await db.get_user_info (user_id=cb.from_user.id)
-    # user_info = await db.get_user_info (user_id=5051573626)
+    # user_info = await db.get_user_info (user_id=5378481086)
     if date_str == 'today':
         # date_str = datetime.now(Config.tz).date().strftime(Config.day_form)
         date_str = get_today_date_str()

@@ -41,7 +41,8 @@ async def ref_order_2(cb: CallbackQuery, state: FSMContext):
         'order_id': order_id,
         'msg_id': cb.message.message_id,
         'msg_text': cb.message.text,
-        'msg_entities': cb.message.entities
+        'msg_entities': cb.message.entities,
+        'step': 'photo'
     })
     await cb.message.answer('Приложите фото отказного заказа', reply_markup=kb.get_close_kb())
 
@@ -49,12 +50,19 @@ async def ref_order_2(cb: CallbackQuery, state: FSMContext):
 #  принимает фото просит коммент
 @dp.message(StateFilter(DeliveryStatus.REFUSE))
 async def ref_order_3(msg: Message, state: FSMContext):
-    if msg.content_type == ContentType.PHOTO:
-        await state.update_data (data={'photo_id': msg.photo[-1].file_id})
-        await msg.answer ('Укажите причину отказа', reply_markup=kb.get_close_kb ())
+    data = await state.get_data()
+    if data['step'] == 'photo':
+        if msg.content_type == ContentType.PHOTO:
+            await state.update_data (data={'photo_id': msg.photo[-1].file_id})
+            await msg.answer ('Укажите причину отказа', reply_markup=kb.get_close_kb ())
+            await state.update_data(data={'step': 'text'})
+        else:
+            sent = await msg.answer('❗️ Приложите фото отказного заказа')
+            await sleep(3)
+            await sent.delete()
 
     elif msg.content_type == ContentType.TEXT:
-        data = await state.get_data()
+        # data = await state.get_data()
         await state.clear()
 
         await db.update_row_google (
@@ -89,6 +97,11 @@ async def ref_order_3(msg: Message, state: FSMContext):
             dlv_name=order_info.f,
             action=UserActions.REFUSE_ORDER.value,
             comment=f'ID: {data["order_id"]} ROW: {order_info.row_num}')
+
+    else:
+        sent = await msg.answer('❗️ Некорректный формат сообщения')
+        await sleep(3)
+        await sent.delete()
 
 
 #  принимает фото частичного отказа и закрывает заказ
