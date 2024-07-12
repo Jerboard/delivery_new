@@ -90,13 +90,15 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         p=data_dict.get ('Забрать'),
         q=data_dict.get ('Цена', 0),
         t=data_dict.get ('Доставка', 0),
+        r=0,
+        s=0,
+        y=0,
         w=data_dict.get ('Метро'),
         x=data_dict.get ('Адрес'),
         ab=data_dict.get ('Примечание'),
         ac=data ['comp_id'],
         type_update=TypeOrderUpdate.ADD_OPR.value
     )
-
     dlvs = await db.get_users(company=data ['comp_id'])
 
     sent_list = []
