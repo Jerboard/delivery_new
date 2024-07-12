@@ -348,11 +348,12 @@ async def pickup_order_2(cb: CallbackQuery, state: FSMContext):
         letter='del'
     )
     # order_text = get_order_text (order_info)
-    text = f'{user_info.name} забрал заказ:\n\n{order_info.w} {order_info.x}'.replace('None', '')
+    order_text = txt.get_order_text(order_info)
+    text = f'{user_info.name} <b>забрал</b> заказ:\n\n{order_text}'.replace('None', '')
     await bot.send_message (
         chat_id=order_info.user_id,
         text=text,
- )
+    )
     await cb.message.edit_reply_markup (reply_markup=kb.get_dlv_main_order_kb (order_id, order_info.g))
 
 
