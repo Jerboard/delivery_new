@@ -1,4 +1,5 @@
 from aiogram.types import ErrorEvent
+from aiogram.exceptions import TelegramBadRequest
 
 import db
 from init import dp, bot, log_error
@@ -11,7 +12,7 @@ async def errors_handler(ex: ErrorEvent):
     user_id = ex.update.message.chat.id if ex.update.message else 0
     await db.save_error(user_id, msg)
 
-    if user_id:
+    if user_id and not ex != TelegramBadRequest:
         await bot.send_message(
             chat_id=user_id,
             text='‼️ Что-то сломалось! Сообщите разработчикам, чтоб мы могли это исправить\n\n'

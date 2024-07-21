@@ -1,4 +1,5 @@
-from aiogram.types import InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardMarkup, Message
+from aiogram.fsm.context import FSMContext
 from random import choice
 from datetime import datetime
 

@@ -9,7 +9,7 @@ import db
 import keyboards as kb
 from config import Config
 from init import dp, bot
-from .base_dlv import save_expenses
+from .base_dlv import save_expenses, stop_state
 from data.base_data import expensis_dlv, letters
 from utils.base_utils import get_today_date_str
 from enums import DeliveryCB, DeliveryStatus, UserActions
@@ -36,7 +36,11 @@ async def expenses_dvl_2(cb: CallbackQuery, state: FSMContext):
 # принимает сумму
 @dp.message(StateFilter(DeliveryStatus.EXPENSES_3))
 async def expenses_dvl_3(msg: Message, state: FSMContext):
-    if msg.text.isdigit():
+    stop = await stop_state(msg)
+    if stop:
+        return
+
+    if msg.text and msg.text.isdigit():
         data = await state.get_data()
         ex_info = expensis_dlv[data['ex_id']]
 
@@ -64,6 +68,10 @@ async def expenses_dvl_3(msg: Message, state: FSMContext):
 # принимает фото или коммент по трате
 @dp.message(StateFilter(DeliveryStatus.EXPENSES_4))
 async def expenses_dvl_4(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
+
     if msg.content_type == ContentType.PHOTO:
         await state.update_data(data={'photo_id': msg.photo[-1].file_id})
 

@@ -10,7 +10,7 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
-from handlers.delivery_hnds.base_dlv import done_order
+from handlers.delivery_hnds.base_dlv import done_order, stop_state
 from handlers.operator_hnds.base_opr import send_opr_report_msg
 from data.base_data import work_chats
 from utils import local_data_utils as dt
@@ -50,6 +50,10 @@ async def ref_order_2(cb: CallbackQuery, state: FSMContext):
 #  принимает фото просит коммент
 @dp.message(StateFilter(DeliveryStatus.REFUSE))
 async def ref_order_3(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
+
     data = await state.get_data()
     if data['step'] == 'photo':
         if msg.content_type == ContentType.PHOTO:

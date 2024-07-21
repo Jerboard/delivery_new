@@ -1,15 +1,14 @@
-import asyncio
-import re
-
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from aiogram.filters import StateFilter
+from aiogram.exceptions import TelegramBadRequest
 from datetime import datetime
 
 import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
+from handlers.operator_hnds.base_opr import get_profile_opr
 from utils import local_data_utils as dt
 from utils.base_utils import get_today_date_str
 from data.base_data import company_dlv, order_status_data, work_chats
@@ -48,14 +47,20 @@ async def take_order_1(cb: CallbackQuery, state: FSMContext):
 
 @dp.message (StateFilter(OperatorStatus.TAKE_ORDER))
 async def take_order(msg: Message, state: FSMContext):
+    if msg.text and msg.text[0] == '/':
+        await get_profile_opr(user_id=msg.from_user.id)
+        return
     await msg.delete ()
     data = await state.get_data ()
-    await bot.edit_message_text (
-        text=msg.text,
-        chat_id=msg.chat.id,
-        message_id=data ['msg_id'],
-        reply_markup=kb.get_take_order_kb(role=UserRole.OPR.value)
-    )
+    try:
+        await bot.edit_message_text (
+            text=msg.text,
+            chat_id=msg.chat.id,
+            message_id=data ['msg_id'],
+            reply_markup=kb.get_take_order_kb(role=UserRole.OPR.value)
+        )
+    except TelegramBadRequest as ex:
+        pass
 
 
 # добавляет заказ и рассылает его курьерам
@@ -80,7 +85,7 @@ async def take_order_2(cb: CallbackQuery, state: FSMContext):
         row_num=last_row + 1,
         g=OrderStatus.NEW.value,
         # h=order_status_data.get(OrderStatus.TAKE.value),
-        h='забор',
+        h='Забор',
         j=get_today_date_str(),
         k=str(data_dict.get('Оператор')),
         l=data_dict.get('Партнер'),

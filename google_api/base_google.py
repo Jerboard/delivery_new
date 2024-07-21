@@ -326,46 +326,48 @@ async def update_google_row() -> None:
                     str(order.c) if order.c else '', str(order.d) if order.d else '',
                     str(order.e) if order.e else '', str(order.f) if order.f else '-',
                     order_status_data.get (order.g), str(order.h) if order.h else '',
-                    str(order.i) if order.i else '', str(order.j) if order.j else '',
-                    str(order.k) if order.k else '', str(order.l) if order.l else '',
-                    str(order.m) if order.m else '', str(order.n) if order.n else '',
-                    str(order.o) if order.o else '', str(order.p) if order.p else '',
-                    str (order.q) if order.q else '0', str (order.r) if order.r else '',
-                    str (order.s) if order.s else '', str (order.clmn_t) if order.clmn_t else '0',
-                    str (order.u) if order.u else '', str (order.v) if order.v else '',
-                    str(order.w) if order.w else '', str(order.x) if order.x else '',
-                    str(order.y) if order.y else '', str(order.z) if order.z else ''
+                    str(order.i).lower() if order.i else '', str(order.j).lower() if order.j else '',
+                    str(order.k).lower() if order.k else '', str(order.l).lower() if order.l else '',
+                    str(order.m).lower() if order.m else '', str(order.n).lower() if order.n else '',
+                    str(order.o).lower() if order.o else '', str(order.p).lower() if order.p else '',
+                    str (order.q).lower() if order.q else '0', str (order.r).lower() if order.r else '',
+                    str (order.s).lower() if order.s else '', str (order.clmn_t).lower() if order.clmn_t else '0',
+                    str (order.u).lower() if order.u else '', str (order.v).lower() if order.v else '',
+                    str(order.w).lower() if order.w else '', str(order.x).lower() if order.x else '',
+                    str(order.y).lower() if order.y else '', str(order.z).lower() if order.z else ''
                 ]
             ]
             sh.sheet1.update (cell, new_row_str)
+            sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
             if order.type_update == TypeOrderUpdate.STATE.value:
                 color = ug.choice_color(order.g)
                 cell_form = f'E{order.row_num}:G{order.row_num}'
                 sh.sheet1.format(cell_form, {"backgroundColor": color})
-                if order.ab:
-                    sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
 
             # изменяет стоимость заказа
             elif order.type_update == TypeOrderUpdate.EDIT_COST.value:
                 color = {"red": 1.0, "green": 0.0, "blue": 0.0}
-                sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
+                # sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
                 sh.sheet1.format(f'AB{order.row_num}', {"backgroundColor": color})
 
             # изменяет стоимость доставки
             elif order.type_update == TypeOrderUpdate.EDIT_COST_DELIVERY.value:
                 color = {"red": 2.0, "green": 0.0, "blue": 0.0}
-                sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
-                # sh.sheet1.format(f'T{order.row_num}', {"backgroundColor": color})
+                # sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
                 sh.sheet1.format(f'AB{order.row_num}', {"backgroundColor": color})
                 
             elif order.type_update == TypeOrderUpdate.ADD_OPR.value:
                 col = {"red": 0.0, "green": 1.0, "blue": 1.0}
-                sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
+                # sh.sheet1.update (f'AB{order.row_num}', [[order.ab]])
                 cell = f'J{order.row_num}:Z{order.row_num}'
                 sh.sheet1.format (cell, {"backgroundColor": col})
 
-            elif order.type_update == TypeOrderUpdate.UPDATE_ROW.value:
-                sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
+                color = ug.choice_color(order.g)
+                cell_form = f'E{order.row_num}:G{order.row_num}'
+                sh.sheet1.format(cell_form, {"backgroundColor": color})
+
+            # elif order.type_update == TypeOrderUpdate.UPDATE_ROW.value:
+            #     sh.sheet1.update(f'AB{order.row_num}', [[order.ab]])
 
             await db.update_row_google(order_id=order.id, update_row=True)
 

@@ -9,7 +9,7 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from config import Config
-from handlers.delivery_hnds.base_dlv import done_order
+from handlers.delivery_hnds.base_dlv import done_order, stop_state
 from utils import local_data_utils as dt
 from utils.base_utils import get_today_date_str
 from utils import text_utils as txt
@@ -193,6 +193,9 @@ async def edit_order_close_0(cb: CallbackQuery, state: FSMContext):
 # Закрытие заказа с изменениями. Запрос причины изменений
 @dp.message(StateFilter(DeliveryStatus.EDIT_ORDER_CLOSE_1))
 async def edit_order_close_1(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
 
     if msg.text.isdigit():
         data = await state.get_data()
@@ -219,6 +222,10 @@ async def edit_order_close_1(msg: Message, state: FSMContext):
 # Закрытие заказа с изменениями. Закрытие
 @dp.message(StateFilter(DeliveryStatus.EDIT_ORDER_CLOSE_2))
 async def edit_order_close_2(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
+
     data = await state.get_data()
     await state.clear()
 

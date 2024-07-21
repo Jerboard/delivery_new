@@ -9,6 +9,7 @@ import db
 import keyboards as kb
 from init import dp, bot, log_error
 from handlers.operator_hnds.base_opr import send_opr_report_msg
+from .base_dlv import stop_state
 from data.base_data import work_chats
 from enums import DeliveryCB, OrderStatus, CompanyDLV, UserActions, DeliveryStatus, TypeOrderUpdate
 
@@ -30,6 +31,10 @@ async def post_1(cb: CallbackQuery, state: FSMContext):
 # Изменяет заказ на отправлен
 @dp.message (StateFilter (DeliveryStatus.POST_ID))
 async def post_id(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
+
     data = await state.get_data ()
     await state.clear ()
 
@@ -77,6 +82,10 @@ async def post_2(cb: CallbackQuery, state: FSMContext):
 # принимает фото отменяет заказ
 @dp.message(StateFilter(DeliveryStatus.REFUSE_POST))
 async def refuse_post(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
+
     if msg.content_type != ContentType.TEXT:
         sent = await msg.answer('❗️ Отправьте причину отказа текстом')
         await asyncio.sleep(3)

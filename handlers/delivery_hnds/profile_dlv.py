@@ -5,7 +5,7 @@ from aiogram.filters import StateFilter
 import db
 import keyboards as kb
 from init import dp
-from .base_dlv import get_profile_dlv
+from .base_dlv import get_profile_dlv,stop_state
 from enums import DeliveryCB, DeliveryStatus
 
 
@@ -39,6 +39,10 @@ async def edit_dlv_name(cb: CallbackQuery, state: FSMContext):
 # смена имени курьера сохранение
 @dp.message(StateFilter(DeliveryStatus.EDIT_PROFILE))
 async def com_start(msg: Message, state: FSMContext):
+    stop = await stop_state(msg)
+    if stop:
+        return
+
     data = await state.get_data()
     await state.clear()
     await msg.delete()

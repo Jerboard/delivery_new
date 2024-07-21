@@ -12,8 +12,8 @@ DEBUG = bool(int(getenv('DEBUG')))
 class Config:
     if DEBUG:
         token = getenv ("TOKEN_TEST")
-        # db_url = getenv ('DB_URL')
-        db_url = getenv ('DB_URL_WORK')
+        db_url = getenv ('DB_URL')
+        # db_url = getenv ('DB_URL_WORK')
         bot_name = 'tushchkan_test_3_bot'
         host = getenv('HOST')
 

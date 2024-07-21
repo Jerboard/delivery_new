@@ -18,8 +18,8 @@ async def get_profile_opr(user_id: int, user_info: db.UserRow = None, msg_id: in
     if not user_info:
         user_info = await db.get_user_info (user_id)
 
-    # orders = await db.get_orders_statistic (opr_name=user_info.name, own_text=True)
-    orders = await db.get_orders_statistic (opr_name='21', own_text=True)
+    orders = await db.get_orders_statistic (opr_name=user_info.name, own_text=True)
+    # orders = await db.get_orders_statistic (opr_name='21', own_text=True)
     statistic_text = txt.get_statistic_text (orders)
     text = f'{user_info.name}\n\n{statistic_text}'
 
