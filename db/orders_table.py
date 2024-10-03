@@ -316,6 +316,14 @@ async def update_multi_orders(
         await conn.execute(query)
 
 
+# обновляет несколько заказов
+async def hard_order_update() -> None:
+    query = OrderTable.update ().values (updated=True)
+
+    async with begin_connection() as conn:
+        await conn.execute(query)
+
+
 # возвращает строки таблицы
 async def get_orders(
         user_id: int = None,

@@ -47,7 +47,10 @@ async def change_tab_2(msg: Message, state: FSMContext):
                 update_table = False
             else:
                 try:
-                    await sent.edit_text (f'⏳ Ожидает внесения изменений. Примерно {wait_updates * 3} с.')
+                    await sent.edit_text (
+                        text=f'⏳ Ожидает внесения изменений. Примерно {wait_updates * 3} с.',
+                        reply_markup=kb.get_hard_update_kb()
+                    )
                 except:
                     pass
                 await sleep(3)
@@ -75,6 +78,12 @@ async def change_tab_2(msg: Message, state: FSMContext):
     else:
         await sent.delete()
         await msg.answer('‼ Произошла ошибка. Неправильный номер таблицы или ошибка доступа')
+
+
+# ставит все заказы в статус обновлено
+@dp.callback_query(lambda cb: cb.data.startswith(OwnerCB.HARD_UPDATE.value))
+async def hard_update(cb: CallbackQuery):
+    await db.hard_order_update()
 
 
 # обновляет таблицу update_table

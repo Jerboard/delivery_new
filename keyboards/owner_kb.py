@@ -22,6 +22,13 @@ def main_owner_kb() -> InlineKeyboardMarkup:
     return kb.adjust(1, 1, 2).as_markup()
 
 
+# Владелец для заказов на руках
+def get_hard_update_kb() -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    kb.button(text='Принудительно обновить', callback_data=f'{OwnerCB.HARD_UPDATE.value}')
+    return kb.adjust(1).as_markup()
+
+
 # список курьерских для добавления курьера
 def get_add_dlv_comp_kb(role: str) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()

@@ -26,6 +26,7 @@ class OwnerCB(str, Enum):
     TRANS_ORDER_1 = 'own_trans_order_1'
     TRANS_ORDER_2 = 'own_trans_order_2'
     BACK_FREE = 'own_free_back_order'
+    HARD_UPDATE = 'own_hard_update'
 
 
 class DeliveryCB(str, Enum):
